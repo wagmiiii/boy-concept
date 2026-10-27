@@ -6,7 +6,18 @@ Status and progress: [ROADMAP.md](ROADMAP.md). Start there.
 
 ## Stack
 
-Astro 6 (static) served by one Cloudflare Worker (Hono) with D1 for enquiries, Resend for email and Turnstile for bot protection. Node 22 or newer. Setup commands arrive with task P-1.
+Astro 6 (static) served by one Cloudflare Worker (Hono) with D1 for enquiries, Resend for email and Turnstile for bot protection. Node 22 or newer. The workspaces exist in spike form from task S-1: no Tailwind, no Preact, no content collections and no real API yet. Task P-1 fills them in.
+
+## Running what exists today
+
+```
+npm install
+npm run build        # the Astro site into web/dist
+npm run dev:worker   # wrangler dev: serves web/dist and routes /api/* to Hono
+npm run typecheck
+```
+
+`npm test` and `npm run lint` do not exist yet: Vitest and ESLint arrive at P-1 and B-1. Never deploy to production; the test deploy comes with task P-20.
 
 ## Docs
 

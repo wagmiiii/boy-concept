@@ -4,9 +4,9 @@ Where everything lives and why. Read this before creating, moving or deleting a 
 
 | | |
 |---|---|
-| Last updated | 2026-10-26 |
-| Structure version | 0.4 |
-| Status | Planned layout. Only the files marked "exists" are real today. Everything else is created when its ROADMAP task is started |
+| Last updated | 2026-10-27 |
+| Structure version | 0.5 |
+| Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. `web`, `worker` and `shared` arrived early via S-1 and are spike-minimal: no Tailwind, no Preact, no content collections, no API beyond the spike routes |
 
 ## Update rule (mandatory, applies to humans and agents)
 
@@ -52,10 +52,10 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 ├── ROADMAP.md                         (exists) status, tasks, gates, progress log. Updated on every contribution
 ├── PROJECT_STRUCTURE.md               (exists) this file
 ├── .gitignore                         (exists)
-├── .nvmrc                             (P-1) Node 22
-├── package.json                       (P-1) npm workspaces and root scripts
-├── package-lock.json                  (P-1)
-├── tsconfig.base.json                 (P-1) shared strict TypeScript settings
+├── .nvmrc                             (exists, S-1) Node 22
+├── package.json                       (exists, S-1) npm workspaces web, worker, shared and root scripts
+├── package-lock.json                  (exists, S-1)
+├── tsconfig.base.json                 (exists, S-1) shared strict TypeScript settings
 ├── eslint.config.js                   (P-1)
 │
 ├── .github/
@@ -70,7 +70,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │   ├── ARCHITECTURE_ESSENTIALS.md     (exists) short outline for agents
 │   ├── DESIGN.md                      (exists) visual design system built from the supplied logo
 │   ├── spikes/
-│   │   └── stack-spike.md             (S-4) results of the stack checks
+│   │   └── stack-spike.md             (exists, S-1 in progress) results of the stack checks, S-4 completes it
 │   └── research/                      inputs that are NOT verified
 │       ├── boy-concept-brief.md       (exists) the original research brief, labeled unverified
 │       └── reference-site-notes.md    (exists) notes on directorengineer.framer.media
@@ -90,10 +90,11 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │   ├── PLACEHOLDERS.md                (exists) register of every bracketed placeholder
 │   └── verification-log.md            (exists) claim, source, date, who verified
 │
-├── web/                               (P-1) Astro 6 site, static output
-│   ├── package.json
-│   ├── astro.config.mjs
-│   ├── tsconfig.json
+├── web/                               (exists, S-1) Astro 6 site, static output
+│   ├── package.json                   (exists, S-1)
+│   ├── astro.config.mjs               (exists, S-1) static output, no adapter
+│   ├── tsconfig.json                  (exists, S-1)
+│   ├── dist/                          build output, gitignored, what the Worker assets binding serves
 │   ├── public/
 │   │   ├── _headers                   (B-11) security headers and CSP
 │   │   └── robots.txt                 (P-20) noindex on the test environment
@@ -112,39 +113,41 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       ├── components/                (P-2 onward) Nav, Hero, Showreel, PortfolioGrid, ProjectCard, Credentials, Services, Process, Faq, Footer (.astro)
 │       │   └── EnquiryForm.tsx        (P-12) the only Preact island
 │       └── pages/
-│           ├── index.astro            (P-2)
+│           ├── index.astro            (exists, S-1) spike page only, replaced by the real layout at P-2
+│           ├── 404.astro              (P-2) so the assets `not_found_handling` has a page to serve (D19)
 │           ├── projects/[slug].astro  (P-7)
 │           └── privacy.astro          (L-4)
 │
-├── shared/                            (P-11) pure code imported by web and worker
+├── shared/                            (exists, S-1) pure code imported by web and worker. The package.json is here so the workspace resolves; the code lands at P-10 and P-11
+│   ├── package.json                   (exists, S-1)
 │   ├── whatsapp.ts                    (P-11) message and wa.me URL builders
 │   ├── whatsapp.test.ts               (P-11)
 │   └── site-config.ts                 (P-10) owner WhatsApp digits and site origin
 │
-├── worker/                            (1) Cloudflare Worker: Hono API plus the static build as assets
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── wrangler.toml                  assets directory points at ../web/dist
-│   ├── vitest.config.ts
+├── worker/                            (exists, S-1) Cloudflare Worker: Hono API plus the static build as assets. Today it holds only the spike routes
+│   ├── package.json                   (exists, S-1)
+│   ├── tsconfig.json                  (exists, S-1)
+│   ├── wrangler.toml                  (exists, S-1) assets directory ../web/dist, binding ASSETS, run_worker_first ["/api/*"]
+│   ├── vitest.config.ts               (B-1)
 │   ├── .dev.vars.example              (B-2) names of variables, no values
 │   ├── migrations/
 │   │   └── 0001_init.sql              (B-7) enquiry table
 │   ├── src/
-│   │   ├── index.ts                   Hono app, route wiring
-│   │   ├── config.ts                  typed env access
-│   │   ├── schema.ts                  Zod schema for POST /api/enquiries
+│   │   ├── index.ts                   (exists, S-1) Hono app: spike routes and a catch-all scoped per D19 at B-1
+│   │   ├── config.ts                  (B-2) typed env access
+│   │   ├── schema.ts                  (B-3) Zod schema for POST /api/enquiries
 │   │   ├── routes/
-│   │   │   └── enquiries.ts
+│   │   │   └── enquiries.ts           (B-10)
 │   │   └── lib/
-│   │       ├── db.ts                  the only file that knows D1
-│   │       ├── notify.ts              Resend email
-│   │       ├── phone.ts               libphonenumber-js wrapper
-│   │       ├── ref.ts                 reference code generator
-│   │       └── turnstile.ts
+│   │       ├── db.ts                  (B-8) the only file that knows D1
+│   │       ├── notify.ts              (B-9) Resend email
+│   │       ├── phone.ts               (B-3) libphonenumber-js wrapper
+│   │       ├── ref.ts                 (B-4) reference code generator
+│   │       └── turnstile.ts           (B-5)
 │   └── test/
-│       ├── phone.test.ts
-│       ├── ref.test.ts
-│       └── schema.test.ts
+│       ├── phone.test.ts              (B-3)
+│       ├── ref.test.ts                (B-4)
+│       └── schema.test.ts             (B-3)
 │
 ├── cms/                               (K) Sanity studio and notes. Created only if Q13 is yes
 │
@@ -169,12 +172,19 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | .github/CODEOWNERS | Review ownership | exists | Reviewers change |
 | .github/pull_request_template.md | PR checklist, including the living-docs updates | exists | The checklist or a hard rule changes |
 | .github/workflows/ci.yml | Enforces ROADMAP and PROJECT_STRUCTURE updates, later lint, typecheck, tests and build | exists | A check is added or changed |
+| package.json, package-lock.json | npm workspaces (web, worker, shared) and root scripts | exists (S-1) | A workspace or root script is added |
+| tsconfig.base.json | The strict TypeScript settings every workspace extends | exists (S-1) | A strictness rule changes |
+| .nvmrc | The Node version the project expects | exists (S-1) | The Node floor changes |
+| web/astro.config.mjs | Static output, no SSR adapter, and later `site` | exists (S-1) | The build target changes |
+| worker/wrangler.toml | The one Worker: assets binding plus run_worker_first | exists (S-1) | Routing, compatibility date or bindings change (D17, D19) |
+| worker/src/index.ts | Spike routes today; Hono route wiring at B-1 | exists (S-1) | A route is added |
+| shared/package.json | Makes `shared` a resolvable workspace | exists (S-1) | The shared entry points are declared at P-10 |
 | docs/PRD.md | Product requirements | exists | A requirement, scope item or open question changes |
 | docs/ARCHITECTURE.md | Design and decision log | exists | A technical decision changes |
 | docs/ARCHITECTURE_ESSENTIALS.md | Agent outline | exists | ARCHITECTURE.md changes a rule, endpoint or data name |
 | docs/DESIGN.md | Colors, type, spacing, components, logo rules | exists | A visual rule changes, or the logo or brand is confirmed or replaced |
 | assets/brand/* | Logo and brand files | exists | The logo is replaced or a brand file is added |
-| docs/spikes/stack-spike.md | Results of the stack checks | S-4 | Spike results change |
+| docs/spikes/stack-spike.md | Results of the stack checks | exists (S-1) | Spike results change |
 | docs/research/* | Unverified inputs, kept for reference | exists | Rarely. Never promote content from here without a verification-log entry |
 | pitch/* | Material for the pitch | D | The pitch changes |
 | content/copy.md | Source for all site text | exists | Copy changes. Edit here first, then update the pages |
@@ -224,7 +234,7 @@ Removed by the stack change: the Framer copy of the message builder and the Fram
 - `/content` is the only place where unverified claims may exist, and they must be bracketed. Rendered content in `web/src/content` must be verified.
 - `/assets` holds brand files only. The 2.4 MB original is an archive and is never loaded on the site.
 - `/docs/research` is never read as fact by an agent.
-- `repo-setup.sh` is a one-time tool kept outside the repo. It is not part of this structure.
+- There is no setup script in this repo or outside it. F-6 was completed by hand on 2026-10-27. Do not write one.
 - Do not commit: secrets, `.dev.vars`, `node_modules`, `dist`, `.astro`, `.wrangler`, personal data from real enquiries.
 
 ## Structure change log
@@ -233,6 +243,7 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-10-27 | Agent (Qoder) | Deleted the root `ARCHITECTURE.md`, a byte-identical copy of `docs/ARCHITECTURE.md`; docs/ is the single source. Added the real scaffold ahead of its tasks: root `package.json`, `package-lock.json`, `tsconfig.base.json`, `.nvmrc`, `web/` (Astro static config, tsconfig, spike `index.astro`), `worker/` (Hono spike `index.ts`, `wrangler.toml`, tsconfig), `shared/package.json` (new line: needed to make shared a workspace), `docs/spikes/stack-spike.md`. Planned `web/src/pages/404.astro` for P-2 (D19). Removed the false `repo-setup.sh` line from the directory rules | F-6, F-7, S-1, D19 |
 | 2026-10-26 | Agent (Claude) | Stack changed from Framer to Astro, Worker and D1. Replaced `/framer` with `/web`, added `/shared/site-config.ts`, `worker/migrations`, conditional `/cms`. Removed the Framer spike file and the duplicated message builder and tokens | F-10 |
 | 2026-10-10 | Agent (Claude) | Added docs/DESIGN.md and assets/brand (logo original and web version); planned flat wordmark, favicon and social image | F-9, P-21 |
 | 2026-10-06 | Agent (Claude) | Created README, .gitignore, CODEOWNERS, PR template, CI workflow, content skeletons and research notes; marked them as existing | F-6, F-7, F-8 |
