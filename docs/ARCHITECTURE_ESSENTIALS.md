@@ -1,6 +1,6 @@
 # ARCHITECTURE_ESSENTIALS
 
-Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.7.
+Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.8.
 
 ## What this is
 - Booking and showcase site for Boy Concept (Alpha Movies Ltd). The enquiry flow and the credibility layer are the product.
@@ -51,6 +51,7 @@ Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECT
 16. Unverified content renders as a neutral block labelled DEMO, never as a claim: no client name, no stat, no price, no credential (D23). Bracketed placeholders stay out of anything presented as verified.
 17. Never invent a fact. Where a task needs a sentence the client has not written, the builder may draft one only under D25: no claim a verification row would not back, alternatives recorded in `content/copy.md`, and an open row in `content/PLACEHOLDERS.md` so launch stays blocked until the client approves it. Prices, RC numbers, credentials, client names and stats are never drafted, only bracketed.
 18. Component JavaScript must ship as an external file, never inline. Astro 7 inlines small component scripts and the CSP then blocks them, so `vite.build.assetsInlineLimit: 0` stays in `web/astro.config.mjs` (D26). Never solve a script CSP violation with `unsafe-inline`, a hash or a nonce.
+19. Responsive utilities use only the DESIGN section 5 breakpoints: `md` 768, `lg` 1200, `xl` 1440. The Tailwind scale is reset to those in `global.css`, so `sm:`, `xs:` and `2xl:` emit nothing and a test fails the run if one appears (D27). Gutters and the container come from `.container-site`, never from a per-section `px-*`.
 
 ## Env vars and bindings
 - Worker: binding `DB`, `TURNSTILE_SECRET`, `RESEND_API_KEY`, `OWNER_EMAILS`, `ALLOWED_ORIGIN`.

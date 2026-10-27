@@ -7,7 +7,7 @@ Status: skeleton copy in place since P-2 (nav labels, 404 page, footer and form 
 ## Nav
 
 - Brand text: Boy Concept (interim while Q12 is open, see decision D24)
-- Links: Showreel, Portfolio, Services, FAQ
+- Links: Showreel, Work, Services, FAQ (the nav said Portfolio until P-25; it now prints the same word the section itself prints)
 - Primary button: Check a date
 - Mobile disclosure label: Menu
 
@@ -32,7 +32,9 @@ Status: skeleton copy in place since P-2 (nav labels, 404 page, footer and form 
 - Data line (built at P-4): "Nothing loads until you press play. The reel is 16:9 and the player is created on tap, so the page never spends your data on a video you did not ask for." Builder drafted, not approved. It claims nothing about the business, only what the page does, but C-10 rewrites it or cuts it once the reel is real.
 - Placeholder text drawn inside the poster and the clip: "DEMO REEL" and "Placeholder motion. Not client work." These are pixels in `demo-reel-poster.webp` and `demo-reel.mp4`, not strings in a component, so C-2 replaces them by replacing the files rather than by an edit here.
 
-## Portfolio
+## Work
+
+This section is called Work everywhere a visitor reads it, the nav and the eyebrow alike (P-25). The component is still `PortfolioGrid.astro` and DESIGN.md still calls the card a portfolio card, which is internal naming.
 
 - Eyebrow: Work
 - Title: [write at C-10]
