@@ -228,6 +228,11 @@
     pointer-events: none;
   }
 
+  /* Once a frame is playing media rather than a poster, the gradient would dim the player. */
+  .poster-frame[data-playing]::after {
+    content: none;
+  }
+
   /* Roadmap: content that is layout only and carries no verified claim. */
   .demo-tag {
     @apply inline-flex items-center rounded-full border border-line text-small uppercase text-text-muted;

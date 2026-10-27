@@ -1,7 +1,16 @@
 ---
-// DESIGN.md section 7 Showreel. FR-2: poster first, video only on tap. The poster file and the
-// video are not verified or supplied yet, and the tap behaviour is task P-4, so this is the
-// 16:9 shell with the specified play control and nothing that loads media.
+// DESIGN.md section 7 Showreel, and FR-2: a 16:9 poster first, and the player created only on
+// tap, so a visitor on mobile data decides when to spend the bytes.
+//
+// C-2 has not delivered footage. Until it does the tap plays a stand-in card the builder rendered
+// with ffmpeg, /media/demo-reel.mp4, and the poster and the clip itself both say it is a
+// placeholder (D23). Setting YOUTUBE_ID switches the tap to a youtube-nocookie embed instead,
+// which is where the real reel will live; that origin is already in the CSP frame-src, and the id
+// moves to shared/site-config.ts with the rest of the site settings at P-10.
+import { Image } from "astro:assets";
+import poster from "../assets/media/demo-reel-poster.webp";
+
+const YOUTUBE_ID = "";
 ---
 
 <section
@@ -13,20 +22,69 @@
     <h2 class="font-display text-h2">[Showreel heading, written at C-10]</h2>
   </div>
 
-  <div class="poster-frame flex items-center justify-center">
-    <span
-      class="relative z-10 flex size-18 items-center justify-center rounded-full border-[1.5px] border-gold"
-      aria-hidden="true"
+  <div
+    class="poster-frame flex items-center justify-center"
+    data-reel
+    data-youtube={YOUTUBE_ID || null}
+  >
+    <!-- The placeholder label is drawn into the poster and the clip rather than sitting on top as
+    a DOM tag, so it survives at every width and does not have to be removed again for the player. -->
+    <Image
+      src={poster}
+      widths={[640, 1280]}
+      sizes="(max-width: 767px) 100vw, 1136px"
+      alt="Showreel poster. Placeholder artwork, not client work"
+      class="absolute inset-0 z-0 size-full object-cover"
+    />
+
+    <button
+      type="button"
+      data-reel-play
+      class="group relative z-10 flex size-18 items-center justify-center rounded-full border-[1.5px] border-gold transition-colors"
     >
-      <svg class="ml-1 size-6 text-gold" viewBox="0 0 24 24" fill="currentColor">
+      <span class="sr-only">Play the showreel</span>
+      <svg class="ml-1 size-6 text-gold" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M8 5.5v13l11-6.5z" />
       </svg>
-    </span>
-    <p class="demo-tag absolute bottom-4 left-4 z-10">DEMO: media arrives at P-4</p>
+    </button>
   </div>
 
   <p class="max-w-[60ch] text-body text-text-muted">
-    No media loads here yet. The poster image renders first and the player is created only on
-    tap, so a visitor on mobile data never downloads a video they did not ask for.
+    Nothing loads until you press play. The reel is 16:9 and the player is created on tap, so the
+    page never spends your data on a video you did not ask for.
   </p>
 </section>
+
+<script>
+  // One listener, and the player element is created inside it, which is what keeps FR-2 honest:
+  // the poster is an <img> and nothing points at the video until a visitor presses play.
+  const frame = document.querySelector<HTMLElement>("[data-reel]");
+
+  frame?.querySelector("[data-reel-play]")?.addEventListener("click", () => {
+    const youtubeId = frame.dataset.youtube;
+    let media: HTMLElement;
+
+    if (youtubeId) {
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(youtubeId)}?autoplay=1&rel=0`;
+      iframe.allow = "autoplay; encrypted-media; picture-in-picture";
+      iframe.allowFullscreen = true;
+      iframe.title = "Showreel";
+      media = iframe;
+    } else {
+      const video = document.createElement("video");
+      video.src = "/media/demo-reel.mp4";
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      media = video;
+    }
+
+    media.className = "absolute inset-0 z-0 size-full bg-black object-cover";
+    // The section 6 bottom gradient exists to keep the label readable over a poster. Over a
+    // playing video it would sit on top of the player chrome.
+    frame.dataset.playing = "true";
+    frame.replaceChildren(media);
+    media.focus();
+  });
+</script>

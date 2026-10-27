@@ -2,7 +2,7 @@
 
 Single source for all site text. Edit here first, get it approved, then update the pages in `web/src`. Never invent claims. Anything not yet confirmed stays in [brackets] and is listed in `PLACEHOLDERS.md`.
 
-Status: skeleton copy in place since P-2 (nav labels, 404 page, footer and form labels). Since P-3 the hero carries two builder-drafted lines: they read as finished copy but no one at Alpha Movies has approved them, so they are listed as open placeholders and C-10 or Q1 replaces them. The approved sentences, headlines and answers are written at task C-10 from the client's answers. Until then the pages render bracketed placeholders and DEMO blocks, and they are not shareable with Emmanuel's clients.
+Status: skeleton copy in place since P-2 (nav labels, 404 page, footer and form labels). Since P-3 the hero carries two builder-drafted lines: they read as finished copy but no one at Alpha Movies has approved them, so they are listed as open placeholders and C-10 or Q1 replaces them. P-4 added one more drafted line, the showreel sentence about nothing loading until play, plus the poster alt text; both are in the Showreel section below and both are unapproved. The approved sentences, headlines and answers are written at task C-10 from the client's answers. Until then the pages render bracketed placeholders and DEMO blocks, and they are not shareable with Emmanuel's clients.
 
 ## Nav
 
@@ -26,6 +26,11 @@ Status: skeleton copy in place since P-2 (nav labels, 404 page, footer and form 
 
 - Eyebrow: Showreel
 - Title: [write at C-10]
+- Poster alt text (built at P-4): "Showreel poster. Placeholder artwork, not client work". It describes the stand-in poster and changes when C-2 delivers the real frame, so it is scaffolding that names a file, not approved copy.
+- Play control label (built at P-4, screen readers only): "Play the showreel"
+- Player title, set only when `YOUTUBE_ID` is configured: "Showreel"
+- Data line (built at P-4): "Nothing loads until you press play. The reel is 16:9 and the player is created on tap, so the page never spends your data on a video you did not ask for." Builder drafted, not approved. It claims nothing about the business, only what the page does, but C-10 rewrites it or cuts it once the reel is real.
+- Placeholder text drawn inside the poster and the clip: "DEMO REEL" and "Placeholder motion. Not client work." These are pixels in `demo-reel-poster.webp` and `demo-reel.mp4`, not strings in a component, so C-2 replaces them by replacing the files rather than by an edit here.
 
 ## Portfolio
 
@@ -89,10 +94,11 @@ Status: skeleton copy in place since P-2 (nav labels, 404 page, footer and form 
 
 These lines exist to tell us, not a visitor, what is not built yet. They are inside the DEMO blocks and they go when the real content arrives (task P-24).
 
-- "DEMO: media arrives at P-4"
-- "DEMO poster"
 - "The chips are disabled: filtering needs the verified projects, and that is task P-6."
+- "DEMO poster" (the label inside each portfolio card; the showreel no longer prints one, its label is drawn into the poster and the clip)
 - "Verified items only. Source note lives in content/verification-log.md."
 - "This section hides entirely while it holds fewer than [N] verified items (FR-26, P-8)."
 - "The fields are a list, not a working form yet. The island arrives at P-12 with validation, the confirmation screen and the WhatsApp handoff."
 - "The link goes live at P-15 and works without JavaScript."
+- "Nothing loads until you press play. The reel is 16:9 and the player is created on tap, so the page never spends your data on a video you did not ask for." (added at P-4. It goes with the stand-in media at C-2, which is what DESIGN section 13 item 8 says; P-24 stays the task that clears whatever scaffolding is left)
+- "Showreel poster. Placeholder artwork, not client work" (the poster alt text, replaced when C-2 delivers the real frame)

@@ -1,6 +1,6 @@
 # DESIGN: Alpha Movies Booking and Showcase Site
 
-Status: Draft v0.5 (P-3 findings: the hero is built, its logo is the LCP element and needs `fetchpriority`, the section 8 twinkle is CSS-only in `Hero.astro`, and the headline is a builder draft under D25) | Date: 2026-10-27 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
+Status: Draft v0.6 (P-4 findings: the showreel tap is wired and its script must ship external (D26), the placeholder label belongs in the artwork not on top of it, and the section 6 poster gradient has to come off once a player is in the frame) | Date: 2026-10-27 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
 
 Everything visual in the site comes from here. If a value is not in this file, ask before inventing one. Colors were sampled from the logo file, not from a brand guide, so they are provisional until Emmanuel confirms the logo is current (ROADMAP D-9).
 
@@ -193,6 +193,12 @@ Built at P-3 in `web/src/components/Hero.astro`, centered. Two implementation no
 
 16:9 container, poster first, a centered play control, video created on tap. The play control is a 72 px circle with a 1.5 px `--gold` ring and a gold triangle.
 
+Built at P-4. Three implementation notes:
+
+- The placeholder label is drawn into the poster artwork and into the clip, not bolted on as a `.demo-tag` pill. A pill over a 335 x 188 px frame at 390 px wrapped to two lines and covered a fifth of the image. The in-artwork label scales with the frame and disappears with the poster when the player replaces it, which is also what keeps it off the playing controls.
+- The section 6 bottom gradient is suppressed once the frame carries a player (`[data-playing]`), because it exists to keep text readable over a poster and would otherwise sit on top of the native controls.
+- Until C-2 delivers footage the tap plays `web/public/media/demo-reel.mp4`, a 7 second silent card the builder rendered with ffmpeg (50 kB, poster 16 kB). It says "DEMO REEL" and "Placeholder motion. Not client work." in the frame. Setting `YOUTUBE_ID` in `Showreel.astro` switches the same tap to the youtube-nocookie player, so real footage is a config change and not a rebuild.
+
 ### Portfolio card
 
 16:9 poster, category chip top left, title below in H3. The chip is an outlined pill (`--gold` text, 1 px `--gold` border at 60% opacity). Hover per section 6. No auto-playing previews on touch devices.
@@ -245,6 +251,7 @@ Implemented at P-3, the twinkle only (scroll reveal waits until the sections hol
 - Posters and stills are the color on the page. Do not tint them gold.
 - Icons are 1.5 px stroke line icons, 24 px grid, currentColor. The sparkle star (four-point) is the only filled glyph, used as a bullet or section marker at 12 to 16 px in `--gold`.
 - Real work only. No stock footage and no AI-generated stand-ins for client work.
+- One exception, recorded because Ademola chose it on 2026-10-27 at P-4: the showreel plays a silent title card the builder rendered locally (ffmpeg, gold on black, the words "DEMO REEL" and "Placeholder motion. Not client work." inside the frame). It is the product's own artwork, not a stand-in for a specific job, and it is labelled in the image rather than in a caption, so it cannot be mistaken for client work at any size or in a screenshot. It is on P-24's removal list and leaves the moment C-2 delivers footage. Stock footage, AI imagery and unlabelled stills stay barred.
 - Every project image needs the client's permission (CMS `publish_ok`).
 
 ## 10. Voice
@@ -273,6 +280,8 @@ When a sentence is not approved yet, decision D25 in ARCHITECTURE allows the bui
 - Button height is 52 px, becoming 48 px from the 768 px breakpoint, so a hand-written rule, not a utility. Same for the 1.5 px secondary border, the chip outline (gold at 60% through `color-mix`, with a `transparent` fallback declared first), and the poster bottom gradient in section 6, which uses `var(--bg)` rather than a second copy of black.
 - Section anchors get `scroll-margin-top` equal to the nav height (64 px, 72 px from 768 px) in the base layer, so "Check a date" does not bury the heading under the sticky nav. Verified at P-3 at 730 px wide: both hero CTAs land their section 64 px from the top, with the heading below the 65 px nav. The 72 px desktop offset is the same rule at the other breakpoint and was not re-measured.
 - The hero sparkle flares are the one motion spec that lives in a component rather than `global.css`, in a scoped `<style>` block in `Hero.astro`, because no other section uses them. Astro inlines a style block that small directly into the HTML head instead of emitting a CSS file, so the rules are in the served document and can be checked there.
+- The showreel tap is the site's only client script, and it must arrive as a file. Astro 7 inlines a small component `<script>` into the page, `script-src 'self'` then refuses to run it, and the button does nothing with only a console violation to show for it. `vite.build.assetsInlineLimit: 0` in `web/astro.config.mjs` keeps it external (decision D26). `style-src 'unsafe-inline'` is a different matter and stays: the Fonts API and Astro's scoped styles both inject inline `<style>`.
+- Posters go through Astro's image pipeline (`web/src/assets/media`), video does not and is served untouched from `web/public/media`. The poster renders at 640 and 1280 widths from one 16 kB source, and the browser picks by `sizes`, so a phone downloads 4 kB rather than the original.
 - If a token changes, change this file and `tokens.css` in the same pull request.
 
 ## 13. Open items
@@ -286,3 +295,4 @@ When a sentence is not approved yet, decision D25 in ARCHITECTURE allows the bui
 | 5 | Validate that gold stays under about 10% of a viewport on the built pages | Ademola | P-17 |
 | 6 | Section 2 rule 4 (the 3D logo is never below 220 px wide) and section 7 (the nav is 64 px tall) are geometrically incompatible. P-2 resolved it by putting text in the nav. Revisit when the flat wordmark exists, and confirm the interim nav treatment is acceptable | Ademola, Emmanuel | P-21, Q12 |
 | 7 | Approve or replace the hero headline. P-3 built it with the builder's draft "Shot for the occasion" under D25; two alternatives are in `content/copy.md`. The page reads as finished copy while no one at Alpha Movies has chosen it | Emmanuel | D-7, P-3, PLACEHOLDERS |
+| 8 | Replace the showreel stand-in. P-4 built the poster-first tap and, at Ademola's call, pointed it at a labelled placeholder card so the demo plays. Real poster and video arrive at C-2, then the `YOUTUBE_ID` is set or the file swapped, and the stand-in is deleted with the rest of the scaffolding text | Emmanuel, Agent | C-2, P-24, section 9 exception |

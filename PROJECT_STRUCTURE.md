@@ -6,7 +6,7 @@ Where everything lives and why. Read this before creating, moving or deleting a 
 |---|---|
 | Last updated | 2026-10-27 |
 | Structure version | 0.8 |
-| Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. Since P-1 the `web` workspace is a normal Astro 7 site with Tailwind v4, the Preact integration, the Fonts API, the design tokens and a base layout, and since P-2 it has the ten section components, the real page order, a 404 page and the assets `not_found_handling` that goes with it; `shared` is still an empty workspace until P-10 and P-11, and `worker` still holds only the spike routes |
+| Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. Since P-1 the `web` workspace is a normal Astro 7 site with Tailwind v4, the Preact integration, the Fonts API, the design tokens and a base layout, and since P-2 it has the ten section components, the real page order, a 404 page and the assets `not_found_handling` that goes with it; `shared` is still an empty workspace until P-10 and P-11, and `worker` still holds only the spike routes. P-3 built the hero and P-4 wired the showreel, which is now the one component that ships JavaScript |
 
 ## Update rule (mandatory, applies to humans and agents)
 
@@ -92,15 +92,19 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │
 ├── web/                               (exists, S-1) Astro 7 site, static output
 │   ├── package.json                   (exists, S-1) astro, @astrojs/preact and preact pinned exactly (D22)
-│   ├── astro.config.mjs               (exists, S-1) static output, no adapter. P-1 added the Tailwind v4 vite plugin, the Preact integration and the two font families
+│   ├── astro.config.mjs               (exists, S-1) static output, no adapter. P-1 added the Tailwind v4 vite plugin, the Preact integration and the two font families. P-4 added `vite.build.assetsInlineLimit: 0` so component scripts stay external files (D26)
 │   ├── tsconfig.json                  (exists, S-1)
 │   ├── dist/                          build output, gitignored, what the Worker assets binding serves
 │   ├── public/                        (exists, S-3)
 │   │   ├── _headers                   (exists, S-3) CSP and security headers. Verified to govern asset responses and asset redirects only, never /api/* (D21). P-1 dropped the Google Fonts origins because the Fonts API self-hosts
+│   │   ├── media/                     (exists, P-4) video files, served as they are with no build step
+│   │   │   └── demo-reel.mp4          (exists, P-4) 7 s, 1280 x 720, 50 kB, silent. The labelled stand-in the showreel plays until C-2 delivers footage
 │   │   └── robots.txt                 (P-20) noindex on the test environment
 │   └── src/
 │       ├── assets/brand/              (exists, P-1) web-ready logo and poster images
 │       │   └── alpha-movies-logo.webp (exists, P-1) 1600 x 760, moved here from assets/brand so Astro optimizes it
+│       ├── assets/media/              (exists, P-4) stills that go through Astro's image pipeline
+│       │   └── demo-reel-poster.webp  (exists, P-4) 1920 x 1080, 16 kB, the showreel poster. Build output picks 640 and 1280 widths from it
 │       ├── styles/
 │       │   ├── tokens.css             (exists, P-1) the only implementation of the DESIGN.md tokens, plus the section 8 motion values
 │       │   ├── global.css             (exists, P-1) Tailwind v4 entry, the `@theme inline` map, the type scale, base styles and the shared component classes (P-2)
@@ -115,7 +119,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       ├── components/                (exists, P-2) the section shells, all .astro
 │       │   ├── Nav.astro                (exists, P-2) sticky bar, text brand, desktop links, mobile details menu, Check a date
 │       │   ├── Hero.astro               (exists, P-2) logo, headline, supporting line, both CTAs
-│       │   ├── Showreel.astro           (exists, P-2) 16:9 shell with the specified play control, no media yet
+│       │   ├── Showreel.astro           (exists, P-2) 16:9 poster, play button, and the tap that creates the player (P-4). The one component with a script
 │       │   ├── PortfolioGrid.astro      (exists, P-2) category chips (inert until P-6) and three DEMO cards
 │       │   ├── ProjectCard.astro        (exists, P-2) 16:9 poster, category chip, H3 title
 │       │   ├── Credentials.astro        (exists, P-2) DEMO cards showing the verified-only treatment
@@ -214,7 +218,9 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | web/src/content/** | Projects, credentials, settings | P-5 | Content is verified, added or withdrawn |
 | web/src/components/Nav.astro | Sticky bar: text brand, desktop links, mobile details menu, primary CTA | exists (P-2) | The nav spec in DESIGN.md section 7 changes, or Q12 settles the brand text |
 | web/src/components/Hero.astro | Logo, headline, supporting line, both CTAs | exists (P-2) | P-3 replaces the bracketed copy. P-21 or Q12 changes the mark |
-| web/src/components/Showreel.astro | 16:9 shell with the play control, no media | exists (P-2) | P-4 adds the poster and the tap-to-load video |
+| web/src/components/Showreel.astro | 16:9 poster, play button, player created on tap, and the stand-in clip until C-2 | exists (P-2, wired P-4) | C-2 footage or a YouTube id replaces the stand-in. The id moves to `shared/site-config.ts` at P-10 |
+| web/public/media/demo-reel.mp4 | The 7 s silent placeholder reel the showreel plays | exists (P-4) | Delete when C-2 delivers real footage (P-24) |
+| web/src/assets/media/demo-reel-poster.webp | Showreel poster, labelled as placeholder artwork inside the image | exists (P-4) | Replaced with a real poster at C-2 |
 | web/src/components/PortfolioGrid.astro | Category chips and the card grid | exists (P-2) | P-6 wires filtering and hides empty categories (FR-26) |
 | web/src/components/ProjectCard.astro | Poster, category chip, H3 title, no link yet | exists (P-2) | P-5 and P-7 give it real content and a project page |
 | web/src/components/Credentials.astro | DEMO cards in the verified-only treatment | exists (P-2) | P-8 replaces it with the collection and the hide rule |
@@ -263,7 +269,7 @@ Removed by the stack change: the Framer copy of the message builder and the Fram
 - `/shared` holds pure functions and one config file, with no imports from web or worker code.
 - `/worker/src/lib/db.ts` is the only file allowed to know D1.
 - `/content` is the only place where unverified claims may exist, and they must be bracketed. Rendered content in `web/src/content` must be verified.
-- `/assets` holds brand files only. The 2.4 MB original is an archive and is never loaded on the site.
+- `/assets` holds brand files only. The 2.4 MB original is an archive and is never loaded on the site. Site media that the build must optimize goes to `web/src/assets/<kind>`, and anything served untouched goes to `web/public/`.
 - `/docs/research` is never read as fact by an agent.
 - There is no setup script in this repo or outside it. F-6 was completed by hand on 2026-10-27. Do not write one.
 - Do not commit: secrets, `.dev.vars`, `node_modules`, `dist`, `.astro`, `.wrangler`, personal data from real enquiries.
@@ -274,6 +280,7 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-10-27 | Agent (Qoder) | P-4 wired the showreel. Added `web/src/assets/media/demo-reel-poster.webp` (goes through Astro's image pipeline) and `web/public/media/demo-reel.mp4` (served as is, because a build step cannot optimize video), both rendered locally with ffmpeg and both labelled as placeholder artwork. `Showreel.astro` gained the poster, the play button, the tap handler and the youtube-nocookie branch, which made it the first component with client JavaScript, so `astro.config.mjs` now sets `vite.build.assetsInlineLimit: 0`: Astro 7 inlines a small component script into the page as an inline module, and the CSP `script-src 'self'` refuses to run it (D26). No file moved or was deleted | P-4, D26, P-24 (the clip is on its removal list) |
 | 2026-10-27 | Agent (Qoder) | P-2 built the page skeleton. Added the ten section components under `web/src/components`, `web/src/pages/404.astro`, and rewrote `index.astro` as the PRD section order. `global.css` gained an `@layer components` block with the DESIGN section 7 shared classes, and `worker/wrangler.toml` gained `not_found_handling = "404-page"`, which is what 404.astro exists for (D19, re-probed in docs/spikes/stack-spike.md). No file moved or was deleted | P-2, P-24 (added), D23, D24 |
 | 2026-10-27 | Agent (Qoder) | P-1 filled the scaffold in. Added `web/src/styles/tokens.css`, `global.css` and `design-tokens.test.ts`, `web/src/layouts/Base.astro`, root `eslint.config.js` and `vitest.config.ts`. Moved `assets/brand/alpha-movies-logo.webp` to `web/src/assets/brand/`, so `assets/brand` now holds only the archive original and the P-21 planned files. `web/src/pages/index.astro` stopped being a spike page and became the scaffold page P-2 replaces. Root `package.json` gained `lint` and `test` and the Node 22.22 floor | P-1, P-22, P-23 |
 | 2026-10-27 | Agent (Qoder) | Added `web/public/_headers` early, for S-3, and marked `web/public/` as existing. The file is a real CSP plus security headers, verified to apply to the asset layer only (D21). B-11 still owns tightening it once Turnstile, GA4 and the embed host exist | S-3, B-11 |
