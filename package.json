@@ -1,6 +1,7 @@
 {
   "name": "boy-concept",
   "private": true,
+  "type": "module",
   "version": "0.0.0",
   "workspaces": [
     "web",
@@ -8,13 +9,21 @@
     "shared"
   ],
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "scripts": {
     "dev": "npm run dev --workspace web",
     "dev:worker": "npm run dev --workspace worker",
     "build": "npm run build --workspace web",
+    "lint": "eslint .",
+    "test": "vitest run",
     "typecheck": "npm run typecheck --workspace web && npm run typecheck --workspace worker",
     "deploy:test": "npm run build && wrangler deploy --config worker/wrangler.toml"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "eslint": "10.13.0",
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.0.5"
   }
 }

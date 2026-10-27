@@ -6,7 +6,7 @@ Status and progress: [ROADMAP.md](ROADMAP.md). Start there.
 
 ## Stack
 
-Astro 6 (static) served by one Cloudflare Worker (Hono) with D1 for enquiries, Resend for email and Turnstile for bot protection. Node 22 or newer. The workspaces exist in spike form from task S-1: no Tailwind, no Preact, no content collections and no real API yet. Task P-1 fills them in.
+Astro 7 (static, pinned 7.4.1) served by one Cloudflare Worker (Hono) with D1 for enquiries, Resend for email and Turnstile for bot protection. Node 22.22 or newer. Since task P-1 the `web` workspace is a real Astro site: Tailwind v4 on the DESIGN.md tokens, Marcellus and Inter through the Astro Fonts API, a base layout and the optimized logo. `shared` is still empty until P-10 and P-11, and `worker` holds only the spike routes until Phase 1 clears gate G0.
 
 ## Running what exists today
 
@@ -15,11 +15,13 @@ npm install
 npm run dev            # the Astro site
 npm run dev:worker     # wrangler dev: serves web/dist and routes /api/* to Hono
 npm run build          # the Astro site into web/dist
+npm run lint
+npm test
 npm run typecheck
 npm run deploy:test    # builds, then deploys the spike Worker to workers.dev
 ```
 
-`npm run deploy:test` is the only deploy target and it points at the throwaway spike Worker. Do not run it unless you mean to publish, and there is no production deploy command. `npm test` and `npm run lint` do not exist yet: Vitest and ESLint arrive at P-1 and B-1.
+`npm run deploy:test` is the only deploy target and it points at the throwaway spike Worker. Do not run it unless you mean to publish, and there is no production deploy command.
 
 One warning: the Cloudflare dashboard also holds a GitHub build integration for this repo, so two pipelines can deploy. Task L-6 decides which one stays.
 

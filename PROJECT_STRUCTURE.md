@@ -5,8 +5,8 @@ Where everything lives and why. Read this before creating, moving or deleting a 
 | | |
 |---|---|
 | Last updated | 2026-10-27 |
-| Structure version | 0.6 |
-| Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. `web`, `worker` and `shared` arrived early via S-1 and are spike-minimal: no Tailwind, no Preact, no content collections, no API beyond the spike routes |
+| Structure version | 0.7 |
+| Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. Since P-1 the `web` workspace is a normal Astro 7 site with Tailwind v4, the Preact integration, the Fonts API, the design tokens and a base layout; `shared` is still an empty workspace until P-10 and P-11, and `worker` still holds only the spike routes |
 
 ## Update rule (mandatory, applies to humans and agents)
 
@@ -53,10 +53,11 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 ├── PROJECT_STRUCTURE.md               (exists) this file
 ├── .gitignore                         (exists)
 ├── .nvmrc                             (exists, S-1) Node 22
-├── package.json                       (exists, S-1) npm workspaces web, worker, shared and root scripts
+├── package.json                       (exists, S-1) npm workspaces web, worker, shared, root scripts, and the Node 22.22 floor from D22
 ├── package-lock.json                  (exists, S-1)
 ├── tsconfig.base.json                 (exists, S-1) shared strict TypeScript settings
-├── eslint.config.js                   (P-1)
+├── eslint.config.js                   (exists, P-1) flat config, typescript-eslint recommended over .js, .ts and .tsx. .astro files are not linted, see P-22
+├── vitest.config.ts                   (exists, P-1) one root config picking up tests in web, shared and worker. Node environment, no jsdom
 │
 ├── .github/
 │   ├── CODEOWNERS                     (exists) review ownership
@@ -82,38 +83,39 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 ├── assets/
 │   └── brand/
 │       ├── alpha-movies-logo-original.png (exists) supplied logo, 4000 x 2667, archive only, never loaded on the site
-│       ├── alpha-movies-logo.webp         (exists) trimmed web version, 1600 x 760. Moves to web/src/assets/brand at P-1
-│       └── wordmark-flat.*, favicon.*, og-image.png   (P-21) small-size and social versions
+│       └── wordmark-flat.*, favicon.*, og-image.png   (P-21) small-size and social versions. The web-ready WebP moved to web/src/assets/brand at P-1
 │
 ├── content/                           single place for words and proof (not rendered directly)
 │   ├── copy.md                        (exists) all site copy, reviewed before it goes into the pages
 │   ├── PLACEHOLDERS.md                (exists) register of every bracketed placeholder
 │   └── verification-log.md            (exists) claim, source, date, who verified
 │
-├── web/                               (exists, S-1) Astro 6 site, static output
-│   ├── package.json                   (exists, S-1)
-│   ├── astro.config.mjs               (exists, S-1) static output, no adapter
+├── web/                               (exists, S-1) Astro 7 site, static output
+│   ├── package.json                   (exists, S-1) astro, @astrojs/preact and preact pinned exactly (D22)
+│   ├── astro.config.mjs               (exists, S-1) static output, no adapter. P-1 added the Tailwind v4 vite plugin, the Preact integration and the two font families
 │   ├── tsconfig.json                  (exists, S-1)
 │   ├── dist/                          build output, gitignored, what the Worker assets binding serves
 │   ├── public/                        (exists, S-3)
-│   │   ├── _headers                   (exists, S-3) CSP and security headers. Verified to govern asset responses and asset redirects only, never /api/* (D21)
+│   │   ├── _headers                   (exists, S-3) CSP and security headers. Verified to govern asset responses and asset redirects only, never /api/* (D21). P-1 dropped the Google Fonts origins because the Fonts API self-hosts
 │   │   └── robots.txt                 (P-20) noindex on the test environment
 │   └── src/
-│       ├── assets/brand/              (P-1) web-ready logo and poster images
+│       ├── assets/brand/              (exists, P-1) web-ready logo and poster images
+│       │   └── alpha-movies-logo.webp (exists, P-1) 1600 x 760, moved here from assets/brand so Astro optimizes it
 │       ├── styles/
-│       │   ├── tokens.css             (P-1) the only implementation of the DESIGN.md tokens
-│       │   └── global.css             (P-1) Tailwind v4 entry and base styles
+│       │   ├── tokens.css             (exists, P-1) the only implementation of the DESIGN.md tokens, plus the section 8 motion values
+│       │   ├── global.css             (exists, P-1) Tailwind v4 entry, the `@theme inline` map, the type scale and base styles
+│       │   └── design-tokens.test.ts  (exists, P-1) checks tokens.css against DESIGN.md and bans hex literals elsewhere
 │       ├── content.config.ts          (P-5) collection schemas and the verification build guard
 │       ├── content/
 │       │   ├── projects/              (P-5) one file per project
 │       │   ├── credentials/           (P-8) one file per credential
 │       │   └── settings.yaml          (P-10)
 │       ├── layouts/
-│       │   └── Base.astro             (P-2)
+│       │   └── Base.astro             (exists, P-1) head, fonts, noindex and the body shell. P-2 adds the section slots
 │       ├── components/                (P-2 onward) Nav, Hero, Showreel, PortfolioGrid, ProjectCard, Credentials, Services, Process, Faq, Footer (.astro)
 │       │   └── EnquiryForm.tsx        (P-12) the only Preact island
 │       └── pages/
-│           ├── index.astro            (exists, S-1) spike page only, replaced by the real layout at P-2
+│           ├── index.astro            (exists, S-1) scaffold page from P-1, replaced by the real section order at P-2
 │           ├── 404.astro              (P-2) so the assets `not_found_handling` has a page to serve (D19)
 │           ├── projects/[slug].astro  (P-7)
 │           └── privacy.astro          (L-4)
@@ -191,7 +193,13 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | content/copy.md | Source for all site text | exists | Copy changes. Edit here first, then update the pages |
 | content/PLACEHOLDERS.md | Every `[bracketed]` placeholder: where it is, who owns it, status | exists | A placeholder is added or resolved |
 | content/verification-log.md | Evidence for every shown credential or stat | exists | A fact is verified or withdrawn |
-| web/src/styles/tokens.css | Design tokens | P-1 | DESIGN.md changes a token |
+| web/src/styles/tokens.css | Design tokens, the only implementation | exists (P-1) | DESIGN.md changes a token. The test below fails if they drift |
+| web/src/styles/global.css | Tailwind v4 entry, the `@theme inline` map to tokens.css, the type scale and base styles | exists (P-1) | A DESIGN.md scale or base rule changes |
+| web/src/styles/design-tokens.test.ts | Asserts tokens.css matches DESIGN.md section 3 and that no other source file holds a hex literal | exists (P-1) | Either rule changes |
+| web/src/layouts/Base.astro | Head, fonts, noindex, body shell | exists (P-1) | A page-level tag or the font loading changes |
+| web/src/assets/brand/alpha-movies-logo.webp | The web logo Astro optimizes | exists (P-1) | The brand changes, see D-9 and P-21 |
+| eslint.config.js | Flat eslint config over .js, .ts and .tsx | exists (P-1) | A lint rule changes. .astro coverage is P-22 |
+| vitest.config.ts | One root test config for web, shared and worker | exists (P-1) | A workspace is added or a browser environment is needed |
 | web/src/content.config.ts | Content schemas and the build guard | P-5 | A content rule changes |
 | web/src/content/** | Projects, credentials, settings | P-5 | Content is verified, added or withdrawn |
 | web/src/components/EnquiryForm.tsx | Enquiry form island | P-12 | Form behavior changes |
@@ -244,6 +252,7 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-10-27 | Agent (Qoder) | P-1 filled the scaffold in. Added `web/src/styles/tokens.css`, `global.css` and `design-tokens.test.ts`, `web/src/layouts/Base.astro`, root `eslint.config.js` and `vitest.config.ts`. Moved `assets/brand/alpha-movies-logo.webp` to `web/src/assets/brand/`, so `assets/brand` now holds only the archive original and the P-21 planned files. `web/src/pages/index.astro` stopped being a spike page and became the scaffold page P-2 replaces. Root `package.json` gained `lint` and `test` and the Node 22.22 floor | P-1, P-22, P-23 |
 | 2026-10-27 | Agent (Qoder) | Added `web/public/_headers` early, for S-3, and marked `web/public/` as existing. The file is a real CSP plus security headers, verified to apply to the asset layer only (D21). B-11 still owns tightening it once Turnstile, GA4 and the embed host exist | S-3, B-11 |
 | 2026-10-27 | Agent (Qoder) | Deleted the root `ARCHITECTURE.md`, a byte-identical copy of `docs/ARCHITECTURE.md`; docs/ is the single source. Added the real scaffold ahead of its tasks: root `package.json`, `package-lock.json`, `tsconfig.base.json`, `.nvmrc`, `web/` (Astro static config, tsconfig, spike `index.astro`), `worker/` (Hono spike `index.ts`, `wrangler.toml`, tsconfig), `shared/package.json` (new line: needed to make shared a workspace), `docs/spikes/stack-spike.md`. Planned `web/src/pages/404.astro` for P-2 (D19). Removed the false `repo-setup.sh` line from the directory rules | F-6, F-7, S-1, D19 |
 | 2026-10-26 | Agent (Claude) | Stack changed from Framer to Astro, Worker and D1. Replaced `/framer` with `/web`, added `/shared/site-config.ts`, `worker/migrations`, conditional `/cms`. Removed the Framer spike file and the duplicated message builder and tokens | F-10 |

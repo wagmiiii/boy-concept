@@ -1,6 +1,6 @@
 # ARCHITECTURE_ESSENTIALS
 
-Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.3.
+Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.4.
 
 ## What this is
 - Booking and showcase site for Boy Concept (Alpha Movies Ltd). The enquiry flow and the credibility layer are the product.
@@ -12,11 +12,11 @@ Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECT
 - Parked until triggered: availability picker, owner dashboard, event tracking, deposits.
 
 ## Stack
-- Site: Astro 6, TypeScript, static output. Tailwind v4 with `web/src/styles/tokens.css` as the only token source. One Preact island: `EnquiryForm`.
+- Site: Astro 7 (pinned 7.4.1, see D22), TypeScript, static output. Tailwind v4 with `web/src/styles/tokens.css` as the only token source, mapped to utilities by `@theme inline` in `web/src/styles/global.css`. Fonts come from Astro's Fonts API. One Preact island: `EnquiryForm`.
 - Content: Astro content collections (files) with Zod schemas.
 - API: one Cloudflare Worker (Hono, Zod) that also serves the static build as assets. Same origin, no CORS.
 - Data: D1. Email: Resend. Bot check: Turnstile, honeypot, rate limit per contact.
-- Node 22+, npm workspaces: `web`, `worker`, `shared`.
+- Node 22.22 or newer, npm workspaces: `web`, `worker`, `shared`.
 
 ## Boundaries
 - Browser talks only to the Worker, same origin.
@@ -57,7 +57,8 @@ Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECT
 - Single-Worker routing of assets plus `/api/*` is verified locally and on a deployed Worker (S-1, S-5, `docs/spikes/stack-spike.md`): `[assets] run_worker_first = ["/api/*"]`. An asset miss falls through to the Worker, so scope the Worker catch-all to `/api/*` and set `not_found_handling` (D19). Deploy with `npm run deploy:test`; a root-level `npx wrangler deploy` fails in an npm workspace.
 - Turnstile and `wa.me` inside the Instagram in-app browser are untested and block the form design.
 - Email deliverability from a new domain.
-- `_headers` is honored for Worker assets, but only for asset responses and asset redirects. `/api/*` and an asset miss that reaches the Worker get nothing from it, so the Worker sets its own security headers (D21). The CSP values are still unexercised until P-4 and P-12.
+- `_headers` is honored for Worker assets, but only for asset responses and asset redirects. `/api/*` and an asset miss that reaches the Worker get nothing from it, so the Worker sets its own security headers (D21). The font and inline-style parts of the CSP are exercised (P-1); Turnstile, GA4 and YouTube nocookie are still unexercised until P-4 and P-12.
+- `astro`, `@astrojs/preact` and `preact` are pinned at exact versions. A caret on astro resolves to 7.4.2, which demands Node 22.23.4 and fails the engine check on this machine (D22).
 
 ## Cut or parked (do not build unprompted)
 - Availability picker, `blocked_date`, `date_conflict`.

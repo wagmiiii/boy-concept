@@ -1,6 +1,6 @@
 # DESIGN: Alpha Movies Booking and Showcase Site
 
-Status: Draft v0.2 (implementation notes updated for the Astro stack) | Date: 2026-10-26 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
+Status: Draft v0.3 (P-1 findings: the token file exists, the Fonts API is verified, and Marcellus has been rendered against the logo) | Date: 2026-10-27 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
 
 Everything visual in the site comes from here. If a value is not in this file, ask before inventing one. Colors were sampled from the logo file, not from a brand guide, so they are provisional until Emmanuel confirms the logo is current (ROADMAP D-9).
 
@@ -21,7 +21,7 @@ Supplied file facts, measured:
 |---|---|
 | Original | 4000 x 2667 px, RGBA, transparent background, 2.4 MB |
 | Wordmark | Gold 3D bevel lettering "ALPHA MOVIES" with four sparkle flares |
-| Web asset | `assets/brand/alpha-movies-logo.webp`, trimmed, 1600 x 760 px, about 160 KB |
+| Web asset | `web/src/assets/brand/alpha-movies-logo.webp`, trimmed, 1600 x 760 px, about 160 KB. It moved out of `assets/brand` at P-1 so Astro optimizes it at build time, where it comes out at 48.6 kB |
 | Wordmark proportions | About 96% of the image width and 21% of its height, sitting in the lower middle. The flares occupy the space above and around it |
 
 I composited the original on black and the flares and soft shadow blend cleanly. There is no visible halo box. [Certain]
@@ -122,7 +122,7 @@ Two families.
 | Display (headings, hero) | Marcellus, 400 | Flared, inscriptional letterforms that echo the logo's flared caps without copying them | `Optima, Candara, Georgia, serif` |
 | Interface and body | Inter, 400 / 600 | Neutral, readable on mobile at small sizes | `system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` |
 
-I could not render these against the logo. Check Marcellus at hero size on black in the first build (P-1). If its thin strokes look weak at small heading sizes, switch the display role to Syne 700 and record it in the decision log. [Guessing on how it looks]
+Checked on 2026-10-27 at P-1, rendered in a browser on black beside the logo (evidence in docs/spikes/stack-spike.md). Marcellus holds up at hero and H2 sizes and its flared caps sit comfortably next to the logo's lettering. At H3 (24 px) it is thin but readable. At 18 px the serifs start to disappear against black. So the display role stops at H3 and the switch to Syne 700 is not needed. [Certain for the sizes tested]
 
 I did not identify the logo's own typeface. Do not claim a match.
 
@@ -139,7 +139,7 @@ Scale (fluid, mobile first):
 | Eyebrow | `0.8125rem` | 1.2 | Inter 600, uppercase, tracking `0.18em`, `--gold` |
 | Button | `0.9375rem` | 1 | Inter 600, sentence case |
 
-Rules: form fields are 16 px minimum so iOS does not zoom on focus. [Certain] Body line length stays under 70 characters. Do not set long text in all caps. No gold gradient text.
+Rules: form fields are 16 px minimum so iOS does not zoom on focus. [Certain] Body line length stays under 70 characters. Do not set long text in all caps. No gold gradient text. Marcellus is for Display, H2 and H3 only, never below 24 px (see the P-1 check above).
 
 ## 5. Layout and spacing
 
@@ -222,6 +222,8 @@ Replaces the form. Shows "Brief received" in H3, the reference code in `--gold` 
 | Slow | 400 ms |
 | Easing | `cubic-bezier(0.2, 0.7, 0.2, 1)` |
 
+Implemented in `tokens.css` as `--motion-fast`, `--motion-base`, `--motion-slow` and `--motion-ease`, the same single-source rule as the color tokens.
+
 - Scroll reveal: fade up 16 px, once per element, Base duration.
 - Sparkle twinkle: opacity 0.55 to 1 and scale 0.95 to 1.05 over 3 to 4 seconds, at most three flares in view, decorative only. Static on mobile.
 - Honor `prefers-reduced-motion`: no reveal, no twinkle, no hover lift.
@@ -248,11 +250,12 @@ Confident and plain. Short sentences. Say what a visitor can do next. No superla
 
 ## 12. Implementation notes
 
-- `web/src/styles/tokens.css` is the only implementation of these tokens. Tailwind v4 maps its theme to them with `@theme`. There are no copies anywhere else.
-- Never hardcode a hex value outside `tokens.css`.
-- Fonts load through Astro's built-in Fonts API for Marcellus and Inter, with swap and preload. [Verify support]
-- The logo and posters go through Astro's build-time image optimization. The 2.4 MB original is never imported.
-- Use the focus ring, button and form specs above as shared component styles, not per-page overrides.
+- `web/src/styles/tokens.css` is the only implementation of these tokens, and it exists since P-1. Tailwind v4 maps them to utilities with `@theme inline` in `web/src/styles/global.css`, so a utility compiles to `var(--gold)` rather than a second copy of the hex value. There are no copies anywhere else.
+- Never hardcode a hex value outside `tokens.css`. `web/src/styles/design-tokens.test.ts` now enforces this, along with the rule that every section 3 token is declared.
+- The section 4 type scale is implemented as Tailwind theme entries in `global.css` (`text-display`, `text-h2`, `text-h3`, `text-body-large`, `text-body`, `text-small`, `text-eyebrow`, `text-button`), because that is where Tailwind reads them. They carry no color values.
+- Fonts load through Astro's built-in Fonts API for Marcellus and Inter. Verified at P-1 on Astro 7.4.1: the woff2 files are downloaded at build time and served from the same origin with `font-display: swap`, preload links and metric-matched fallback faces, and the API exposes `--font-marcellus` and `--font-inter`. No third-party font host is needed in the CSP.
+- The logo and posters go through Astro's build-time image optimization. The 2.4 MB original is never imported. The web logo now lives at `web/src/assets/brand/alpha-movies-logo.webp` and builds to 48.6 kB.
+- Use the focus ring, button and form specs above as shared component styles, not per-page overrides. The focus ring is already in `global.css` as a `:focus-visible` outline.
 - If a token changes, change this file and `tokens.css` in the same pull request.
 
 ## 13. Open items
@@ -262,5 +265,5 @@ Confident and plain. Short sentences. Say what a visitor can do next. No superla
 | 1 | Confirm the supplied logo is the current official one. Ask for a vector or flat version | Ademola, Emmanuel | D-9, Q11 |
 | 2 | Decide which name leads publicly | Emmanuel | D-9, Q12 |
 | 3 | Produce a flat one-color wordmark, a favicon mark and a 1200 x 630 social image | Ademola, Agent | P-21 |
-| 4 | Check Marcellus against the logo in the first build | Ademola | P-1 |
+| 4 | Closed 2026-10-27 at P-1. Marcellus was rendered on black beside the logo: strong at Display and H2, thin but readable at H3, weak below 24 px. The display role stops at H3 and Syne 700 is not needed | done | P-1 |
 | 5 | Validate that gold stays under about 10% of a viewport on the built pages | Ademola | P-17 |

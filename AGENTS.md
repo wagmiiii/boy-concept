@@ -4,7 +4,7 @@ Instructions for coding agents working in this repo. Keep this file short. Detai
 
 ## Project
 
-Booking and showcase site for Boy Concept (Alpha Movies Ltd). An Astro 6 static site served by one Cloudflare Worker (Hono) with D1 for enquiries. The Worker and D1 arrive in Phase 1. The enquiry flow and the credibility layer are the product.
+Booking and showcase site for Boy Concept (Alpha Movies Ltd). An Astro 7 static site served by one Cloudflare Worker (Hono) with D1 for enquiries. The Worker and D1 arrive in Phase 1. The enquiry flow and the credibility layer are the product.
 
 Current phase and task status: see the header of `ROADMAP.md`. It is the single source of truth. Do not keep a copy of the phase anywhere else.
 
@@ -29,7 +29,7 @@ The full map, with the purpose of every file, is `PROJECT_STRUCTURE.md`. In shor
 
 ## Commands
 
-Check `package.json` first. These are the intended root scripts and do not exist until task P-1. Node 22 or newer.
+Check `package.json` first. These are the root scripts and they all exist since P-1. Node 22.22 or newer.
 
 - `npm install`
 - `npm run dev` (the Astro site)
