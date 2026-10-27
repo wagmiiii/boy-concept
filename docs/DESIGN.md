@@ -1,6 +1,6 @@
 # DESIGN: Alpha Movies Booking and Showcase Site
 
-Status: Draft v0.4 (P-2 findings: the nav brand is text, the shared component classes exist in `global.css`, and the public name leads as Boy Concept while Q12 stays open) | Date: 2026-10-27 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
+Status: Draft v0.5 (P-3 findings: the hero is built, its logo is the LCP element and needs `fetchpriority`, the section 8 twinkle is CSS-only in `Hero.astro`, and the headline is a builder draft under D25) | Date: 2026-10-27 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
 
 Everything visual in the site comes from here. If a value is not in this file, ask before inventing one. Colors were sampled from the logo file, not from a brand guide, so they are provisional until Emmanuel confirms the logo is current (ROADMAP D-9).
 
@@ -187,6 +187,8 @@ Nav link labels are Showreel, Portfolio, Services and FAQ, which are the section
 
 Full logo with flares, large, centered or left-aligned over a quiet black field. One headline, one line of supporting text, two buttons: "Check a date" and "View showreel". No autoplay video iframes. If a background loop is used it is poster-first and short, and never behind the logo without the 70% overlay.
 
+Built at P-3 in `web/src/components/Hero.astro`, centered. Two implementation notes from that build: the logo is the largest element above the fold, so it is the LCP candidate and it renders with `loading="eager" fetchpriority="high"` (Astro defaults to lazy, which costs the hero its largest paint). The headline is a builder draft under decision D25, not approved copy.
+
 ### Showreel
 
 16:9 container, poster first, a centered play control, video created on tap. The play control is a 72 px circle with a 1.5 px `--gold` ring and a gold triangle.
@@ -236,6 +238,8 @@ Implemented in `tokens.css` as `--motion-fast`, `--motion-base`, `--motion-slow`
 - Honor `prefers-reduced-motion`: no reveal, no twinkle, no hover lift.
 - No autoplaying video iframes anywhere.
 
+Implemented at P-3, the twinkle only (scroll reveal waits until the sections hold real content). Three four-point SVG flares sit around the hero logo in `Hero.astro`, each `aria-hidden`, `--gold` at 0.55 opacity, animated by one scoped `@keyframes twinkle` with staggered durations (3.4 s, 4 s, 3.4 s) and delays (0, 1.2 s, 2.3 s). "Static on mobile" is read as static below the 768 px breakpoint, so the animation sits inside `@media (min-width: 768px)` and the reduced-motion query sets `animation: none` with opacity 0.8. Verified in a browser: three flares, `animation-name: twinkle` at 1200 px and `none` at 730 px. The reduced-motion branch is written but not exercised, because the available tools cannot emulate that media feature (S-2 and P-17 cover it on devices).
+
 ## 9. Imagery and iconography
 
 - Posters and stills are the color on the page. Do not tint them gold.
@@ -246,6 +250,8 @@ Implemented in `tokens.css` as `--motion-fast`, `--motion-base`, `--motion-slow`
 ## 10. Voice
 
 Confident and plain. Short sentences. Say what a visitor can do next. No superlatives such as "elite" or "world-class" unless backed by a verified fact. Buttons are verbs: "Check a date", "Open WhatsApp", "View showreel". Copy lives in `content/copy.md`.
+
+When a sentence is not approved yet, decision D25 in ARCHITECTURE allows the builder to draft one so a demo reads as finished. A draft still obeys every rule on this page, is written into `content/copy.md` with its alternatives, and stays an open row in `content/PLACEHOLDERS.md` until the client approves it.
 
 ## 11. Accessibility
 
@@ -265,7 +271,8 @@ Confident and plain. Short sentences. Say what a visitor can do next. No superla
 - Use the focus ring, button and form specs above as shared component styles, not per-page overrides. The focus ring is already in `global.css` as a `:focus-visible` outline.
 - Since P-2 the shared specs are classes in an `@layer components` block in `web/src/styles/global.css`: `.btn-primary`, `.btn-secondary`, `.eyebrow`, `.chip` (with `[data-active="true"]` for the filled state), `.card`, `.poster-frame` and `.demo-tag`. They are written with `@apply` for anything from the `@theme inline` map (type size, radius, color utilities) and with plain CSS for the `tokens.css` variables. `@theme inline` values are **not** emitted as CSS custom properties, so `var(--text-button)` and `var(--radius-button)` do not exist in the browser and only resolve through `@apply`. Verified against the built stylesheet on 2026-10-27.
 - Button height is 52 px, becoming 48 px from the 768 px breakpoint, so a hand-written rule, not a utility. Same for the 1.5 px secondary border, the chip outline (gold at 60% through `color-mix`, with a `transparent` fallback declared first), and the poster bottom gradient in section 6, which uses `var(--bg)` rather than a second copy of black.
-- Section anchors get `scroll-margin-top` equal to the nav height (64 px, 72 px from 768 px) in the base layer, so "Check a date" does not bury the heading under the sticky nav.
+- Section anchors get `scroll-margin-top` equal to the nav height (64 px, 72 px from 768 px) in the base layer, so "Check a date" does not bury the heading under the sticky nav. Verified at P-3 at 730 px wide: both hero CTAs land their section 64 px from the top, with the heading below the 65 px nav. The 72 px desktop offset is the same rule at the other breakpoint and was not re-measured.
+- The hero sparkle flares are the one motion spec that lives in a component rather than `global.css`, in a scoped `<style>` block in `Hero.astro`, because no other section uses them. Astro inlines a style block that small directly into the HTML head instead of emitting a CSS file, so the rules are in the served document and can be checked there.
 - If a token changes, change this file and `tokens.css` in the same pull request.
 
 ## 13. Open items
@@ -278,3 +285,4 @@ Confident and plain. Short sentences. Say what a visitor can do next. No superla
 | 4 | Closed 2026-10-27 at P-1. Marcellus was rendered on black beside the logo: strong at Display and H2, thin but readable at H3, weak below 24 px. The display role stops at H3 and Syne 700 is not needed | done | P-1 |
 | 5 | Validate that gold stays under about 10% of a viewport on the built pages | Ademola | P-17 |
 | 6 | Section 2 rule 4 (the 3D logo is never below 220 px wide) and section 7 (the nav is 64 px tall) are geometrically incompatible. P-2 resolved it by putting text in the nav. Revisit when the flat wordmark exists, and confirm the interim nav treatment is acceptable | Ademola, Emmanuel | P-21, Q12 |
+| 7 | Approve or replace the hero headline. P-3 built it with the builder's draft "Shot for the occasion" under D25; two alternatives are in `content/copy.md`. The page reads as finished copy while no one at Alpha Movies has chosen it | Emmanuel | D-7, P-3, PLACEHOLDERS |

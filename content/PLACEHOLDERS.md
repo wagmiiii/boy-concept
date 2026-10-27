@@ -14,7 +14,7 @@ Rows added at P-2 cover the page skeleton, where every unverified string is brac
 | [N] minimum verified items for the credentials section | FR-26; stated in `web/src/components/Credentials.astro` | Ademola, Emmanuel | n/a | open |
 | Brand colors and fonts (provisional, from the supplied logo) | docs/DESIGN.md | Emmanuel | Q11 | open |
 | Public name that leads: Alpha Movies or Boy Concept | `web/src/components/Nav.astro` (brand text), `<title>`, `web/src/components/Footer.astro` (copyright). Since P-2 the site renders **Boy Concept**, Ademola's interim call, while the supplied logo artwork still spells ALPHA MOVIES | Emmanuel | Q12 | open, interim choice in place |
-| [brand statement: write at C-10] and the hero supporting line | `web/src/components/Hero.astro` | Emmanuel, copy at C-10 | Q1, Q12 | open |
+| Hero brand statement and supporting line | `web/src/components/Hero.astro`. Since P-3 these render as two finished-looking builder drafts ("Shot for the occasion" plus the service line), with two more candidates in `content/copy.md`. They read as approved copy, so treat this row as open until Emmanuel picks one | Emmanuel, copy at C-10 | Q1, Q12 | open, drafted at P-3 awaiting sign-off |
 | [Section heading, written at C-10] and intro lines | Hero, Showreel, PortfolioGrid, Credentials, Services, Process, Faq, the enquiry section | Copy at C-10 | Q1, Q8 | open |
 | [Showreel heading] and the poster and video files | `web/src/components/Showreel.astro` (DEMO block) | Emmanuel | Q1, D-7 | open |
 | [project title], category and poster per project card | `web/src/components/ProjectCard.astro`, three DEMO cards in `PortfolioGrid.astro` | Emmanuel, wired at P-5 and P-6 | Q1, Q4 | open |

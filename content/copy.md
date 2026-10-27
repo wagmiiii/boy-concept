@@ -2,7 +2,7 @@
 
 Single source for all site text. Edit here first, get it approved, then update the pages in `web/src`. Never invent claims. Anything not yet confirmed stays in [brackets] and is listed in `PLACEHOLDERS.md`.
 
-Status: skeleton copy in place since P-2 (nav labels, 404 page, footer and form labels). The approved sentences, headlines and answers are written at task C-10 from the client's answers. Until then the pages render bracketed placeholders and DEMO blocks, and they are not shareable with Emmanuel's clients.
+Status: skeleton copy in place since P-2 (nav labels, 404 page, footer and form labels). Since P-3 the hero carries two builder-drafted lines: they read as finished copy but no one at Alpha Movies has approved them, so they are listed as open placeholders and C-10 or Q1 replaces them. The approved sentences, headlines and answers are written at task C-10 from the client's answers. Until then the pages render bracketed placeholders and DEMO blocks, and they are not shareable with Emmanuel's clients.
 
 ## Nav
 
@@ -13,8 +13,12 @@ Status: skeleton copy in place since P-2 (nav labels, 404 page, footer and form 
 
 ## Hero
 
-- Headline: [brand statement, write at C-10]
-- Subheadline: [one supporting line, write at C-10]
+- Headline: "Shot for the occasion" (candidate A below, built at P-3). Builder drafted, not approved. It stays an open placeholder in `PLACEHOLDERS.md` until Emmanuel approves a line, at the D-7 walkthrough or as copy at C-10.
+- Candidates considered (P-3, all two or three words, none uses a superlative or a claim):
+  - A. "Shot for the occasion" (built)
+  - B. "Filmed for the moment"
+  - C. "Your day, on film"
+- Subheadline: "Commercial films, cultural festival coverage, wedding and documentary work. Tell us the date and we will tell you what is possible." (built at P-3, also unapproved. It names only the four service categories already in the research brief and the PRD, and promises nothing a booking form cannot deliver.)
 - Primary CTA: Check a date
 - Secondary CTA: View showreel
 
