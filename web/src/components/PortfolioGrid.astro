@@ -1,11 +1,18 @@
 ---
-// DESIGN.md section 7 Category filter and Portfolio card. The categories come from
-// content/copy.md; the projects themselves are placeholders until P-5 verifies them.
+// DESIGN.md section 7 Category filter and Portfolio card. The projects come from the content
+// collection (P-5); the categories come from the same list the schema allows, so a chip can never
+// name a category a project cannot be filed under.
 // FR-26: a chip with no verified projects hides, which is what P-6 wires up.
+import { getCollection } from "astro:content";
+import { placeholderProjects, projectCategories, shorableProjects } from "../content-rules";
 import ProjectCard from "./ProjectCard.astro";
 
-const categories = ["Commercial", "Cultural Festivals", "Weddings", "Documentaries"];
-const demoCards = ["[project title]", "[project title]", "[project title]"];
+const projects = await getCollection("projects");
+// FR-3 and FR-27: only a verified, permitted project is shorable. While none is, the section keeps
+// its shape with the entries the schema marks demo: true, and those can never carry a claim
+// (D23). Real work that is merely unverified renders nothing at all.
+const shorable = shorableProjects(projects);
+const cards = shorable.length > 0 ? shorable : placeholderProjects(projects);
 ---
 
 <section
@@ -20,7 +27,7 @@ const demoCards = ["[project title]", "[project title]", "[project title]"];
   <div class="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter by category">
     <button type="button" class="chip shrink-0" data-active="true" disabled>All</button>
     {
-      categories.map((category) => (
+      projectCategories.map((category) => (
         <button type="button" class="chip shrink-0" disabled>
           {category}
         </button>
@@ -33,6 +40,6 @@ const demoCards = ["[project title]", "[project title]", "[project title]"];
   </p>
 
   <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-    {demoCards.map((title) => <ProjectCard category="DEMO" title={title} />)}
+    {cards.map((project) => <ProjectCard category={project.data.category} title={project.data.title} />)}
   </div>
 </section>
