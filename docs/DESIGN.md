@@ -1,6 +1,6 @@
 # DESIGN: Alpha Movies Booking and Showcase Site
 
-Status: Draft v0.3 (P-1 findings: the token file exists, the Fonts API is verified, and Marcellus has been rendered against the logo) | Date: 2026-10-27 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
+Status: Draft v0.4 (P-2 findings: the nav brand is text, the shared component classes exist in `global.css`, and the public name leads as Boy Concept while Q12 stays open) | Date: 2026-10-27 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
 
 Everything visual in the site comes from here. If a value is not in this file, ask before inventing one. Colors were sampled from the logo file, not from a brand guide, so they are provisional until Emmanuel confirms the logo is current (ROADMAP D-9).
 
@@ -31,13 +31,13 @@ Rules:
 1. Use the logo only on black or very dark surfaces. Gold on white measures about 1.6:1 contrast, which is unreadable. [Certain]
 2. On photos or video, place it only over a dark overlay of at least 70% black.
 3. Clear space on all sides is 10% of the logo's width (about one cap height of the lettering).
-4. Minimum width for the 3D logo is 220 px. Below that the bevel turns to mud. [Guessing] Use the flat wordmark instead (task P-21, not yet produced). Until it exists, nav and footer use the 3D logo at 220 px or wider.
+4. Minimum width for the 3D logo is 220 px. Below that the bevel turns to mud. [Guessing] Use the flat wordmark instead (task P-21, not yet produced). Measured at P-2: the web file is 1600 x 760, so at the 64 px nav height it is 135 px wide and at the 220 px minimum it is 105 px tall. Rule 4 and the nav height in section 7 cannot both hold, so the nav carries the brand as text and the 3D logo is used where there is room: the hero and the footer, both at 220 px or wider. Section 13 item 6 tracks the wordmark that lets the nav take the mark back.
 5. Never recolor, stretch, outline, add a glow, crop the flares, animate the letters or place it on gold.
 6. The hero shows the full logo, large, with its flares. The nav shows the compact version.
 7. Never load the 2.4 MB original on the site. Use the WebP. Display it at 800 px wide or less, and the 1600 px file already covers 2x screens.
 8. Alt text is "Alpha Movies".
 
-Open: which name leads publicly, Alpha Movies or Boy Concept (ROADMAP Q12). The logo says Alpha Movies, the research brief says Boy Concept. Decide before writing the hero and the page title.
+Open: which name leads publicly, Alpha Movies or Boy Concept (ROADMAP Q12). The logo says Alpha Movies, the research brief says Boy Concept. Since P-2 the site renders **Boy Concept** as the brand text in the nav, the page title and the copyright line, which is Ademola's interim call and not Emmanuel's answer. That makes the clash visible: the wordmark artwork spells ALPHA MOVIES two centimetres under a headline that says Boy Concept. Q12 still has to be answered before launch, and P-21 produces the wordmark that matches whichever name wins.
 
 ## 3. Color
 
@@ -176,6 +176,13 @@ Height 52 px on mobile, 48 px on desktop. Label sentence case: "Check a date", "
 
 Height 64 px mobile, 72 px desktop. Background black at 60% opacity with a 12 px blur, falling back to solid black where blur is unsupported. 1 px `--line` bottom border. Logo left, links center on desktop, primary button "Check a date" right. Mobile shows the logo and the button, with the rest in a menu.
 
+Implemented at P-2 with two changes to that paragraph, both recorded here so the file matches the build:
+
+- The left slot holds the brand as **text** (Marcellus at the H3 size, 24 px, "Boy Concept"), not the 3D logo. See section 2 rule 4: at 64 px tall the logo is 135 px wide, under its own minimum.
+- The mobile menu is a `<details>` disclosure, so it works with JavaScript disabled. Two labels are duplicated in markup, one row for desktop and one for the disclosure, because a closed `<details>` cannot be forced open by CSS at the desktop breakpoint.
+
+Nav link labels are Showreel, Portfolio, Services and FAQ, which are the section names from `content/copy.md`. Add or change them there first.
+
 ### Hero
 
 Full logo with flares, large, centered or left-aligned over a quiet black field. One headline, one line of supporting text, two buttons: "Check a date" and "View showreel". No autoplay video iframes. If a background loop is used it is poster-first and short, and never behind the logo without the 70% overlay.
@@ -256,6 +263,9 @@ Confident and plain. Short sentences. Say what a visitor can do next. No superla
 - Fonts load through Astro's built-in Fonts API for Marcellus and Inter. Verified at P-1 on Astro 7.4.1: the woff2 files are downloaded at build time and served from the same origin with `font-display: swap`, preload links and metric-matched fallback faces, and the API exposes `--font-marcellus` and `--font-inter`. No third-party font host is needed in the CSP.
 - The logo and posters go through Astro's build-time image optimization. The 2.4 MB original is never imported. The web logo now lives at `web/src/assets/brand/alpha-movies-logo.webp` and builds to 48.6 kB.
 - Use the focus ring, button and form specs above as shared component styles, not per-page overrides. The focus ring is already in `global.css` as a `:focus-visible` outline.
+- Since P-2 the shared specs are classes in an `@layer components` block in `web/src/styles/global.css`: `.btn-primary`, `.btn-secondary`, `.eyebrow`, `.chip` (with `[data-active="true"]` for the filled state), `.card`, `.poster-frame` and `.demo-tag`. They are written with `@apply` for anything from the `@theme inline` map (type size, radius, color utilities) and with plain CSS for the `tokens.css` variables. `@theme inline` values are **not** emitted as CSS custom properties, so `var(--text-button)` and `var(--radius-button)` do not exist in the browser and only resolve through `@apply`. Verified against the built stylesheet on 2026-10-27.
+- Button height is 52 px, becoming 48 px from the 768 px breakpoint, so a hand-written rule, not a utility. Same for the 1.5 px secondary border, the chip outline (gold at 60% through `color-mix`, with a `transparent` fallback declared first), and the poster bottom gradient in section 6, which uses `var(--bg)` rather than a second copy of black.
+- Section anchors get `scroll-margin-top` equal to the nav height (64 px, 72 px from 768 px) in the base layer, so "Check a date" does not bury the heading under the sticky nav.
 - If a token changes, change this file and `tokens.css` in the same pull request.
 
 ## 13. Open items
@@ -263,7 +273,8 @@ Confident and plain. Short sentences. Say what a visitor can do next. No superla
 | # | Item | Owner | Tracked as |
 |---|---|---|---|
 | 1 | Confirm the supplied logo is the current official one. Ask for a vector or flat version | Ademola, Emmanuel | D-9, Q11 |
-| 2 | Decide which name leads publicly | Emmanuel | D-9, Q12 |
+| 2 | Decide which name leads publicly. Since P-2 the site renders Boy Concept in the nav, title and copyright as an interim call by Ademola, while the supplied logo artwork spells ALPHA MOVIES | Emmanuel | D-9, Q12 |
 | 3 | Produce a flat one-color wordmark, a favicon mark and a 1200 x 630 social image | Ademola, Agent | P-21 |
 | 4 | Closed 2026-10-27 at P-1. Marcellus was rendered on black beside the logo: strong at Display and H2, thin but readable at H3, weak below 24 px. The display role stops at H3 and Syne 700 is not needed | done | P-1 |
 | 5 | Validate that gold stays under about 10% of a viewport on the built pages | Ademola | P-17 |
+| 6 | Section 2 rule 4 (the 3D logo is never below 220 px wide) and section 7 (the nav is 64 px tall) are geometrically incompatible. P-2 resolved it by putting text in the nav. Revisit when the flat wordmark exists, and confirm the interim nav treatment is acceptable | Ademola, Emmanuel | P-21, Q12 |

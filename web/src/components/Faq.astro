@@ -1,0 +1,26 @@
+---
+// FR-19: FAQ. <details> keeps the disclosure working with JavaScript disabled. The questions and
+// answers are the owner's real ones, collected at C-10 (FR-15 rule: promise only what is kept).
+const questions = [1, 2, 3, 4];
+---
+
+<section id="faq" class="mx-auto flex max-w-site flex-col gap-6 px-5 py-18 md:px-8 md:py-30">
+  <div class="flex flex-col gap-2">
+    <p class="eyebrow">FAQ</p>
+    <h2 class="font-display text-h2">[FAQ heading, written at C-10]</h2>
+  </div>
+
+  <div class="flex flex-col gap-3">
+    {
+      questions.map((n) => (
+        <details class="card p-6">
+          <summary class="flex min-h-11 cursor-pointer list-none items-center gap-3 text-body font-semibold text-text [&::-webkit-details-marker]:hidden">
+            <span class="eyebrow shrink-0">Q{n}</span>
+            [Question {n}]
+          </summary>
+          <p class="pt-3 text-body text-text-2">[Answer, written from the owner's real answer]</p>
+        </details>
+      ))
+    }
+  </div>
+</section>

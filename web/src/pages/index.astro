@@ -1,18 +1,77 @@
 ---
-// Scaffold page. P-2 replaces it with the real section order; it exists to prove the tokens,
-// the fonts and the logo asset path work end to end.
-import { Image } from "astro:assets";
+// P-2: the section order from docs/PRD.md section 5. Copy is bracketed until C-10 and every
+// placeholder is registered in content/PLACEHOLDERS.md. The enquiry block is a shell: the Preact
+// island replaces it at P-12.
 import Base from "../layouts/Base.astro";
-import logo from "../assets/brand/alpha-movies-logo.webp";
+import Nav from "../components/Nav.astro";
+import Hero from "../components/Hero.astro";
+import Showreel from "../components/Showreel.astro";
+import PortfolioGrid from "../components/PortfolioGrid.astro";
+import Credentials from "../components/Credentials.astro";
+import Services from "../components/Services.astro";
+import Process from "../components/Process.astro";
+import Faq from "../components/Faq.astro";
+import Footer from "../components/Footer.astro";
+
+// The order is the PRD section 7 field list. Event date is first, and there is no budget field
+// anywhere on the site (FR-11).
+const fields = [
+  "Event date",
+  "Second date or end date",
+  "Project type",
+  "Venue, city, country",
+  "Duration",
+  "Deliverables",
+  "Reference video",
+  "Name",
+  "Company or agency",
+  "WhatsApp number",
+  "Email",
+  "Notes",
+  "Consent",
+];
 ---
 
-<Base title="Alpha Movies scaffold" description="Workspace scaffold check">
-  <main class="mx-auto flex max-w-site flex-col gap-6 px-5 py-18 md:px-8 md:py-30">
-    <Image src={logo} alt="Alpha Movies" width={800} class="max-w-full" />
-    <p class="text-eyebrow font-semibold uppercase tracking-[0.18em] text-gold">Scaffold</p>
-    <h1 class="text-display font-display">Marcellus on black</h1>
-    <p class="text-body-large text-text-2">
-      Type scale, gold ramp and the logo path are wired from DESIGN.md. The sections arrive at P-2.
-    </p>
+<Base title="Boy Concept">
+  <Nav />
+
+  <main>
+    <Hero />
+    <Showreel />
+    <PortfolioGrid />
+    <Credentials />
+    <Services />
+    <Process />
+    <Faq />
+
+    <section id="enquiry" class="bg-surface-1">
+      <div class="mx-auto flex max-w-site flex-col gap-6 px-5 py-18 md:px-8 md:py-30">
+        <div class="flex flex-col gap-2">
+          <p class="eyebrow">Check a date</p>
+          <h2 class="font-display text-h2">[Enquiry heading, written at C-10]</h2>
+        </div>
+
+        <div class="card flex flex-col gap-3 p-6">
+          <p class="text-body text-text-2">
+            Packages start from <span class="font-semibold text-gold">₦[amount]</span>
+          </p>
+
+          <ol class="flex flex-col gap-1 text-body text-text-2">
+            {fields.map((field, i) => <li><span class="text-gold">{i + 1}.</span> {field}</li>)}
+          </ol>
+
+          <p class="text-small text-text-muted">
+            The fields are a list, not a working form yet. The island arrives at P-12 with
+            validation, the confirmation screen and the WhatsApp handoff.
+          </p>
+
+          <button type="button" class="btn-primary w-full sm:w-auto" disabled>Send brief</button>
+
+          <p class="text-body text-text-2">[Response-time line, FR-15: only a time someone keeps]</p>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <Footer />
 </Base>

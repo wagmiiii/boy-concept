@@ -5,8 +5,8 @@ Where everything lives and why. Read this before creating, moving or deleting a 
 | | |
 |---|---|
 | Last updated | 2026-10-27 |
-| Structure version | 0.7 |
-| Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. Since P-1 the `web` workspace is a normal Astro 7 site with Tailwind v4, the Preact integration, the Fonts API, the design tokens and a base layout; `shared` is still an empty workspace until P-10 and P-11, and `worker` still holds only the spike routes |
+| Structure version | 0.8 |
+| Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. Since P-1 the `web` workspace is a normal Astro 7 site with Tailwind v4, the Preact integration, the Fonts API, the design tokens and a base layout, and since P-2 it has the ten section components, the real page order, a 404 page and the assets `not_found_handling` that goes with it; `shared` is still an empty workspace until P-10 and P-11, and `worker` still holds only the spike routes |
 
 ## Update rule (mandatory, applies to humans and agents)
 
@@ -103,7 +103,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       │   └── alpha-movies-logo.webp (exists, P-1) 1600 x 760, moved here from assets/brand so Astro optimizes it
 │       ├── styles/
 │       │   ├── tokens.css             (exists, P-1) the only implementation of the DESIGN.md tokens, plus the section 8 motion values
-│       │   ├── global.css             (exists, P-1) Tailwind v4 entry, the `@theme inline` map, the type scale and base styles
+│       │   ├── global.css             (exists, P-1) Tailwind v4 entry, the `@theme inline` map, the type scale, base styles and the shared component classes (P-2)
 │       │   └── design-tokens.test.ts  (exists, P-1) checks tokens.css against DESIGN.md and bans hex literals elsewhere
 │       ├── content.config.ts          (P-5) collection schemas and the verification build guard
 │       ├── content/
@@ -111,12 +111,22 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       │   ├── credentials/           (P-8) one file per credential
 │       │   └── settings.yaml          (P-10)
 │       ├── layouts/
-│       │   └── Base.astro             (exists, P-1) head, fonts, noindex and the body shell. P-2 adds the section slots
-│       ├── components/                (P-2 onward) Nav, Hero, Showreel, PortfolioGrid, ProjectCard, Credentials, Services, Process, Faq, Footer (.astro)
+│       │   └── Base.astro             (exists, P-1) head, fonts, noindex and the body shell. Pages compose the nav and the footer; the shell stays free of them so the 404 page can omit the nav
+│       ├── components/                (exists, P-2) the section shells, all .astro
+│       │   ├── Nav.astro                (exists, P-2) sticky bar, text brand, desktop links, mobile details menu, Check a date
+│       │   ├── Hero.astro               (exists, P-2) logo, headline, supporting line, both CTAs
+│       │   ├── Showreel.astro           (exists, P-2) 16:9 shell with the specified play control, no media yet
+│       │   ├── PortfolioGrid.astro      (exists, P-2) category chips (inert until P-6) and three DEMO cards
+│       │   ├── ProjectCard.astro        (exists, P-2) 16:9 poster, category chip, H3 title
+│       │   ├── Credentials.astro        (exists, P-2) DEMO cards showing the verified-only treatment
+│       │   ├── Services.astro           (exists, P-2) four service cards with tag chips
+│       │   ├── Process.astro            (exists, P-2) five numbered steps
+│       │   ├── Faq.astro                (exists, P-2) four details and summary disclosures, works with JavaScript off
+│       │   ├── Footer.astro             (exists, P-2) logo, social and contact placeholders, base city, copyright
 │       │   └── EnquiryForm.tsx        (P-12) the only Preact island
 │       └── pages/
-│           ├── index.astro            (exists, S-1) scaffold page from P-1, replaced by the real section order at P-2
-│           ├── 404.astro              (P-2) so the assets `not_found_handling` has a page to serve (D19)
+│           ├── index.astro            (exists, P-2) the real section order plus the enquiry section shell and its field list
+│           ├── 404.astro              (exists, P-2) the page `not_found_handling = "404-page"` serves, so a miss is HTML with status 404 (D19)
 │           ├── projects/[slug].astro  (P-7)
 │           └── privacy.astro          (L-4)
 │
@@ -129,7 +139,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 ├── worker/                            (exists, S-1) Cloudflare Worker: Hono API plus the static build as assets. Today it holds only the spike routes
 │   ├── package.json                   (exists, S-1)
 │   ├── tsconfig.json                  (exists, S-1)
-│   ├── wrangler.toml                  (exists, S-1) assets directory ../web/dist, binding ASSETS, run_worker_first ["/api/*"]
+│   ├── wrangler.toml                  (exists, S-1) assets directory ../web/dist, binding ASSETS, run_worker_first ["/api/*"], not_found_handling "404-page" (P-2, D19)
 │   ├── vitest.config.ts               (B-1)
 │   ├── .dev.vars.example              (B-2) names of variables, no values
 │   ├── migrations/
@@ -179,7 +189,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | .nvmrc | The Node version the project expects | exists (S-1) | The Node floor changes |
 | web/astro.config.mjs | Static output, no SSR adapter, and later `site` | exists (S-1) | The build target changes |
 | web/public/_headers | CSP and security headers for the asset layer | exists (S-3) | A script, frame or embed host is added or removed, at P-4 and P-12 |
-| worker/wrangler.toml | The one Worker: assets binding plus run_worker_first | exists (S-1) | Routing, compatibility date or bindings change (D17, D19) |
+| worker/wrangler.toml | The one Worker: assets binding, run_worker_first and not_found_handling | exists (S-1) | Routing, compatibility date or bindings change (D17, D19). P-2 added `not_found_handling = "404-page"` |
 | worker/src/index.ts | Spike routes today; Hono route wiring at B-1 | exists (S-1) | A route is added |
 | shared/package.json | Makes `shared` a resolvable workspace | exists (S-1) | The shared entry points are declared at P-10 |
 | docs/PRD.md | Product requirements | exists | A requirement, scope item or open question changes |
@@ -194,14 +204,26 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | content/PLACEHOLDERS.md | Every `[bracketed]` placeholder: where it is, who owns it, status | exists | A placeholder is added or resolved |
 | content/verification-log.md | Evidence for every shown credential or stat | exists | A fact is verified or withdrawn |
 | web/src/styles/tokens.css | Design tokens, the only implementation | exists (P-1) | DESIGN.md changes a token. The test below fails if they drift |
-| web/src/styles/global.css | Tailwind v4 entry, the `@theme inline` map to tokens.css, the type scale and base styles | exists (P-1) | A DESIGN.md scale or base rule changes |
+| web/src/styles/global.css | Tailwind v4 entry, the `@theme inline` map to tokens.css, the type scale, base styles and the shared component classes (.btn-primary, .btn-secondary, .eyebrow, .chip, .card, .poster-frame, .demo-tag) | exists (P-1) | A DESIGN.md scale, base or component rule changes. Component classes use @apply because @theme inline values are not emitted as CSS variables |
 | web/src/styles/design-tokens.test.ts | Asserts tokens.css matches DESIGN.md section 3 and that no other source file holds a hex literal | exists (P-1) | Either rule changes |
-| web/src/layouts/Base.astro | Head, fonts, noindex, body shell | exists (P-1) | A page-level tag or the font loading changes |
+| web/src/layouts/Base.astro | Head, fonts, noindex, body shell. No nav or footer: pages compose those, so the 404 page can drop the anchor nav | exists (P-1) | A page-level tag or the font loading changes |
 | web/src/assets/brand/alpha-movies-logo.webp | The web logo Astro optimizes | exists (P-1) | The brand changes, see D-9 and P-21 |
 | eslint.config.js | Flat eslint config over .js, .ts and .tsx | exists (P-1) | A lint rule changes. .astro coverage is P-22 |
 | vitest.config.ts | One root test config for web, shared and worker | exists (P-1) | A workspace is added or a browser environment is needed |
 | web/src/content.config.ts | Content schemas and the build guard | P-5 | A content rule changes |
 | web/src/content/** | Projects, credentials, settings | P-5 | Content is verified, added or withdrawn |
+| web/src/components/Nav.astro | Sticky bar: text brand, desktop links, mobile details menu, primary CTA | exists (P-2) | The nav spec in DESIGN.md section 7 changes, or Q12 settles the brand text |
+| web/src/components/Hero.astro | Logo, headline, supporting line, both CTAs | exists (P-2) | P-3 replaces the bracketed copy. P-21 or Q12 changes the mark |
+| web/src/components/Showreel.astro | 16:9 shell with the play control, no media | exists (P-2) | P-4 adds the poster and the tap-to-load video |
+| web/src/components/PortfolioGrid.astro | Category chips and the card grid | exists (P-2) | P-6 wires filtering and hides empty categories (FR-26) |
+| web/src/components/ProjectCard.astro | Poster, category chip, H3 title, no link yet | exists (P-2) | P-5 and P-7 give it real content and a project page |
+| web/src/components/Credentials.astro | DEMO cards in the verified-only treatment | exists (P-2) | P-8 replaces it with the collection and the hide rule |
+| web/src/components/Services.astro | Four service cards with tag chips | exists (P-2) | P-9 and C-10 put real names, tags and copy in |
+| web/src/components/Process.astro | Five numbered steps | exists (P-2) | P-9 and C-10 |
+| web/src/components/Faq.astro | Four details disclosures | exists (P-2) | P-9 and C-10 |
+| web/src/components/Footer.astro | Logo, contact rows, base city, copyright | exists (P-2) | P-10 supplies settings and the number, P-15 the direct link |
+| web/src/pages/404.astro | The page served for an asset miss, with status 404 | exists (P-2) | DESIGN changes, or the assets 404 handling changes (D19) |
+| web/src/pages/index.astro | Page order plus the enquiry section shell and its field list | exists (P-2) | A section is added, removed or reordered. P-12 replaces the shell with the island |
 | web/src/components/EnquiryForm.tsx | Enquiry form island | P-12 | Form behavior changes |
 | shared/whatsapp.ts | WhatsApp message and URL builders | P-11 | The message format changes |
 | shared/site-config.ts | Owner WhatsApp digits and site origin | P-10 | The number or domain changes |
@@ -252,6 +274,7 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-10-27 | Agent (Qoder) | P-2 built the page skeleton. Added the ten section components under `web/src/components`, `web/src/pages/404.astro`, and rewrote `index.astro` as the PRD section order. `global.css` gained an `@layer components` block with the DESIGN section 7 shared classes, and `worker/wrangler.toml` gained `not_found_handling = "404-page"`, which is what 404.astro exists for (D19, re-probed in docs/spikes/stack-spike.md). No file moved or was deleted | P-2, P-24 (added), D23, D24 |
 | 2026-10-27 | Agent (Qoder) | P-1 filled the scaffold in. Added `web/src/styles/tokens.css`, `global.css` and `design-tokens.test.ts`, `web/src/layouts/Base.astro`, root `eslint.config.js` and `vitest.config.ts`. Moved `assets/brand/alpha-movies-logo.webp` to `web/src/assets/brand/`, so `assets/brand` now holds only the archive original and the P-21 planned files. `web/src/pages/index.astro` stopped being a spike page and became the scaffold page P-2 replaces. Root `package.json` gained `lint` and `test` and the Node 22.22 floor | P-1, P-22, P-23 |
 | 2026-10-27 | Agent (Qoder) | Added `web/public/_headers` early, for S-3, and marked `web/public/` as existing. The file is a real CSP plus security headers, verified to apply to the asset layer only (D21). B-11 still owns tightening it once Turnstile, GA4 and the embed host exist | S-3, B-11 |
 | 2026-10-27 | Agent (Qoder) | Deleted the root `ARCHITECTURE.md`, a byte-identical copy of `docs/ARCHITECTURE.md`; docs/ is the single source. Added the real scaffold ahead of its tasks: root `package.json`, `package-lock.json`, `tsconfig.base.json`, `.nvmrc`, `web/` (Astro static config, tsconfig, spike `index.astro`), `worker/` (Hono spike `index.ts`, `wrangler.toml`, tsconfig), `shared/package.json` (new line: needed to make shared a workspace), `docs/spikes/stack-spike.md`. Planned `web/src/pages/404.astro` for P-2 (D19). Removed the false `repo-setup.sh` line from the directory rules | F-6, F-7, S-1, D19 |

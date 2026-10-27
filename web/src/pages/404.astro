@@ -1,0 +1,24 @@
+---
+// D19: an asset miss used to fall through to the Worker and return JSON. With
+// not_found_handling = "404-page" this page is served with a 404 status instead.
+// The nav is absent on purpose: its links are anchors that only exist on the home page.
+import { Image } from "astro:assets";
+import Base from "../layouts/Base.astro";
+import Footer from "../components/Footer.astro";
+import logo from "../assets/brand/alpha-movies-logo.webp";
+---
+
+<Base title="Page not found">
+  <main class="mx-auto flex max-w-site flex-col items-center justify-center gap-6 px-5 py-18 text-center md:px-8 md:py-30">
+    <Image src={logo} widths={[440, 880]} sizes="(max-width: 767px) 350px, 440px" alt="Alpha Movies" class="w-full max-w-110" />
+    <p class="eyebrow">404</p>
+    <h1 class="font-display text-display">Page not found</h1>
+    <p class="max-w-[46ch] text-body-large text-text-2">
+      That page is not here. The work, the credentials and the booking form are all on the home
+      page.
+    </p>
+    <a href="/" class="btn-primary">Back to the site</a>
+  </main>
+
+  <Footer />
+</Base>

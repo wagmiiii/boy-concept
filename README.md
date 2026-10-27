@@ -6,7 +6,7 @@ Status and progress: [ROADMAP.md](ROADMAP.md). Start there.
 
 ## Stack
 
-Astro 7 (static, pinned 7.4.1) served by one Cloudflare Worker (Hono) with D1 for enquiries, Resend for email and Turnstile for bot protection. Node 22.22 or newer. Since task P-1 the `web` workspace is a real Astro site: Tailwind v4 on the DESIGN.md tokens, Marcellus and Inter through the Astro Fonts API, a base layout and the optimized logo. `shared` is still empty until P-10 and P-11, and `worker` holds only the spike routes until Phase 1 clears gate G0.
+Astro 7 (static, pinned 7.4.1) served by one Cloudflare Worker (Hono) with D1 for enquiries, Resend for email and Turnstile for bot protection. Node 22.22 or newer. Since task P-1 the `web` workspace is a real Astro site: Tailwind v4 on the DESIGN.md tokens, Marcellus and Inter through the Astro Fonts API, a base layout and the optimized logo. Since P-2 it is also the real page skeleton: nav, hero, showreel, portfolio, credentials, services, process, FAQ, an enquiry shell, footer and a 404 page. Every one of those sections is placeholder copy or a DEMO block until the content is verified, so the site is not shareable with clients yet. `shared` is still empty until P-10 and P-11, and `worker` holds only the spike routes until Phase 1 clears gate G0.
 
 ## Running what exists today
 

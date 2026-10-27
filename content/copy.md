@@ -2,48 +2,93 @@
 
 Single source for all site text. Edit here first, get it approved, then update the pages in `web/src`. Never invent claims. Anything not yet confirmed stays in [brackets] and is listed in `PLACEHOLDERS.md`.
 
-Status: skeleton only. Copy is written at ROADMAP task C-10, from the client's answers.
+Status: skeleton copy in place since P-2 (nav labels, 404 page, footer and form labels). The approved sentences, headlines and answers are written at task C-10 from the client's answers. Until then the pages render bracketed placeholders and DEMO blocks, and they are not shareable with Emmanuel's clients.
+
+## Nav
+
+- Brand text: Boy Concept (interim while Q12 is open, see decision D24)
+- Links: Showreel, Portfolio, Services, FAQ
+- Primary button: Check a date
+- Mobile disclosure label: Menu
 
 ## Hero
 
-- Headline: [write from client answers]
-- Subheadline: [write from client answers]
+- Headline: [brand statement, write at C-10]
+- Subheadline: [one supporting line, write at C-10]
 - Primary CTA: Check a date
 - Secondary CTA: View showreel
 
 ## Showreel
 
-- Title: [write]
+- Eyebrow: Showreel
+- Title: [write at C-10]
 
 ## Portfolio
 
+- Eyebrow: Work
+- Title: [write at C-10]
+- Intro line: [write at C-10]
 - Categories: Commercial, Cultural Festivals, Weddings, Documentaries
-- Intro line: [write]
+- Filter label for the all view: All
 
 ## Credentials
 
-- Section title: [write]
-- Intro line: [write]
+- Eyebrow: Credentials
+- Section title: [write at C-10]
+- Intro line: [write at C-10]
 
 ## Services
 
-Four services with tag chips: [write from client answers]
+- Eyebrow: Services
+- Title: [write at C-10]
+- Four services with tag chips: [write from client answers at C-10]
 
 ## Process
 
-Five steps: [write from client answers]
+- Eyebrow: Process
+- Title: [write at C-10]
+- Five steps: [write from client answers at C-10]
 
 ## FAQ
 
-[write from the owner's real answers]
+- Eyebrow: FAQ
+- Title: [write at C-10]
+- Questions and answers: [write from the owner's real answers at C-10]
 
 ## Enquiry form
 
-- Title: [write]
+- Eyebrow: Check a date
+- Title: [write at C-10]
+- Field order, from PRD section 7. Event date is first and there is no budget field: Event date, Second date or end date, Project type, Venue, city, country, Duration, Deliverables, Reference video, Name, Company or agency, WhatsApp number, Email, Notes, Consent
 - From-price line: Packages start from ₦[amount]
 - Response-time line: [only a time someone will keep]
-- Confirmation text: [write]
+- Submit label: Send brief
+- Confirmation text: [write at C-10]
+
+## 404 page
+
+- Eyebrow: 404
+- Title: Page not found
+- Line: That page is not here. The work, the credentials and the booking form are all on the home page.
+- Button: Back to the site
 
 ## Footer
 
-- Base city: [confirm]
+- Direct contact line: Already booked with us? Message directly on WhatsApp.
+- Base city: [confirm, Q3]
+- Instagram: [handle]
+- YouTube: [channel]
+- WhatsApp: [number, defined only in `shared/site-config.ts`]
+- Copyright: © [year] Boy Concept (Alpha Movies Ltd). RC [confirm on CAC public search]
+
+## Scaffolding text to remove at C-10
+
+These lines exist to tell us, not a visitor, what is not built yet. They are inside the DEMO blocks and they go when the real content arrives (task P-24).
+
+- "DEMO: media arrives at P-4"
+- "DEMO poster"
+- "The chips are disabled: filtering needs the verified projects, and that is task P-6."
+- "Verified items only. Source note lives in content/verification-log.md."
+- "This section hides entirely while it holds fewer than [N] verified items (FR-26, P-8)."
+- "The fields are a list, not a working form yet. The island arrives at P-12 with validation, the confirmation screen and the WhatsApp handoff."
+- "The link goes live at P-15 and works without JavaScript."

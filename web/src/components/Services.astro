@@ -1,0 +1,27 @@
+---
+// FR-19 and DESIGN.md section 7. Four services with tag chips; the names and tags are written
+// from the client answers at C-10 and stay bracketed until then.
+const services = [1, 2, 3, 4];
+---
+
+<section id="services" class="mx-auto flex max-w-site flex-col gap-6 px-5 py-18 md:px-8 md:py-30">
+  <div class="flex flex-col gap-2">
+    <p class="eyebrow">Services</p>
+    <h2 class="font-display text-h2">[Services heading, written at C-10]</h2>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    {
+      services.map((n) => (
+        <div class="card flex flex-col gap-3 p-6">
+          <h3 class="font-display text-h3">[Service {n} name]</h3>
+          <p class="text-body text-text-2">[What the client gets, written at C-10]</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="chip">[tag]</span>
+            <span class="chip">[tag]</span>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>

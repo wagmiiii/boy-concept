@@ -1,0 +1,31 @@
+---
+// DESIGN.md section 7 Hero. Copy is not approved yet, so the lines stay bracketed and are
+// registered in content/PLACEHOLDERS.md. Task P-3 replaces them with the real brand statement.
+import { Image } from "astro:assets";
+import logo from "../assets/brand/alpha-movies-logo.webp";
+---
+
+<section
+  id="hero"
+  class="mx-auto flex max-w-site flex-col items-center gap-6 px-5 py-18 text-center md:px-8 md:py-30"
+>
+  <Image
+    src={logo}
+    widths={[560, 1120]}
+    sizes="(max-width: 767px) 340px, 560px"
+    alt="Alpha Movies"
+    loading="eager"
+    class="w-full max-w-140"
+  />
+
+  <h1 class="max-w-[44ch] font-display text-display">[brand statement: write at C-10]</h1>
+
+  <p class="max-w-[60ch] text-body-large text-text-2">
+    [One line of supporting copy, written from the client answers at C-10]
+  </p>
+
+  <div class="flex flex-col gap-3 pt-2 sm:flex-row">
+    <a href="#enquiry" class="btn-primary">Check a date</a>
+    <a href="#showreel" class="btn-secondary">View showreel</a>
+  </div>
+</section>

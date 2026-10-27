@@ -1,0 +1,20 @@
+---
+// DESIGN.md section 7 Portfolio card. No project is verified or permitted yet (FR-27), so the
+// card is not a link and carries no client name. P-6 and P-7 turn it into a real card.
+interface Props {
+  category: string;
+  title: string;
+}
+
+const { category, title } = Astro.props;
+---
+
+<article class="card overflow-hidden">
+  <div class="poster-frame flex items-center justify-center">
+    <span class="chip z-10 absolute top-3 left-3">{category}</span>
+    <span class="z-10 text-small uppercase tracking-[0.12em] text-text-muted">DEMO poster</span>
+  </div>
+  <div class="p-4">
+    <h3 class="font-display text-h3">{title}</h3>
+  </div>
+</article>

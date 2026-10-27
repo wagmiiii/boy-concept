@@ -9,3 +9,6 @@ compatibility_flags = ["nodejs_compat"]
 directory = "../web/dist"
 binding = "ASSETS"
 run_worker_first = ["/api/*"]
+# D19: without this an asset miss falls through to the Worker, which answers with JSON.
+# web/src/pages/404.astro builds to dist/404.html, which is what this serves.
+not_found_handling = "404-page"

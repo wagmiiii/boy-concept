@@ -1,6 +1,6 @@
 # ARCHITECTURE_ESSENTIALS
 
-Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.4.
+Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.5.
 
 ## What this is
 - Booking and showcase site for Boy Concept (Alpha Movies Ltd). The enquiry flow and the credibility layer are the product.
@@ -48,16 +48,18 @@ Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECT
 13. Every contribution updates `ROADMAP.md` (always) and `PROJECT_STRUCTURE.md` (when files or folders change) before it counts as done. State what you updated in your report.
 14. UI follows `docs/DESIGN.md`: tokens only, no hardcoded colors, black page background, the logo only on black or very dark surfaces and never recolored.
 15. The owner WhatsApp number is defined only in `shared/site-config.ts`.
+16. Unverified content renders as a neutral block labelled DEMO, never as a claim: no client name, no stat, no price, no credential (D23). Bracketed placeholders stay out of anything presented as verified.
 
 ## Env vars and bindings
 - Worker: binding `DB`, `TURNSTILE_SECRET`, `RESEND_API_KEY`, `OWNER_EMAILS`, `ALLOWED_ORIGIN`.
 - Web build: `PUBLIC_TURNSTILE_SITE_KEY`.
 
 ## Known breakpoints
-- Single-Worker routing of assets plus `/api/*` is verified locally and on a deployed Worker (S-1, S-5, `docs/spikes/stack-spike.md`): `[assets] run_worker_first = ["/api/*"]`. An asset miss falls through to the Worker, so scope the Worker catch-all to `/api/*` and set `not_found_handling` (D19). Deploy with `npm run deploy:test`; a root-level `npx wrangler deploy` fails in an npm workspace.
+- Single-Worker routing of assets plus `/api/*` is verified locally and on a deployed Worker (S-1, S-5, `docs/spikes/stack-spike.md`): `[assets] run_worker_first = ["/api/*"]`. A former asset miss fell through to the Worker; `not_found_handling = "404-page"` plus `web/src/pages/404.astro` (P-2) means a miss now serves the HTML 404 page with the `_headers` policy, while `/api/*` still reaches Hono. Keep the Worker catch-all scoped to `/api/*` (D19). Deploy with `npm run deploy:test`; a root-level `npx wrangler deploy` fails in an npm workspace.
 - Turnstile and `wa.me` inside the Instagram in-app browser are untested and block the form design.
 - Email deliverability from a new domain.
-- `_headers` is honored for Worker assets, but only for asset responses and asset redirects. `/api/*` and an asset miss that reaches the Worker get nothing from it, so the Worker sets its own security headers (D21). The font and inline-style parts of the CSP are exercised (P-1); Turnstile, GA4 and YouTube nocookie are still unexercised until P-4 and P-12.
+- `_headers` is honored for Worker assets, but only for asset responses and asset redirects. `/api/*` gets nothing from it, so the Worker sets its own security headers (D21). Re-probed at P-2: the 404 page is an assets response, so it carries the full policy. The font and inline-style parts of the CSP are exercised (P-1); Turnstile, GA4 and YouTube nocookie are still unexercised until P-4 and P-12.
+- The public brand text currently reads Boy Concept in the nav, the page title and the copyright while Q12 stays open, and the supplied logo still spells ALPHA MOVIES in the hero and footer (D24). The nav is text, not the logo, because the 3D mark cannot be 220 px wide inside a 64 px bar (DESIGN section 2 rule 4 against section 7). P-21 and Q12 settle both.
 - `astro`, `@astrojs/preact` and `preact` are pinned at exact versions. A caret on astro resolves to 7.4.2, which demands Node 22.23.4 and fails the engine check on this machine (D22).
 
 ## Cut or parked (do not build unprompted)

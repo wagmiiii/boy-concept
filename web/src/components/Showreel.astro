@@ -1,0 +1,32 @@
+---
+// DESIGN.md section 7 Showreel. FR-2: poster first, video only on tap. The poster file and the
+// video are not verified or supplied yet, and the tap behaviour is task P-4, so this is the
+// 16:9 shell with the specified play control and nothing that loads media.
+---
+
+<section
+  id="showreel"
+  class="mx-auto flex max-w-site flex-col gap-6 px-5 py-18 md:px-8 md:py-30"
+>
+  <div class="flex flex-col gap-2">
+    <p class="eyebrow">Showreel</p>
+    <h2 class="font-display text-h2">[Showreel heading, written at C-10]</h2>
+  </div>
+
+  <div class="poster-frame flex items-center justify-center">
+    <span
+      class="relative z-10 flex size-18 items-center justify-center rounded-full border-[1.5px] border-gold"
+      aria-hidden="true"
+    >
+      <svg class="ml-1 size-6 text-gold" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5.5v13l11-6.5z" />
+      </svg>
+    </span>
+    <p class="demo-tag absolute bottom-4 left-4 z-10">DEMO: media arrives at P-4</p>
+  </div>
+
+  <p class="max-w-[60ch] text-body text-text-muted">
+    No media loads here yet. The poster image renders first and the player is created only on
+    tap, so a visitor on mobile data never downloads a video they did not ask for.
+  </p>
+</section>
