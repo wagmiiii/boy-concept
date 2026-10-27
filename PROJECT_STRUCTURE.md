@@ -5,7 +5,7 @@ Where everything lives and why. Read this before creating, moving or deleting a 
 | | |
 |---|---|
 | Last updated | 2026-10-27 |
-| Structure version | 0.5 |
+| Structure version | 0.6 |
 | Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. `web`, `worker` and `shared` arrived early via S-1 and are spike-minimal: no Tailwind, no Preact, no content collections, no API beyond the spike routes |
 
 ## Update rule (mandatory, applies to humans and agents)
@@ -95,8 +95,8 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │   ├── astro.config.mjs               (exists, S-1) static output, no adapter
 │   ├── tsconfig.json                  (exists, S-1)
 │   ├── dist/                          build output, gitignored, what the Worker assets binding serves
-│   ├── public/
-│   │   ├── _headers                   (B-11) security headers and CSP
+│   ├── public/                        (exists, S-3)
+│   │   ├── _headers                   (exists, S-3) CSP and security headers. Verified to govern asset responses and asset redirects only, never /api/* (D21)
 │   │   └── robots.txt                 (P-20) noindex on the test environment
 │   └── src/
 │       ├── assets/brand/              (P-1) web-ready logo and poster images
@@ -176,6 +176,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | tsconfig.base.json | The strict TypeScript settings every workspace extends | exists (S-1) | A strictness rule changes |
 | .nvmrc | The Node version the project expects | exists (S-1) | The Node floor changes |
 | web/astro.config.mjs | Static output, no SSR adapter, and later `site` | exists (S-1) | The build target changes |
+| web/public/_headers | CSP and security headers for the asset layer | exists (S-3) | A script, frame or embed host is added or removed, at P-4 and P-12 |
 | worker/wrangler.toml | The one Worker: assets binding plus run_worker_first | exists (S-1) | Routing, compatibility date or bindings change (D17, D19) |
 | worker/src/index.ts | Spike routes today; Hono route wiring at B-1 | exists (S-1) | A route is added |
 | shared/package.json | Makes `shared` a resolvable workspace | exists (S-1) | The shared entry points are declared at P-10 |
@@ -243,6 +244,7 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-10-27 | Agent (Qoder) | Added `web/public/_headers` early, for S-3, and marked `web/public/` as existing. The file is a real CSP plus security headers, verified to apply to the asset layer only (D21). B-11 still owns tightening it once Turnstile, GA4 and the embed host exist | S-3, B-11 |
 | 2026-10-27 | Agent (Qoder) | Deleted the root `ARCHITECTURE.md`, a byte-identical copy of `docs/ARCHITECTURE.md`; docs/ is the single source. Added the real scaffold ahead of its tasks: root `package.json`, `package-lock.json`, `tsconfig.base.json`, `.nvmrc`, `web/` (Astro static config, tsconfig, spike `index.astro`), `worker/` (Hono spike `index.ts`, `wrangler.toml`, tsconfig), `shared/package.json` (new line: needed to make shared a workspace), `docs/spikes/stack-spike.md`. Planned `web/src/pages/404.astro` for P-2 (D19). Removed the false `repo-setup.sh` line from the directory rules | F-6, F-7, S-1, D19 |
 | 2026-10-26 | Agent (Claude) | Stack changed from Framer to Astro, Worker and D1. Replaced `/framer` with `/web`, added `/shared/site-config.ts`, `worker/migrations`, conditional `/cms`. Removed the Framer spike file and the duplicated message builder and tokens | F-10 |
 | 2026-10-10 | Agent (Claude) | Added docs/DESIGN.md and assets/brand (logo original and web version); planned flat wordmark, favicon and social image | F-9, P-21 |

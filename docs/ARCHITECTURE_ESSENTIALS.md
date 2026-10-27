@@ -57,7 +57,7 @@ Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECT
 - Single-Worker routing of assets plus `/api/*` is verified locally and on a deployed Worker (S-1, S-5, `docs/spikes/stack-spike.md`): `[assets] run_worker_first = ["/api/*"]`. An asset miss falls through to the Worker, so scope the Worker catch-all to `/api/*` and set `not_found_handling` (D19). Deploy with `npm run deploy:test`; a root-level `npx wrangler deploy` fails in an npm workspace.
 - Turnstile and `wa.me` inside the Instagram in-app browser are untested and block the form design.
 - Email deliverability from a new domain.
-- `_headers` and the CSP with Worker assets are unverified.
+- `_headers` is honored for Worker assets, but only for asset responses and asset redirects. `/api/*` and an asset miss that reaches the Worker get nothing from it, so the Worker sets its own security headers (D21). The CSP values are still unexercised until P-4 and P-12.
 
 ## Cut or parked (do not build unprompted)
 - Availability picker, `blocked_date`, `date_conflict`.
