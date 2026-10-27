@@ -12,12 +12,16 @@ Astro 6 (static) served by one Cloudflare Worker (Hono) with D1 for enquiries, R
 
 ```
 npm install
-npm run build        # the Astro site into web/dist
-npm run dev:worker   # wrangler dev: serves web/dist and routes /api/* to Hono
+npm run dev            # the Astro site
+npm run dev:worker     # wrangler dev: serves web/dist and routes /api/* to Hono
+npm run build          # the Astro site into web/dist
 npm run typecheck
+npm run deploy:test    # builds, then deploys the spike Worker to workers.dev
 ```
 
-`npm test` and `npm run lint` do not exist yet: Vitest and ESLint arrive at P-1 and B-1. Never deploy to production; the test deploy comes with task P-20.
+`npm run deploy:test` is the only deploy target and it points at the throwaway spike Worker. Do not run it unless you mean to publish, and there is no production deploy command. `npm test` and `npm run lint` do not exist yet: Vitest and ESLint arrive at P-1 and B-1.
+
+One warning: the Cloudflare dashboard also holds a GitHub build integration for this repo, so two pipelines can deploy. Task L-6 decides which one stays.
 
 ## Docs
 

@@ -6,9 +6,9 @@ Single source of truth for project status and for the path to 100% readiness.
 |---|---|
 | Last updated | 2026-10-27 |
 | Stack | Astro 6 (static, pinned 6.4.8 for the spike, see D20), one Cloudflare Worker (Hono) and D1. Changed from Framer on 2026-10-26 (decision D13) |
-| Current phase | Discovery (D) and the stack spike (S). Foundations (F) is closed except the CI proof on F-7 |
-| Readiness | 13% (11 of 83 Must tasks done) |
-| Gates passed | none. G1: S-1 verified locally, deployed half and S-2 open |
+| Current phase | Discovery (D) and the stack spike (S). S-1 and S-5 are done; S-2, S-3 and S-4 remain, and S-2 needs real devices |
+| Readiness | 16% (13 of 83 Must tasks done) |
+| Gates passed | none. G1: the single-Worker routing is verified locally and on the edge; S-2 and S-3 still decide the gate |
 | CMS decision | Pending Q13. Section K (hosted CMS) is excluded from the score until Q13 is yes |
 
 ## Update rule (mandatory, applies to humans and agents)
@@ -39,22 +39,22 @@ Recalculate on every update.
 |---|---|---|---|
 | F Foundations | 10 of 10 | 0 of 0 | n/a |
 | D Discovery and pitch | 1 of 8 | 1 of 1 | n/a |
-| S Stack spike | 0 of 5 | 0 of 0 | n/a |
+| S Stack spike | 2 of 5 | 0 of 0 | n/a |
 | P Phase 0 | 0 of 19 | 0 of 2 | n/a |
 | C Phase 1 | 0 of 11 | 0 of 0 | n/a |
 | K Hosted CMS (conditional) | n/a | n/a | 0 of 4 |
-| L Phase 1 | 0 of 4 | 0 of 1 | n/a |
+| L Phase 1 | 0 of 4 | 0 of 2 | n/a |
 | B Phase 1 | 0 of 16 | 0 of 0 | n/a |
 | R Phase 1 | 0 of 10 | 0 of 0 | n/a |
 | X Post-launch | not counted | not counted | n/a |
-| **Total counted** | **11 of 83** | **1 of 4** | |
+| **Total counted** | **13 of 83** | **1 of 5** | |
 
 ## Gates
 
 | Gate | Condition | Decided by tasks | Status |
 |---|---|---|---|
 | G0 | Emmanuel agrees to proceed and answers Q1 | D-7, D-8 | open |
-| G1 | Stack spike passed: one Worker serves the build and /api/*, and Turnstile and the WhatsApp button work in the Instagram in-app browser. If routing fails, use two Workers with CORS. If the in-app browser fails, redesign the form flow | S-4 | open. S-1 local half passed 2026-10-27; S-5 blocked on account setup; S-2 and S-3 open |
+| G1 | Stack spike passed: one Worker serves the build and /api/*, and Turnstile and the WhatsApp button work in the Instagram in-app browser. If routing fails, use two Workers with CORS. If the in-app browser fails, redesign the form flow | S-4 | open. Routing half verified locally and on the edge 2026-10-27; S-2, S-3 open |
 | G2 | Content bar met: minimum verified, permitted content is in the site | C-9, C-11 | open |
 | G3 | Launch checklist signed off by Emmanuel | R-6 | open |
 | G4 | Handover accepted: every account is in the client's name | R-10 | open |
@@ -67,7 +67,7 @@ Recalculate on every update.
 - A hand-built front end is slower to a polished first demo than a visual editor was [Likely]. P-1 to P-4 are the early risk, and DESIGN.md exists to shorten them.
 - Verified content is the credibility layer, which is the strongest part of the pitch. A thin content set is a schedule risk and a product risk.
 - Nothing here has dates. Add dates only after G0, once Emmanuel's response time is known.
-- The deployed half of G1 is blocked on Cloudflare account setup, not on code: the account has no workers.dev subdomain and an Account API token cannot create one (S-5, 2026-10-27). One dashboard page load clears it. P-20 and B-15 inherit the same prerequisite, so clear it now. The spike account is a throwaway builder one; the client-owned account is L-1.
+- Deploys now have two competing pipelines. The Cloudflare dashboard holds a GitHub build integration for this repo that fails at the deploy step, and a green run of it would publish main without anyone choosing to. L-6 settles it, and must be decided before P-20. The spike Worker lives on a throwaway builder account; the client-owned accounts are still L-1.
 - The GitHub repo is public and already holds the supplied logo and the proposal deck. If the pitch is sensitive before D-7, make it private. Nothing secrets-bearing is in it (Certain, checked .gitignore and tree).
 
 ## Tasks
@@ -107,11 +107,11 @@ Priority: M is Must, S is Should, C is conditional. Refs point to requirement ID
 
 | Status | ID | Task | Owner | Size | Depends on | Refs | P |
 |---|---|---|---|---|---|---|---|
-| [~] | S-1 | Confirm one Worker serves the Astro static build as assets and routes /api/* to a Hono app, locally and deployed to test. Local half verified 2026-10-27: `run_worker_first = ["/api/*"]` works, typecheck clean, evidence in docs/spikes/stack-spike.md. Deployed half is S-5 | Agent, Ademola | S | F-6 | ARCH Verify 1 | M |
+| [x] | S-1 | Confirm one Worker serves the Astro static build as assets and routes /api/* to a Hono app, locally and deployed to test. Done 2026-10-27: checks A1 to A10 pass in wrangler dev and against the deployed boy-concept-spike Worker. Evidence and the two side effects (D19) in docs/spikes/stack-spike.md | Agent, Ademola | S | F-6 | ARCH Verify 1 | M |
 | [ ] | S-2 | Confirm Turnstile and a form submit work in the Instagram in-app browser (iOS and Android) and the wa.me button opens WhatsApp | Ademola | M | S-1 | ARCH Verify 2 | M |
 | [ ] | S-3 | Check D1, Workers and Resend free-tier limits against expected volume; check that _headers and the CSP work with Worker assets | Ademola, Agent | S | S-1 | ARCH Verify 3, 4, 5 | M |
-| [ ] | S-4 | Write docs/spikes/stack-spike.md; update the Verify list; decide gate G1. The file exists with the S-1 section; finish it when S-2, S-3 and S-5 are in | Agent | S | S-1, S-2, S-3, S-5 | none | M |
-| [!] | S-5 | Deploy the spike Worker to a throwaway test workers.dev address (noindex) and repeat checks A1 to A9 from the spike doc. Blocked 2026-10-27: the account has no workers.dev subdomain, and an Account API token cannot create one (error 10405). Needs one dashboard page load by Ademola. Agreed subdomain name: boy-concept. Not the production account: those move to the client at L-1 | Ademola | S | S-1 | ARCH Verify 1, G1 | M |
+| [~] | S-4 | Write docs/spikes/stack-spike.md; update the Verify list; decide gate G1. The file holds S-1 and S-5; finish it when S-2 and S-3 are in, then decide G1 | Agent | S | S-1, S-2, S-3, S-5 | none | M |
+| [x] | S-5 | Deploy the spike Worker to a throwaway test workers.dev address (noindex) and repeat checks A1 to A9 from the spike doc. Done 2026-10-27 at boy-concept-spike.ademola2993k.workers.dev. Found the root-of-workspace wrangler failure, fixed by the deploy:test root script. The subdomain registered as ademola2993k, not the agreed boy-concept | Ademola, Agent | S | S-1 | ARCH Verify 1, G1 | M |
 
 ### P. Phase 0: Astro pitch demo (no backend)
 
@@ -177,6 +177,7 @@ See the Gates table above. Update it when a gate is decided.
 | [ ] | L-3 | Titles, meta, OG image, favicon; check link previews in WhatsApp and Instagram | Ademola | S | C-1, P-21 | none | M |
 | [ ] | L-4 | Privacy notice page and consent text; check NDPA 2023 duties | Ademola | M | none | ARCH Verify 8 | M |
 | [ ] | L-5 | GA4 on the production domain; confirm both events fire | Ademola | S | L-2, P-16 | FR-21 | S |
+| [ ] | L-6 | Settle who owns deploys: the Cloudflare dashboard has a GitHub build integration for this repo whose deploy command is `npx wrangler deploy`, which fails from a workspace root. Change it to `npm run deploy:test` or disconnect it, so exactly one pipeline publishes. Decided before P-20 | Ademola | S | S-5 | ARCH 10 | S |
 
 ### B. Phase 1: backend (Worker and D1)
 
@@ -245,11 +246,10 @@ Fill the Answer column as soon as Emmanuel responds, then update the PRD if an a
 
 ## Blockers
 
-One blocker recorded: S-5. Add a row when a task is marked `[!]`.
+No open blockers. The S-5 blocker, a missing workers.dev subdomain, cleared the same day it appeared. Add a row when a task is marked `[!]`.
 
 | Task | Blocked by | Since | Next action |
 |---|---|---|---|
-| S-5 | Cloudflare account setup: the account-wide workers.dev subdomain does not exist and an Account API token cannot register it | 2026-10-27 | Ademola opens dash.cloudflare.com → his account → Workers & Pages, which creates the subdomain on first load. Then the agent reruns `wrangler deploy` and checks A1 to A9 |
 
 ## Progress log
 
@@ -257,6 +257,7 @@ Newest first. One line per PR or work session.
 
 | Date | Who | What | Tasks | Files |
 |---|---|---|---|---|
+| 2026-10-27 | Agent (Qoder) | Closed S-5 and S-1. Ademola registered the workers.dev subdomain through the Workers and Pages onboarding, which chose `ademola2993k` rather than the agreed `boy-concept`. His dashboard build then failed for a genuine repo reason: `npx wrangler deploy` refuses to run in an npm workspace root. Added the deploy:test root script AGENTS.md always promised, verified with a dry run, deployed boy-concept-spike, and reran the whole check matrix against the live URL: A1 to A10 match the local results, so D17 holds on Cloudflare's edge and the two-Worker fallback stays unused. Bundle 826 KiB raw, 134 KiB gzipped, startup 14 ms, which feeds S-3. Recorded that the dashboard GitHub integration now competes with the GitHub Action and added L-6 to settle who owns deploys | S-1, S-5, S-4, L-6 (added) | package.json, ROADMAP.md, docs/spikes/stack-spike.md, docs/ARCHITECTURE.md, docs/ARCHITECTURE_ESSENTIALS.md |
 | 2026-10-27 | Agent (Qoder) | Attempted the deployed half of the spike (S-5) with an Account API token supplied by Ademola. whoami passed and the site built, but wrangler refuses to publish or run a remote preview because the account has no workers.dev subdomain, and the API rejects creating one with an Account token (10405). Nothing was published and nothing in the account changed. Recorded the whole attempt, the agreed subdomain name boy-concept, and the token rotation note in the spike doc. Marked S-5 blocked with a Blockers row and flagged that P-20 and B-15 inherit the same prerequisite | S-5 (blocked), S-1, S-4 | docs/spikes/stack-spike.md, ROADMAP.md |
 | 2026-10-27 | Agent (Qoder) | Closed the foundations gaps honestly and ran the local half of the stack spike. Deleted the duplicate root ARCHITECTURE.md (byte-identical to docs/). Scaffolded the real workspaces: root package.json with web/worker/shared, tsconfig.base.json, .nvmrc, an Astro 6 static site, and one Worker whose `[assets] run_worker_first = ["/api/*"]` serves the build and routes the API. Ran the server, 9 checks, and `npm run build` plus `npm run typecheck` (0 errors). S-1 local half passes; asset misses fall through to the Worker, which is now decision D19. Added D20 for the Astro 6 critical advisory against the Node floor. The repo exists on GitHub with main in sync, so F-6 is done and the false repo-setup.sh claim is dropped. Deployed half of S-1 is the new S-5, waiting on a Cloudflare account. PR #1 then ran the CI check and passed, so F-7 closed on the same branch: 11 of 83, 13% | F-6, F-7, S-1, S-4 (started), S-5 (added), P-1, P-2 | package.json, package-lock.json, tsconfig.base.json, .nvmrc, web/*, worker/*, shared/package.json, docs/spikes/stack-spike.md, ROADMAP.md, PROJECT_STRUCTURE.md, docs/ARCHITECTURE.md, docs/ARCHITECTURE_ESSENTIALS.md; deleted ARCHITECTURE.md |
 | 2026-10-26 | Agent (Claude) | Changed the stack from Framer to Astro 6 (static), one Cloudflare Worker (Hono) and D1. Rewrote ARCHITECTURE, ESSENTIALS and PROJECT_STRUCTURE. Updated PRD, DESIGN, AGENTS, CLAUDE, README, copy.md and this roadmap. Replaced the Framer spike with a stack spike, made the backend tasks unconditional, added conditional CMS tasks (K) and question Q13, removed the old gate G1 meaning | F-10, S-1 to S-4 (replaced), P (rewritten), B (now Must), K (added), D-9 (updated) | all docs, ROADMAP.md, PROJECT_STRUCTURE.md |

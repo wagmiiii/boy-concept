@@ -14,6 +14,7 @@
     "dev": "npm run dev --workspace web",
     "dev:worker": "npm run dev --workspace worker",
     "build": "npm run build --workspace web",
-    "typecheck": "npm run typecheck --workspace web && npm run typecheck --workspace worker"
+    "typecheck": "npm run typecheck --workspace web && npm run typecheck --workspace worker",
+    "deploy:test": "npm run build && wrangler deploy --config worker/wrangler.toml"
   }
 }
