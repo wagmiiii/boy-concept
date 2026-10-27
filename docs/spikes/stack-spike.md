@@ -1,6 +1,6 @@
 # Stack spike
 
-Status: in progress. S-1 local half verified. S-2, S-3 and the deployed half of S-1 are open. Gate G1 is open.
+Status: in progress. S-1 local half verified. S-5 (the deployed half) blocked on one Cloudflare dashboard click. S-2 and S-3 open. Gate G1 is open.
 Environment: Ubuntu x64, Node v22.23.2, npm 10.9.8, wrangler 4.153.0, astro 6.4.8, hono 4.13.14, zod 4.6.7. Run on 2026-10-27 by Agent (Qoder).
 
 ## S-1: one Worker serves the Astro build and routes /api/* to Hono
@@ -49,11 +49,34 @@ An asset miss falls through to the Worker even without `run_worker_first`. A bro
 
 A8 is not a problem, but it means `site` in `astro.config.mjs` must be set to the final origin at L-2 so canonical and OG URLs use the extensionless form.
 
+## S-5: the deployed half, attempted and blocked 2026-10-27
+
+Credentials were kept outside the repo (`~/.cfspike`, mode 600). No token value and no account ID belongs in this repo, which is public.
+
+| Step | Result |
+|---|---|
+| `wrangler whoami` with an Account API token | pass (Certain). The token authenticates against the account |
+| `npm run build` | pass |
+| `npx wrangler deploy` | refused: "You need to register a workers.dev subdomain before publishing to workers.dev". Wrangler asked interactively and, with no TTY, used the fallback answer `no` |
+| `POST /accounts/<id>/workers/subdomain` using the token | `10405 Method not allowed for this authentication scheme`. An Account API token cannot create the subdomain (Certain) |
+| `GET` on the same path | `10007 You do not have a workers.dev subdomain ... Opening the Workers & Pages landing page for the first time will create a workers.dev subdomain automatically` |
+| `npx wrangler dev --remote` (edge sandbox, nothing published) | also refused: `.../workers/scripts/boy-concept-spike/subdomain/edge-preview` needs a registered subdomain |
+| `user/tokens/verify` | `success: false`, expected: that endpoint is for User tokens, and this is an Account token. Not a permission problem |
+
+Two conclusions:
+
+1. **No agent-reachable path completes S-5 until a human visits the Cloudflare dashboard once.** The agreed subdomain name is `boy-concept`, chosen deliberately because it is account-wide and will name every future preview URL, including the client's once L-1 moves accounts into his name. Registering it is one page load, after which `wrangler deploy` and `wrangler dev --remote` both work.
+2. **P-20 and B-15 inherit this prerequisite.** Whoever runs the first real test deploy needs the same account already set up, so it is worth closing now rather than discovering it on a launch day.
+
+The attempt published nothing and changed nothing in the account (Certain: the deploy failed before upload, and the subdomain POST was rejected). `worker/.wrangler` is local cache and gitignored.
+
+The API token used here was shared in plain text outside a secret store, so rotate it at `dash.cloudflare.com` → API Tokens once S-5 is done. Treat it as spent until then.
+
 ## Open
 
 | Item | Status | Blocks |
 |---|---|---|
-| S-1 deployed half: same checks against a real `workers.dev` test Worker | open, needs a Cloudflare account and `wrangler login` or an API token | G1 |
+| S-1 deployed half, tracked as S-5 | **blocked** on the one-time workers.dev subdomain registration, see above | G1 |
 | S-2 Turnstile and `wa.me` inside the Instagram in-app browser (iOS and Android) | open, device test, cannot be done by an agent | G1, the form design |
 | S-3 free-tier limits, and whether `_headers` and the CSP apply to Worker assets | open. A9 shows assets do serve their own cache headers; `_headers` was not present in this run | G1, B-11 |
 
