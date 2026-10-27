@@ -1,27 +1,50 @@
 ---
-// DESIGN.md section 7 Hero. Copy is not approved yet, so the lines stay bracketed and are
-// registered in content/PLACEHOLDERS.md. Task P-3 replaces them with the real brand statement.
+// DESIGN.md section 7 Hero, and FR-1: brand statement, primary CTA that scrolls to the form,
+// secondary CTA to the showreel. The headline is one of three drafts the builder wrote, listed in
+// content/copy.md, and none of them is approved. It stays an open placeholder in
+// content/PLACEHOLDERS.md until Q1 and C-10, and it makes no claim a verification-log row would
+// have to back: no superlative, no stat, no client name.
 import { Image } from "astro:assets";
 import logo from "../assets/brand/alpha-movies-logo.webp";
+
+// DESIGN.md section 8: at most three flares in view, decorative only, static on mobile.
+const sparkles = ["sparkle-a size-4 -left-2 top-1", "sparkle-b size-3 -right-3 top-8", "sparkle-c size-3 -bottom-1 left-[18%]"];
 ---
 
 <section
   id="hero"
   class="mx-auto flex max-w-site flex-col items-center gap-6 px-5 py-18 text-center md:px-8 md:py-30"
 >
-  <Image
-    src={logo}
-    widths={[560, 1120]}
-    sizes="(max-width: 767px) 340px, 560px"
-    alt="Alpha Movies"
-    loading="eager"
-    class="w-full max-w-140"
-  />
+  <div class="relative w-full max-w-140">
+    <Image
+      src={logo}
+      widths={[560, 1120]}
+      sizes="(max-width: 767px) 340px, 560px"
+      alt="Alpha Movies"
+      loading="eager"
+      fetchpriority="high"
+      class="w-full"
+    />
 
-  <h1 class="max-w-[44ch] font-display text-display">[brand statement: write at C-10]</h1>
+    {
+      sparkles.map((cls) => (
+        <svg
+          class={`pointer-events-none absolute ${cls}`}
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M12 0c1 6.5 5.5 11 12 12-6.5 1-11 5.5-12 12-1-6.5-5.5-11-12-12C6.5 11 11 6.5 12 0Z" />
+        </svg>
+      ))
+    }
+  </div>
+
+  <h1 class="max-w-[22ch] text-balance font-display text-display">Shot for the occasion</h1>
 
   <p class="max-w-[60ch] text-body-large text-text-2">
-    [One line of supporting copy, written from the client answers at C-10]
+    Commercial films, cultural festival coverage, wedding and documentary work. Tell us the date
+    and we will tell you what is possible.
   </p>
 
   <div class="flex flex-col gap-3 pt-2 sm:flex-row">
@@ -29,3 +52,48 @@ import logo from "../assets/brand/alpha-movies-logo.webp";
     <a href="#showreel" class="btn-secondary">View showreel</a>
   </div>
 </section>
+
+<style>
+  .sparkle-a,
+  .sparkle-b,
+  .sparkle-c {
+    color: var(--gold);
+    opacity: 0.55;
+  }
+
+  @media (min-width: 768px) {
+    .sparkle-a {
+      animation: twinkle 3.4s var(--motion-ease) infinite;
+    }
+
+    .sparkle-b {
+      animation: twinkle 4s var(--motion-ease) 1.2s infinite;
+    }
+
+    .sparkle-c {
+      animation: twinkle 3.4s var(--motion-ease) 2.3s infinite;
+    }
+  }
+
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(0.95);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sparkle-a,
+    .sparkle-b,
+    .sparkle-c {
+      animation: none;
+      opacity: 0.8;
+    }
+  }
+</style>
