@@ -1,6 +1,6 @@
 # Stack spike
 
-Status: S-1 and S-5 verified, locally and on the edge. S-3 is half answered: `_headers` and the CSP are verified, the free-tier limits check is open. S-2 open, so gate G1 is still open. P-1 re-verified the routing and the header scope on the Astro 7 build.
+Status: S-1 and S-5 verified, locally and on the edge. S-3 is half answered: `_headers` and the CSP are verified, the free-tier limits check is open. S-2 open, so gate G1 is still open. P-1 re-verified the routing and the header scope on the Astro 7 build. P-2 closed the D19 remedy: asset misses now serve `404.html` with the `_headers` policy, and `/api/*` still reaches the Worker.
 Environment for S-1, S-5 and S-3: Ubuntu x64, Node v22.23.2, npm 10.9.8, wrangler 4.153.0, astro 6.4.8, hono 4.13.14, zod 4.6.7. Runs on 2026-10-27 by Agent (Qoder).
 Environment for the P-1 re-check below: the same machine, astro 7.4.1, vite 8.3.5, @astrojs/preact 6.1.0, preact 11.0.2, tailwindcss 4.3.3, eslint 10.13.0, vitest 5.0.5.
 
@@ -45,7 +45,7 @@ Run: `npm run build` then `npx wrangler dev --ip 127.0.0.1 --port 8788`. Local m
 
 An asset miss falls through to the Worker even without `run_worker_first`. A broad `app.all("*")` therefore turns every missing page into a JSON 404, which is wrong for a browser and wrong for crawlers. Two things to do at B-1:
 
-1. Set `not_found_handling` in the `[assets]` block, and ship a real `404.astro` at P-2 so Astro emits `404.html`.
+1. Set `not_found_handling` in the `[assets]` block, and ship a real `404.astro` at P-2 so Astro emits `404.html`. **Done at P-2, re-probed below: the assets layer now answers a miss with the HTML page and status 404, and the Worker never sees it.**
 2. Scope the Worker catch-all to `/api/*` instead of `*`, so an unmatched API path gets the one error shape and nothing else does.
 
 A8 is not a problem, but it means `site` in `astro.config.mjs` must be set to the final origin at L-2 so canonical and OG URLs use the extensionless form.
@@ -132,7 +132,7 @@ Local parity was checked too: `wrangler dev` applies the same `_headers` block o
 
 1. `web/public/_headers` stays as the mechanism for pages. No `_headers`-to-Worker port needed, and no `run_worker_first = true` for the sake of headers, which would have put every asset request through the Worker and burned invocation quota.
 2. **The Worker must set its own security headers on `/api/*`** in Hono middleware. Today an API response carries no `X-Content-Type-Options` and no CSP. A JSON API is a lower risk, but nosniff and `frame-ancestors` are cheap; B-11 now covers both files.
-3. **B-11 also has to re-test the miss path** once `not_found_handling` and `404.astro` exist. If the assets layer produces the 404 page, `_headers` should apply to it; if the Worker produces it, the 404 page ships without the policy. Not verified yet either way.
+3. **B-11 also has to re-test the miss path** once `not_found_handling` and `404.astro` exist. If the assets layer produces the 404 page, `_headers` should apply to it; if the Worker produces it, the 404 page ships without the policy. Not verified at S-3; **answered at P-2, see the P-2 section: the assets layer produces it and the full policy rides along.**
 
 ### Not verified, said plainly
 
@@ -197,6 +197,36 @@ Single scaffold page, uncompressed file sizes: 3.0 kB HTML, 6.2 kB CSS, 0 kB Jav
 ### Marcellus against the logo, the DESIGN section 13 item 4 check
 
 Rendered in a browser at 1024 px wide on black with the logo above it, and probed at 64, 40, 24 and 18 px. At 64 and 40 it is confident and its flared caps rhyme with the logo's without copying them. At 24 px (H3) it is thin but clean. At 18 px the serifs fade against black. Verdict: keep Marcellus, cap the display role at H3, and do not spend the Syne 700 switch. Recorded in DESIGN section 4.
+
+## P-2: the 404 path, and the skeleton on the same Worker
+
+Same machine, astro 7.4.1, wrangler 4.153.0. `not_found_handling = "404-page"` was added to the `[assets]` block in `worker/wrangler.toml`, `web/src/pages/404.astro` was written so `astro build` emits `dist/404.html`, and `npm run dev:worker` served the new build. Checks run 2026-10-27 by Agent (Qoder).
+
+| Probe | Before P-2 (S-1, S-3) | After `not_found_handling = "404-page"` |
+|---|---|---|
+| `GET /missing.html` | 404 JSON from the Worker catch-all, no `_headers` policy | **404, `text/html`**, body is the built 404 page |
+| `GET /no-such-path` (extensionless) | 404 JSON | 404 HTML, same page |
+| 404 response headers | none of the six | CSP, `strict-transport-security`, `x-content-type-options: nosniff`, `x-frame-options: DENY`, `referrer-policy` all present, so the policy covers the error page |
+| `GET /api/ping` | 200 JSON | unchanged, 200 JSON |
+| `GET /api/nope` | 404 JSON from the catch-all | unchanged, 404 JSON. `run_worker_first` still beats `not_found_handling` for `/api/*`, which is what D19 wants |
+| `GET /` and `GET /_astro/*.css` | 200 with the policy | unchanged |
+| A7 `POST /` and A8 `GET /index.html` | 405 and 307 | not re-run at P-2. The config change touches only the miss path |
+
+So the D19 remedy is closed on both halves: the assets layer answers a miss with a browser-usable page and status 404, and the Worker catch-all stays scoped to `/api/*`.
+
+### What the skeleton measures
+
+Built page, no island on it, `npm run build` at 2 pages:
+
+- `web/dist` is 428 KB on disk, of which the four optimized logo WebP files are 21, 30, 77 and 132 KB. A phone with the 390 px viewport picks the 440 or 560 w variant through `srcset`.
+- One stylesheet, 17.9 KB raw (Tailwind preflight plus the used utilities plus the scoped nav rule). No `<script>` is referenced by `index.html`, so the Preact runtime files sit in `dist` unused until an island exists.
+- Two self-hosted woff2 files, both `document.fonts` reports as loaded, and the H1 computes to the Marcellus family.
+- Layout at the two ends of the range: nav 65 px tall at 390 px wide (64 plus the 1 px border) and 73 px at 1200 px, portfolio grid 1 column at 390 and 3 at 1200, process 5 columns at 1200, hero logo 560 px and footer logo 440 px, both above the 220 px minimum in DESIGN section 2.
+- Zero `<iframe>` in the output, no `href` pointing outside the origin, and no hex literal outside `tokens.css` (the P-1 test enforces the last one).
+
+### One thing that bites when testing a narrow viewport
+
+`_headers` sets `frame-ancestors 'none'` and `X-Frame-Options: DENY`, so a 390 px `iframe` preview of the served page is blocked by our own policy and its `contentDocument` comes back null. To check a phone width in a browser, serve `web/dist` from a plain static server (no `_headers`) and frame that, or use a device-emulating harness. Verified this way at 390 px and at 1200 px; both are layout checks, not the throttled-4G LCP run, which stays at P-17.
 
 ## Open
 

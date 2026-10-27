@@ -6,8 +6,8 @@ Single source of truth for project status and for the path to 100% readiness.
 |---|---|
 | Last updated | 2026-10-27 |
 | Stack | Astro 7 (static, pinned 7.4.1, see D20 and D22), one Cloudflare Worker (Hono) and D1. Changed from Framer on 2026-10-26 (decision D13) |
-| Current phase | Discovery (D), the stack spike (S) and the Phase 0 build (P). P-1 is done; S-2 and the S-3 volume half remain, and S-2 needs real devices |
-| Readiness | 17% (14 of 83 Must tasks done) |
+| Current phase | Discovery (D), the stack spike (S) and the Phase 0 build (P). P-1 and P-2 are done; S-2 and the S-3 volume half remain, and S-2 needs real devices |
+| Readiness | 18% (15 of 83 Must tasks done) |
 | Gates passed | none. G1: the single-Worker routing is verified locally and on the edge; S-2 and S-3 still decide the gate |
 | CMS decision | Pending Q13. Section K (hosted CMS) is excluded from the score until Q13 is yes |
 
@@ -40,14 +40,14 @@ Recalculate on every update.
 | F Foundations | 10 of 10 | 0 of 0 | n/a |
 | D Discovery and pitch | 1 of 8 | 1 of 1 | n/a |
 | S Stack spike | 2 of 5 | 0 of 0 | n/a |
-| P Phase 0 | 1 of 19 | 0 of 4 | n/a |
+| P Phase 0 | 2 of 19 | 0 of 5 | n/a |
 | C Phase 1 | 0 of 11 | 0 of 0 | n/a |
 | K Hosted CMS (conditional) | n/a | n/a | 0 of 4 |
 | L Phase 1 | 0 of 4 | 0 of 2 | n/a |
 | B Phase 1 | 0 of 16 | 0 of 0 | n/a |
 | R Phase 1 | 0 of 10 | 0 of 0 | n/a |
 | X Post-launch | not counted | not counted | n/a |
-| **Total counted** | **14 of 83** | **1 of 7** | |
+| **Total counted** | **15 of 83** | **1 of 8** | |
 
 ## Gates
 
@@ -118,7 +118,7 @@ Priority: M is Must, S is Should, C is conditional. Refs point to requirement ID
 | Status | ID | Task | Owner | Size | Depends on | Refs | P |
 |---|---|---|---|---|---|---|---|
 | [x] | P-1 | Scaffold workspaces: web (Astro 6, TypeScript, Tailwind v4, Preact), shared, root scripts, Node 22. tokens.css from docs/DESIGN.md, fonts, base layout. Move the web logo into web/src/assets/brand. The workspaces and root scripts already exist from S-1 and are spike-minimal: this task fills them in, adds eslint.config.js and vitest, and settles the Astro 6 advisory against Node per D20. Done 2026-10-27: the scaffold is real (tokens.css, global.css with the Tailwind v4 `@theme` map, the Fonts API, Base.astro, the moved logo, eslint.config.js, vitest, root lint and test scripts). D20 settled by moving to Astro 7.4.1, which needed no Node bump because 7.4.1 asks for Node 22.22.0 and this box runs 22.23.2. `npm audit` is now 0 vulnerabilities, and checks A1 to A9 plus the S-3 header scope reproduce unchanged on the new build. The task text said Astro 6, see D22 | Agent | M | F-6, F-9 | DESIGN.md, ARCH 3 | M |
-| [ ] | P-2 | Page skeleton and section order: nav, hero, showreel, portfolio, credentials, services, process, FAQ, form, footer. Add 404.astro so the assets `not_found_handling` has a page to serve (D19) | Agent | S | P-1 | none | M |
+| [x] | P-2 | Page skeleton and section order: nav, hero, showreel, portfolio, credentials, services, process, FAQ, form, footer. Add 404.astro so the assets `not_found_handling` has a page to serve (D19). Done 2026-10-27: ten section components in `web/src/components`, `index.astro` in the PRD order, `404.astro` plus `not_found_handling = "404-page"`, and the DESIGN section 7 specs as shared classes in `global.css`. Verified: lint, typecheck (0 errors), test (2 passed) and build (2 pages) green; under `wrangler dev` `/missing.html` and `/no-such-path` return the HTML page with status 404 carrying the full `_headers` policy, while `/api/ping` and `/api/nope` still reach Hono; in a browser at 390 px and 1200 px the nav measures 65 and 73 px, the portfolio grid 1 and 3 columns, Marcellus loads self-hosted, and no console violation appears under the CSP. Two decisions came out of it: D23 (unverified sections render as neutral DEMO blocks carrying no claim) and D24 (the brand text reads Boy Concept while Q12 is open, and the nav is text because the 3D logo cannot be 220 px inside a 64 px bar). No dependency added | Agent | S | P-1 | none | M |
 | [ ] | P-3 | Hero with both CTAs | Agent | S | P-2 | FR-1 | M |
 | [ ] | P-4 | Showreel: poster first, video created on tap | Agent | S | P-2 | FR-2 | M |
 | [ ] | P-5 | Content collections and schemas: projects with verified and publish_ok, the verification build guard; demo items marked as placeholders | Agent | M | P-2 | FR-3, FR-27, ARCH 5 | M |
@@ -137,9 +137,10 @@ Priority: M is Must, S is Should, C is conditional. Refs point to requirement ID
 | [ ] | P-18 | Handoff test matrix: iOS Safari, Android Chrome, Instagram in-app on both; log in ops/test-matrix.md | Ademola | M | P-12, S-2 | ARCH 11 | M |
 | [ ] | P-19 | Placeholder register complete; every demo placeholder is bracketed | Agent | S | P-5, P-8 | PRD 8 | M |
 | [ ] | P-20 | Deploy the static site to the test Worker on a noindex workers.dev address | Ademola | S | P-17, P-18, P-19, S-1 | none | M |
-| [ ] | P-21 | Flat one-color wordmark, favicon mark and a 1200 x 630 social image for small sizes, tabs and link previews | Ademola, Agent | M | F-9, D-9 | DESIGN 2, 13 | M |
+| [ ] | P-21 | Flat one-color wordmark, favicon mark and a 1200 x 630 social image for small sizes, tabs and link previews. Now also the thing that lets the nav carry a mark instead of text: at the 64 px nav height the 3D logo is 135 px wide, under the 220 px minimum in DESIGN section 2 (D24, DESIGN 13 item 6). Urgency raised by P-2 | Ademola, Agent | M | F-9, D-9 | DESIGN 2, 13 | M |
 | [ ] | P-22 | Lint coverage for .astro files. eslint 10 runs over .js, .ts and .tsx only; adding eslint-plugin-astro 3.2.1 means four more packages for one benefit, so it was left out at P-1. Revisit if .astro mistakes keep reaching review | Agent | S | P-1 | AGENTS how to work | S |
 | [ ] | P-23 | Deduplicate vite. @tailwindcss/vite 4.3.3 installs its own vite 7.3.7 next to the vite 8.3.5 Astro 7 runs on. Check whether an npm override to vite 8 is safe, and drop the duplicate if so | Agent | S | P-1 | none | S |
+| [ ] | P-24 | Remove the scaffolding text the skeleton prints inside the DEMO blocks ("the chips are disabled", "the island arrives at P-12", "this section hides while it holds fewer than [N] items", and the rest, listed in content/copy.md). They tell us what is unfinished and must not face a client | Agent | S | P-5, P-6, P-8, P-9, P-10, P-12 | DESIGN 10, ESSENTIALS 8 | S |
 
 ### G. Gates
 
@@ -195,7 +196,7 @@ See the Gates table above. Update it when a gate is decided.
 | [ ] | B-8 | db.ts: idempotent insert on client_request_id, lookup, rate-limit count | Agent | M | B-7, B-2 | FR-28 | M |
 | [ ] | B-9 | notify.ts via Resend to OWNER_EMAILS | Agent | S | B-2 | FR-18 | M |
 | [ ] | B-10 | routes/enquiries.ts with dedupe and every failure row in ARCH 7 | Agent | L | B-3 to B-9 | FR-12, FR-28 | M |
-| [ ] | B-11 | Security headers and CSP in web/public/_headers, verified by S-3 to govern asset responses only. Also set the same headers in Worker middleware so /api/* is covered, and re-test what a 404 response carries once not_found_handling and 404.astro exist (D19, D21) | Agent | S | B-10, S-3 | ARCH 8 | M |
+| [ ] | B-11 | Security headers and CSP in web/public/_headers, verified by S-3 to govern asset responses only. Also set the same headers in Worker middleware so /api/* is covered. The 404 half is answered at P-2: with not_found_handling and 404.astro in place the miss is an assets response and carries the full policy, so what B-11 still owes is the Worker-side headers (D19, D21) | Agent | S | B-10, S-3 | ARCH 8 | M |
 | [ ] | B-12 | Wire the EnquiryForm island to the API with the three fallbacks: Turnstile twice, 429, API down | Agent | M | B-10 | ARCH 7 | M |
 | [ ] | B-13 | Deploy to test and exercise every failure row end to end | Ademola, Agent | M | B-12 | none | M |
 | [ ] | B-14 | Resend domain verification (SPF, DKIM) and a Gmail inbox placement test | Ademola | S | L-1 | ARCH Verify 4 | M |
@@ -243,7 +244,7 @@ Fill the Answer column as soon as Emmanuel responds, then update the PRD if an a
 | Q9 | Will he and his team change the Instagram bio and DM replies | open | |
 | Q10 | Domain ownership, brand colors, and who holds each service account | open | |
 | Q11 | Is the supplied logo the current official one, and is there a vector or flat version | open | |
-| Q12 | Which name leads publicly, Alpha Movies or Boy Concept | open | |
+| Q12 | Which name leads publicly, Alpha Movies or Boy Concept | open | Since P-2 the site renders Boy Concept as an interim call by Ademola (decision D24). The supplied logo still spells ALPHA MOVIES, so the clash is visible on the page until P-21 |
 | Q13 | Will Emmanuel edit site content himself, or will the builder? Yes means a hosted CMS (section K) | open | |
 
 ## Blockers
@@ -259,6 +260,7 @@ Newest first. One line per PR or work session.
 
 | Date | Who | What | Tasks | Files |
 |---|---|---|---|---|
+| 2026-10-27 | Agent (Qoder) | Built P-2, the page skeleton. Ten section components in `web/src/components` and `index.astro` rewritten in the PRD section order (nav, hero, showreel, portfolio, credentials, services, process, FAQ, enquiry shell, footer). The DESIGN section 7 specs became shared classes in an `@layer components` block in `global.css` (.btn-primary, .btn-secondary, .eyebrow, .chip, .card, .poster-frame, .demo-tag), written with `@apply` because `@theme inline` values are not emitted as CSS custom properties, so `var(--text-button)` does not exist in a browser. Added `404.astro` and `not_found_handling = "404-page"`, which closes the D19 remedy and answers the open half of B-11: a miss is now an assets response with status 404, HTML and the full `_headers` policy, and `/api/*` still reaches Hono. Checked in a browser at 390 px and 1200 px, and confirmed no hex outside tokens.css, no iframe, no outbound href and no budget field. Two decisions: D23 (unverified content renders as neutral DEMO blocks, never as a claim) and D24 (public text reads Boy Concept while Q12 is open; the nav is text because the 3D logo cannot be 220 px wide inside a 64 px bar, which raised P-21's urgency and opened DESIGN 13 item 6). Added P-24 for the scaffolding text. 15 of 83, 18% | P-2, P-21 (raised), P-24 (added), B-11 (part answered), D19, D23, D24, DESIGN 2 and 7 and 12 and 13, ARCH Verify 1, Q12 tracker | web/src/components/* (new), web/src/pages/index.astro, web/src/pages/404.astro, web/src/styles/global.css, worker/wrangler.toml, docs/DESIGN.md, docs/ARCHITECTURE.md, docs/ARCHITECTURE_ESSENTIALS.md, docs/spikes/stack-spike.md, content/copy.md, content/PLACEHOLDERS.md, PROJECT_STRUCTURE.md, ROADMAP.md |
 | 2026-10-27 | Agent (Qoder) | Built P-1 for real. `web/src/styles/tokens.css` now holds every DESIGN.md section 3 value plus the section 8 motion values, and Tailwind v4 maps them through `@theme inline` so no utility repeats a hex. The Astro Fonts API serves self-hosted Marcellus and Inter with swap, preload and metric-matched fallbacks, which answers ARCHITECTURE Verify item 6 and let the CSP drop the two Google Fonts origins. `Base.astro` exists, the web logo moved to `web/src/assets/brand` and builds to a 48 kB WebP. eslint 10 and vitest 5 arrived with root `lint` and `test` scripts, and the first test enforces the two token rules. D20 is settled: the advisory is cleared by Astro 7.4.1, which asks for Node 22.22.0 on a box running 22.23.2, so no Node bump was needed and `npm audit` reports 0 vulnerabilities (new decision D22). Re-ran A1 to A9 and the S-3 header scope on the new build: unchanged, so D17, D19 and D21 still hold. Loaded the page under the enforced CSP with no console violations, and checked Marcellus against the logo at 40, 64 and 24 px: it holds at display and H2 sizes and is thin but readable at H3, so DESIGN 13 item 4 is closed with a new rule that Marcellus stops at H3. Added P-22 (.astro lint coverage) and P-23 (a duplicate vite 7 that @tailwindcss/vite drags in). 14 of 83, 17% | P-1, P-22 (added), P-23 (added), D20 (settled), D22, DESIGN 13.4, ARCH Verify 6 | web/src/styles/tokens.css, web/src/styles/global.css, web/src/styles/design-tokens.test.ts, web/src/layouts/Base.astro, web/src/pages/index.astro, web/astro.config.mjs, web/public/_headers, web/src/assets/brand/alpha-movies-logo.webp (moved), eslint.config.js, vitest.config.ts, package.json, web/package.json, package-lock.json, docs/spikes/stack-spike.md, docs/DESIGN.md, docs/ARCHITECTURE.md, docs/ARCHITECTURE_ESSENTIALS.md, PROJECT_STRUCTURE.md, README.md, ROADMAP.md |
 | 2026-10-27 | Agent (Qoder) | Answered ARCHITECTURE Verify item 5 (S-3 part 1). Added a real `web/public/_headers` with the CSP from section 8, deployed it, and probed six paths at the edge. `_headers` IS honored by Worker static assets, on asset responses and on asset redirects, so no `run_worker_first = true` is needed for headers. It is NOT applied to `/api/*`, nor to an asset miss that falls through to the Worker, so the Worker must set its own headers (new decision D21) and B-11 grew to cover both files plus a 404 re-test. `wrangler dev` applies the same block, so there is no local and edge divergence to trip over. The CSP values stay unexercised until Turnstile and GA4 exist at P-4 and P-12, and S-3 part 2 needs Q6 before "expected volume" means anything. Readiness unchanged at 13 of 83 | S-3 (part 1), B-11, S-4, D21 | web/public/_headers, ROADMAP.md, PROJECT_STRUCTURE.md, docs/spikes/stack-spike.md, docs/ARCHITECTURE.md, docs/ARCHITECTURE_ESSENTIALS.md |
 | 2026-10-27 | Agent (Qoder) | Closed S-5 and S-1. Ademola registered the workers.dev subdomain through the Workers and Pages onboarding, which chose `ademola2993k` rather than the agreed `boy-concept`. His dashboard build then failed for a genuine repo reason: `npx wrangler deploy` refuses to run in an npm workspace root. Added the deploy:test root script AGENTS.md always promised, verified with a dry run, deployed boy-concept-spike, and reran the whole check matrix against the live URL: A1 to A10 match the local results, so D17 holds on Cloudflare's edge and the two-Worker fallback stays unused. Bundle 826 KiB raw, 134 KiB gzipped, startup 14 ms, which feeds S-3. Recorded that the dashboard GitHub integration now competes with the GitHub Action and added L-6 to settle who owns deploys | S-1, S-5, S-4, L-6 (added) | package.json, ROADMAP.md, docs/spikes/stack-spike.md, docs/ARCHITECTURE.md, docs/ARCHITECTURE_ESSENTIALS.md |
