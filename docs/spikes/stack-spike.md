@@ -1,6 +1,6 @@
 # Stack spike
 
-Status: S-1 verified both locally and deployed. S-2 and S-3 open, so gate G1 is still open.
+Status: S-1 and S-5 verified, locally and on the edge. S-3 is half answered: `_headers` and the CSP are verified, the free-tier limits check is open. S-2 open, so gate G1 is still open.
 Environment: Ubuntu x64, Node v22.23.2, npm 10.9.8, wrangler 4.153.0, astro 6.4.8, hono 4.13.14, zod 4.6.7. Runs on 2026-10-27 by Agent (Qoder).
 
 ## S-1: one Worker serves the Astro build and routes /api/* to Hono
@@ -110,12 +110,39 @@ Worker startup time 14 ms. Bundle: 826 KiB raw, 134 KiB gzipped, which is mostly
 - The spike Worker `boy-concept-spike` is live and public. It serves one noindex page and a stub API, and holds no data. Delete it in the dashboard when S-4 closes, or leave it as the deploy target for P-20.
 - Rotate the Cloudflare API token used here: it was shared in plain text outside a secret store. It lives only in `~/.cfspike` (mode 600), never in the repo.
 
+## S-3, part 1: do `_headers` and the CSP work with Worker assets? Yes
+
+Answered 2026-10-27 on the deployed spike Worker. This closes ARCHITECTURE Verify item 5 and unblocks the B-11 design.
+
+Setup: `web/public/_headers` with a `/*` block carrying a CSP plus `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy` and HSTS. Astro copies `public/*` into `dist/`, and the deploy uploads the file. `/_headers` itself is not fetchable (404), which is correct.
+
+| Probe | `_headers` applied? | What it means |
+|---|---|---|
+| `GET /` (asset) | **yes**, all six headers present | The assets layer evaluates `_headers`, so static pages are covered |
+| `GET /index.html` (307 from assets) | **yes**, on the redirect too | Asset-generated redirects inherit the block |
+| `GET /api/ping` (Hono) | **no**, not one header | Worker responses bypass `_headers` entirely |
+| `POST /api/spike` (Hono) | **no** | Same |
+| `GET /missing.html` (asset miss, falls through to the Worker) | **no** | A miss becomes a Worker response, so it loses the policy. D19 again |
+| `GET /projects/x` (deep path miss) | **no** | Same shape |
+
+Local parity was checked too: `wrangler dev` applies the same `_headers` block on `GET /`, so there is no local-versus-edge divergence waiting for B-11. A header mistake shows up in dev.
+
+### What this decides for B-11
+
+1. `web/public/_headers` stays as the mechanism for pages. No `_headers`-to-Worker port needed, and no `run_worker_first = true` for the sake of headers, which would have put every asset request through the Worker and burned invocation quota.
+2. **The Worker must set its own security headers on `/api/*`** in Hono middleware. Today an API response carries no `X-Content-Type-Options` and no CSP. A JSON API is a lower risk, but nosniff and `frame-ancestors` are cheap; B-11 now covers both files.
+3. **B-11 also has to re-test the miss path** once `not_found_handling` and `404.astro` exist. If the assets layer produces the 404 page, `_headers` should apply to it; if the Worker produces it, the 404 page ships without the policy. Not verified yet either way.
+
+### Not verified, said plainly
+
+The CSP is applied, but its **values** are untested, because nothing it references exists yet. Turnstile (`challenges.cloudflare.com`), GA4 (`www.googletagmanager.com`, `region1.google-analytics.com`) and the YouTube nocookie embed frame are only exercised at P-12 and P-4. `style-src 'unsafe-inline'` is in there for Astro and island inline styles; if Tailwind v4 at P-1 emits a single stylesheet and nothing inlines, tighten it. Re-check the whole policy on the real page, not on the spike page.
+
 ## Open
 
 | Item | Status | Blocks |
 |---|---|---|
 | S-2 Turnstile and `wa.me` inside the Instagram in-app browser (iOS and Android) | open, device test, cannot be done by an agent | G1, the form design |
-| S-3 free-tier limits, and whether `_headers` and the CSP apply to Worker assets | open. A9 at the edge shows no CSP because no `_headers` exists yet | G1, B-11 |
+| S-3 part 2: D1, Workers, Resend and Turnstile free-tier limits against expected volume | open, and it needs Q6 (enquiries per week) before "expected volume" means anything | G1, L-1 |
 | S-4 write the verdict and decide G1 | open, waiting on S-2 and S-3 | G1 |
 | L-6 settle who owns deploys | open, see account state above | P-20 |
 

@@ -177,7 +177,7 @@ A lead is lost only if the backend failed and the visitor did not send the messa
 - Secrets live only in Worker environment variables and `.dev.vars` locally. The only value shipped to the browser is the public Turnstile site key.
 - Input caps on every field. Strip control characters. URLs must be http or https.
 - Rate limit: 3 submissions per hour per phone number or email, plus Turnstile. Do not rely on IP, because mobile carriers in Nigeria commonly put many users behind one address [Likely]. A loose IP backstop through the Workers rate limiting binding is optional [Verify].
-- Security headers, including a Content Security Policy that allows Turnstile, GA4 and the YouTube nocookie domain, are set through `web/public/_headers` [Verify that Worker assets honor it].
+- Security headers, including a Content Security Policy that allows Turnstile, GA4 and the YouTube nocookie domain, are set through `web/public/_headers`, which **is** honored for assets served by a Worker (S-3, 2026-10-27). It is not honored for `/api/*`, so the Worker sets its own `X-Content-Type-Options`, `Referrer-Policy` and `X-Frame-Options` in Hono middleware (D21).
 - Logs hold the ref and error codes only. No names, numbers or emails.
 - No IP addresses are stored.
 - Consent is stored with a timestamp. Retention: spam deleted after 30 days, other enquiries after 24 months unless the owner chooses otherwise. Deletion on request is a documented D1 command. [Verify against NDPA 2023]
@@ -238,7 +238,7 @@ Deploy: `npm run deploy:test` builds the web workspace and runs `wrangler deploy
 2. Turnstile and the form submit work inside the Instagram in-app browser on iOS and Android, and the `wa.me` button opens WhatsApp there. Blocks the form design.
 3. D1 and Workers free-tier limits against expected volume, and whether any paid plan is needed.
 4. Resend free-tier limits, sending-domain verification for the client domain, and Gmail inbox placement.
-5. `web/public/_headers` is honored for assets served by a Worker, and the CSP works with Turnstile, GA4 and YouTube nocookie.
+5. `web/public/_headers` is honored for assets served by a Worker, and the CSP works with Turnstile, GA4 and YouTube nocookie. **Answered 2026-10-27 for the mechanism** (S-3, `docs/spikes/stack-spike.md`): `_headers` applies to asset responses and asset redirects, and does not apply to `/api/*` or to an asset miss that falls through to the Worker. **Still open for the values**, which cannot be exercised until the real scripts exist at P-4 and P-12.
 6. Astro 6 specifics: the Fonts API handles Marcellus and Inter, the Preact integration works, content config lives at `src/content.config.ts`.
 7. The Workers rate limiting binding, if the IP backstop is wanted.
 8. NDPA 2023 obligations for names, phone numbers and email addresses.
@@ -326,6 +326,7 @@ What stays because it earns its place: the verification gate and build guard, th
 | D18 | Design tokens have one implementation source, `web/src/styles/tokens.css`, derived from DESIGN.md | 2026-10-26 |
 | D19 | Asset misses fall through to the Worker even with a scoped `run_worker_first`, so an unscoped `app.all("*")` in the Worker turns a missing page into a JSON 404. Set `not_found_handling` in `[assets]`, ship a real 404 page, and scope the Worker catch-all to `/api/*` | 2026-10-27 (found by S-1) |
 | D20 | Astro stays pinned at 6.4.8 for the spike because every doc says Astro 6, but 6.x carries a critical advisory fixed only in 7.3.2+, which needs Node newer than 22.23.4. Move to Astro 7.x at P-1 with a Node bump rather than carrying the advisory into the first real build | 2026-10-27 (found by S-1) |
+| D21 | `web/public/_headers` governs asset responses and asset redirects only. `/api/*` and any asset miss that falls through to the Worker get nothing from it, so the Worker sets its own security headers in middleware, and the site is not switched to `run_worker_first = true` just to make headers apply everywhere | 2026-10-27 (found by S-3) |
 
 ## 16. Contribution protocol
 
