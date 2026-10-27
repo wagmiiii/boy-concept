@@ -1,0 +1,14 @@
+# A designed placeholder (D23, decision D28), not a project. See demo-commercial.yaml for why
+# every value here is bracketed.
+title: "[project title]"
+category: Documentaries
+client_name: "[commissioning client]"
+location: "[city]"
+video_url: "[video url]"
+deliverables:
+  - "[deliverable]"
+summary: "[one or two sentences on the film and who commissioned it, written at C-10]"
+publish_ok: false
+verified: false
+demo: true
+sort_order: 40

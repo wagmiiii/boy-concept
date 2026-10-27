@@ -1,6 +1,8 @@
 ---
 // DESIGN.md section 7 Portfolio card. No project is verified or permitted yet (FR-27), so the
-// card is not a link and carries no client name. P-6 and P-7 turn it into a real card.
+// card is not a link and carries no client name, and the poster frame stays a labelled placeholder.
+// The schema makes a poster a requirement for any verified entry, so the frame becomes a real
+// image when P-6 has the filter and the first shorable project exists.
 interface Props {
   category: string;
   title: string;

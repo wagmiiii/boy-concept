@@ -1,0 +1,15 @@
+# A designed placeholder (D23, decision D28), not a project. Weddings are the private category: a
+# real wedding entry arrives at C-2 with publish_ok set only after the couple has given it, and an
+# entry that is unverified and unpermitted renders nothing at all.
+title: "[project title]"
+category: Weddings
+event_name: "[event name]"
+location: "[city]"
+video_url: "[video url]"
+deliverables:
+  - "[deliverable]"
+summary: "[one or two sentences on the day and the edit, written at C-10]"
+publish_ok: false
+verified: false
+demo: true
+sort_order: 30

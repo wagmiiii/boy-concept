@@ -39,8 +39,9 @@ This section is called Work everywhere a visitor reads it, the nav and the eyebr
 - Eyebrow: Work
 - Title: [write at C-10]
 - Intro line: [write at C-10]
-- Categories: Commercial, Cultural Festivals, Weddings, Documentaries
+- Categories: Commercial, Cultural Festivals, Weddings, Documentaries. Since P-5 the list lives in `projectCategories` in `web/src/content-rules.ts`, which is what the schema accepts and what the chips map over, so this line is a note rather than the source. Changing it means changing the schema and this file together.
 - Filter label for the all view: All
+- Per-project strings ([project title], [client name], [summary] and the rest) live in the four `demo: true` files under `web/src/content/projects/` until C-2 replaces them, so they are edited there and not here. Their register row is in PLACEHOLDERS.md.
 
 ## Credentials
 

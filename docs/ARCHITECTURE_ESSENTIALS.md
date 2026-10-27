@@ -1,6 +1,6 @@
 # ARCHITECTURE_ESSENTIALS
 
-Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.8.
+Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.9.
 
 ## What this is
 - Booking and showcase site for Boy Concept (Alpha Movies Ltd). The enquiry flow and the credibility layer are the product.
@@ -40,7 +40,7 @@ Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECT
 5. A backend failure never blocks the handoff. Return a valid `whatsappUrl` regardless.
 6. Rate limit per phone or email plus Turnstile. Never by IP alone.
 7. Submit is idempotent on `clientRequestId`, backed by a `UNIQUE` constraint.
-8. Content renders only if verified and permitted. Empty sections and categories hide. No bracketed placeholders in verified items (the build guard fails).
+8. Content renders only if verified and permitted. Empty sections and categories hide. No bracketed placeholders in verified items: the guard is a refinement on the projects schema in `web/src/content-rules.ts`, wired by `web/src/content.config.ts`, so `astro build` and `npm run deploy:test` fail on it (D28). `ci.yml` runs no build, which means a bad entry is caught at build or deploy, not at PR review.
 9. Always show a direct WhatsApp link that works without JavaScript.
 10. No autoplaying video iframes. Poster first, load on tap.
 11. No PII in logs. No IP storage.
@@ -48,7 +48,7 @@ Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECT
 13. Every contribution updates `ROADMAP.md` (always) and `PROJECT_STRUCTURE.md` (when files or folders change) before it counts as done. State what you updated in your report.
 14. UI follows `docs/DESIGN.md`: tokens only, no hardcoded colors, black page background, the logo only on black or very dark surfaces and never recolored.
 15. The owner WhatsApp number is defined only in `shared/site-config.ts`.
-16. Unverified content renders as a neutral block labelled DEMO, never as a claim: no client name, no stat, no price, no credential (D23). Bracketed placeholders stay out of anything presented as verified.
+16. Unverified content renders as a neutral block labelled DEMO, never as a claim: no client name, no stat, no price, no credential (D23). Bracketed placeholders stay out of anything presented as verified. Since P-5 the project blocks are data, not markup: a placeholder is a projects entry with `demo: true` (D28), the schema refuses `demo: true` beside `verified: true` or `publish_ok: true`, and an entry that is merely unverified renders in neither mode. That last rule is what keeps a private wedding out of the pitch demo.
 17. Never invent a fact. Where a task needs a sentence the client has not written, the builder may draft one only under D25: no claim a verification row would not back, alternatives recorded in `content/copy.md`, and an open row in `content/PLACEHOLDERS.md` so launch stays blocked until the client approves it. Prices, RC numbers, credentials, client names and stats are never drafted, only bracketed.
 18. Component JavaScript must ship as an external file, never inline. Astro 7 inlines small component scripts and the CSP then blocks them, so `vite.build.assetsInlineLimit: 0` stays in `web/astro.config.mjs` (D26). Never solve a script CSP violation with `unsafe-inline`, a hash or a nonce.
 19. Responsive utilities use only the DESIGN section 5 breakpoints: `md` 768, `lg` 1200, `xl` 1440. The Tailwind scale is reset to those in `global.css`, so `sm:`, `xs:` and `2xl:` emit nothing and a test fails the run if one appears (D27). Gutters and the container come from `.container-site`, never from a per-section `px-*`.

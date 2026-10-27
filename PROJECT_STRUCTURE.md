@@ -6,7 +6,7 @@ Where everything lives and why. Read this before creating, moving or deleting a 
 |---|---|
 | Last updated | 2026-10-27 |
 | Structure version | 0.8 |
-| Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. Since P-1 the `web` workspace is a normal Astro 7 site with Tailwind v4, the Preact integration, the Fonts API, the design tokens and a base layout, and since P-2 it has the ten section components, the real page order, a 404 page and the assets `not_found_handling` that goes with it; `shared` is still an empty workspace until P-10 and P-11, and `worker` still holds only the spike routes. P-3 built the hero and P-4 wired the showreel, which is now the one component that ships JavaScript. P-25 moved the whole site onto DESIGN section 5's breakpoints and gutters and rebuilt the Process section as a rail |
+| Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. Since P-1 the `web` workspace is a normal Astro 7 site with Tailwind v4, the Preact integration, the Fonts API, the design tokens and a base layout, and since P-2 it has the ten section components, the real page order, a 404 page and the assets `not_found_handling` that goes with it; `shared` is still an empty workspace until P-10 and P-11, and `worker` still holds only the spike routes. P-3 built the hero and P-4 wired the showreel, which is now the one component that ships JavaScript. P-25 moved the whole site onto DESIGN section 5's breakpoints and gutters and rebuilt the Process section as a rail. P-5 added the content layer: `web/src/content.config.ts` with the projects schema and the verification build guard in `content-rules.ts`, and four labelled demo entries under `web/src/content/projects/`. The Work grid reads that collection now, and no real project is in it |
 
 ## Update rule (mandatory, applies to humans and agents)
 
@@ -35,7 +35,7 @@ CI enforces this: a PR that adds, deletes or renames any file must also change t
 | Other docs and notes | kebab-case.md |
 | Astro components | PascalCase.astro. Preact islands PascalCase.tsx |
 | Other source files | kebab-case.ts or short lowercase names (`phone.ts`) |
-| Tests | `<name>.test.ts`, in the area's `test` folder or beside the file in `shared` |
+| Tests | `<name>.test.ts`, beside the file it covers (this is what `web/src` already does) or in the area's `test` folder |
 | Task IDs | Defined in ROADMAP.md (F-1, P-12, B-10). Use them in commits and log lines |
 | Branch names | `task/<id>-short-slug`, for example `task/P-12-confirmation-screen` |
 | Commit messages | `<task id>: what changed`, for example `P-12: confirmation screen` |
@@ -109,9 +109,12 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       │   ├── tokens.css             (exists, P-1) the only implementation of the DESIGN.md tokens, plus the section 8 motion values
 │       │   ├── global.css             (exists, P-1) Tailwind v4 entry, the `@theme inline` map, the DESIGN breakpoint scale, base styles and the shared component classes including .container-site (P-2, P-25)
 │       │   └── design-tokens.test.ts  (exists, P-1) checks tokens.css against DESIGN.md, bans hex literals elsewhere, and refuses responsive variants outside the design's three breakpoints (P-25)
-│       ├── content.config.ts          (P-5) collection schemas and the verification build guard
+│       ├── content.config.ts          (exists, P-5) the collections, wired to the schemas in content-rules.ts by a glob loader. Astro validates every entry here at sync and build, which is what makes a guard violation fail the build
+│       ├── content-rules.ts           (exists, P-5) the projects schema, the bracket scan that backs the verification guard, and the two render predicates (verified and publish_ok, or explicitly a demo entry). Pure, and it imports no Astro virtual module so a test can run the guard without a build
+│       ├── content-rules.test.ts      (exists, P-5) the guard cases: placeholder paths, a verified entry missing page fields, the flags a file can leave out, demo against verified or publish_ok, both render predicates, and that the four content files are placeholders covering every category
 │       ├── content/
-│       │   ├── projects/              (P-5) one file per project
+│       │   ├── projects/              (exists, P-5) one file per project. Today four demo entries, one per category, every unknown bracketed (D28). C-2 replaces them with verified, permitted work
+│       │   │   └── demo-commercial.yaml, demo-cultural-festival.yaml, demo-wedding.yaml, demo-documentary.yaml (exists, P-5)
 │       │   ├── credentials/           (P-8) one file per credential
 │       │   └── settings.yaml          (P-10)
 │       ├── layouts/
@@ -120,7 +123,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       │   ├── Nav.astro                (exists, P-2) sticky bar, text brand, desktop links, mobile details menu, Check a date
 │       │   ├── Hero.astro               (exists, P-2) logo, headline, supporting line, both CTAs
 │       │   ├── Showreel.astro           (exists, P-2) 16:9 poster, play button, and the tap that creates the player (P-4). The one component with a script
-│       │   ├── PortfolioGrid.astro      (exists, P-2) category chips (inert until P-6) and three DEMO cards
+│       │   ├── PortfolioGrid.astro      (exists, P-2) category chips from the schema's own category list, inert until P-6, and the cards the collection returns: the demo entries today (P-5)
 │       │   ├── ProjectCard.astro        (exists, P-2) 16:9 poster, category chip, H3 title
 │       │   ├── Credentials.astro        (exists, P-2) DEMO cards showing the verified-only treatment
 │       │   ├── Services.astro           (exists, P-2) four service cards with tag chips
@@ -214,15 +217,16 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | web/src/assets/brand/alpha-movies-logo.webp | The web logo Astro optimizes | exists (P-1) | The brand changes, see D-9 and P-21 |
 | eslint.config.js | Flat eslint config over .js, .ts and .tsx | exists (P-1) | A lint rule changes. .astro coverage is P-22 |
 | vitest.config.ts | One root test config for web, shared and worker | exists (P-1) | A workspace is added or a browser environment is needed |
-| web/src/content.config.ts | Content schemas and the build guard | P-5 | A content rule changes |
-| web/src/content/** | Projects, credentials, settings | P-5 | Content is verified, added or withdrawn |
+| web/src/content.config.ts | The collections, wired to the schemas and the verification build guard | exists (P-5) | A collection is added or a loader changes |
+| web/src/content-rules.ts | The projects schema, the bracket scan behind the guard, and the two render predicates | exists (P-5) | A content rule changes. Credentials get their own schema here at P-8 |
+| web/src/content/** | Projects, credentials, settings | projects exist (P-5) | Content is verified, added or withdrawn |
 | web/src/components/Nav.astro | Sticky bar: text brand, desktop links, mobile details menu, primary CTA | exists (P-2) | The nav spec in DESIGN.md section 7 changes, or Q12 settles the brand text |
 | web/src/components/Hero.astro | Logo, headline, supporting line, both CTAs | exists (P-2) | P-3 replaces the bracketed copy. P-21 or Q12 changes the mark |
 | web/src/components/Showreel.astro | 16:9 poster, play button, player created on tap, and the stand-in clip until C-2 | exists (P-2, wired P-4) | C-2 footage or a YouTube id replaces the stand-in. The id moves to `shared/site-config.ts` at P-10 |
 | web/public/media/demo-reel.mp4 | The 7 s silent placeholder reel the showreel plays | exists (P-4) | Delete when C-2 delivers real footage (P-24) |
 | web/src/assets/media/demo-reel-poster.webp | Showreel poster, labelled as placeholder artwork inside the image | exists (P-4) | Replaced with a real poster at C-2 |
 | web/src/components/PortfolioGrid.astro | Category chips and the card grid | exists (P-2) | P-6 wires filtering and hides empty categories (FR-26) |
-| web/src/components/ProjectCard.astro | Poster, category chip, H3 title, no link yet | exists (P-2) | P-5 and P-7 give it real content and a project page |
+| web/src/components/ProjectCard.astro | Poster, category chip, H3 title, no link yet | exists (P-2) | P-6 gives it a real poster and P-7 a project page. The category and title come from the collection since P-5 |
 | web/src/components/Credentials.astro | DEMO cards in the verified-only treatment | exists (P-2) | P-8 replaces it with the collection and the hide rule |
 | web/src/components/Services.astro | Four service cards with tag chips | exists (P-2) | P-9 and C-10 put real names, tags and copy in |
 | web/src/components/Process.astro | The five-step rail: a 44 px numeral, one divider per row, the heading in a left column from 1200 px | exists (P-2) | P-9 and C-10. Layout settled by the P-25 audit (DESIGN section 7) |
@@ -268,7 +272,7 @@ Removed by the stack change: the Framer copy of the message builder and the Fram
 - `/web` holds the site only. No secrets, no API code.
 - `/shared` holds pure functions and one config file, with no imports from web or worker code.
 - `/worker/src/lib/db.ts` is the only file allowed to know D1.
-- `/content` is the only place where unverified claims may exist, and they must be bracketed. Rendered content in `web/src/content` must be verified.
+- `/content` is the only place where unverified claims may exist, and they must be bracketed. Rendered content in `web/src/content` must be verified, with one exception the schema enforces: an entry marked `demo: true` (D28) is a designed placeholder, holds nothing but brackets and a category, and can never carry `verified: true` or `publish_ok: true`. C-11 deletes them.
 - `/assets` holds brand files only. The 2.4 MB original is an archive and is never loaded on the site. Site media that the build must optimize goes to `web/src/assets/<kind>`, and anything served untouched goes to `web/public/`.
 - `/docs/research` is never read as fact by an agent.
 - There is no setup script in this repo or outside it. F-6 was completed by hand on 2026-10-27. Do not write one.
@@ -280,6 +284,7 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-10-27 | Agent (Qoder) | P-5 created the content layer. Added `web/src/content.config.ts` (the projects collection, a glob loader over YAML entries, entry id = file name stem = the P-7 slug), `web/src/content-rules.ts` (the projects schema, `bracketedFieldsIn`, `shorableProjects`, `placeholderProjects`) and `web/src/content-rules.test.ts` (15 guard and render-rule cases). Added four files under `web/src/content/projects/`: `demo-commercial.yaml`, `demo-cultural-festival.yaml`, `demo-wedding.yaml`, `demo-documentary.yaml`, each marked `demo: true` with every unknown bracketed (D28). `PortfolioGrid.astro` now queries the collection and maps its chips over the schema's own category list instead of a copy, and `ProjectCard.astro`'s comment records that the poster arrives with the first shorable entry. Nothing moved or was deleted. The directory rule about unverified content was amended to name the `demo` flag, because four placeholder files are now in `web/src/content` and the old sentence said that could not happen | P-5, D28, ESSENTIALS 16 |
 | 2026-10-27 | Agent (Qoder) | P-25 conformance pass. No file added, moved, renamed or deleted. `global.css` gained the DESIGN section 5 breakpoint reset (`--breakpoint-*: initial`, then md 768, lg 1200, xl 1440) and `.container-site`, which took the gutter rule away from ten components and added the 40 px desktop step the design always asked for. `design-tokens.test.ts` gained a third assertion: no `sm:`, `xs:` or `2xl:` in `web/src`, which is what keeps the reset from silently swallowing a mistyped variant. `Process.astro` was rewritten as a numbered rail, `Faq.astro` lost its decorative Q markers, `index.astro` lost the 1 to 13 field numbers and gained `md:self-start` on the submit, `Nav.astro` links read "Work" and carry 44 px targets, and every section container now uses `.container-site` | P-25, D27, ESSENTIALS 19, DESIGN 5, 7, 11, 12, 13 |
 | 2026-10-27 | Agent (Qoder) | P-4 wired the showreel. Added `web/src/assets/media/demo-reel-poster.webp` (goes through Astro's image pipeline) and `web/public/media/demo-reel.mp4` (served as is, because a build step cannot optimize video), both rendered locally with ffmpeg and both labelled as placeholder artwork. `Showreel.astro` gained the poster, the play button, the tap handler and the youtube-nocookie branch, which made it the first component with client JavaScript, so `astro.config.mjs` now sets `vite.build.assetsInlineLimit: 0`: Astro 7 inlines a small component script into the page as an inline module, and the CSP `script-src 'self'` refuses to run it (D26). No file moved or was deleted | P-4, D26, P-24 (the clip is on its removal list) |
 | 2026-10-27 | Agent (Qoder) | P-2 built the page skeleton. Added the ten section components under `web/src/components`, `web/src/pages/404.astro`, and rewrote `index.astro` as the PRD section order. `global.css` gained an `@layer components` block with the DESIGN section 7 shared classes, and `worker/wrangler.toml` gained `not_found_handling = "404-page"`, which is what 404.astro exists for (D19, re-probed in docs/spikes/stack-spike.md). No file moved or was deleted | P-2, P-24 (added), D23, D24 |
