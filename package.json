@@ -1,0 +1,19 @@
+{
+  "name": "boy-concept",
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": [
+    "web",
+    "worker",
+    "shared"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace web",
+    "dev:worker": "npm run dev --workspace worker",
+    "build": "npm run build --workspace web",
+    "typecheck": "npm run typecheck --workspace web && npm run typecheck --workspace worker"
+  }
+}

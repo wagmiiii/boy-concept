@@ -234,7 +234,7 @@ Deploy: `npm run deploy:test` builds the web workspace, applies D1 migrations to
 
 ## 13. Verify before building
 
-1. One Worker serves the Astro static build as assets and routes `/api/*` to Hono, locally and deployed to test. Fallback: two Workers with CORS.
+1. One Worker serves the Astro static build as assets and routes `/api/*` to Hono. Fallback: two Workers with CORS. **Verified locally 2026-10-27** (`docs/spikes/stack-spike.md`, S-1): `[assets] run_worker_first = ["/api/*"]` serves the build for every path except `/api/*`, which reaches Hono. Still to verify: the same behavior deployed to a test `workers.dev` address. Two side effects found and covered by D19: an asset miss falls through to the Worker, and `POST` outside `/api/*` returns 405 from the assets layer without reaching Hono.
 2. Turnstile and the form submit work inside the Instagram in-app browser on iOS and Android, and the `wa.me` button opens WhatsApp there. Blocks the form design.
 3. D1 and Workers free-tier limits against expected volume, and whether any paid plan is needed.
 4. Resend free-tier limits, sending-domain verification for the client domain, and Gmail inbox placement.
@@ -264,7 +264,7 @@ Ranked by likelihood times damage. "Fixed" means the design already addresses it
 | 10 | The credentials section looks empty because little is verified | Fixed: section hides below a threshold |
 | 11 | Source video files do not exist, only Instagram uploads | Open: PRD Q7 |
 | 12 | Accounts sit in the builder's name and the site breaks when he steps away | Fixed: client-owned accounts and a handover checklist |
-| 13 | Single-Worker routing of assets and `/api/*` does not work as assumed | Open: Verify item 1, fallback is two Workers with CORS |
+| 13 | Single-Worker routing of assets and `/api/*` does not work as assumed | Mostly fixed: verified locally by S-1 (Verify item 1), deployed half still open. Fallback remains two Workers with CORS |
 | 14 | Astro on Workers SSR quirks | Avoided: static output, no adapter |
 | 15 | The owner cannot edit content himself | Open: default is builder-maintained files, Q13 decides on a hosted CMS |
 | 16 | A placeholder or unverified claim ships | Fixed: the build guard fails the build |
@@ -324,6 +324,8 @@ What stays because it earns its place: the verification gate and build guard, th
 | D16 | The owner WhatsApp number is defined once in `shared/site-config.ts` | 2026-10-26 |
 | D17 | One Worker serves the static build and `/api/*` on the same origin. Fallback is two Workers with CORS | 2026-10-26 |
 | D18 | Design tokens have one implementation source, `web/src/styles/tokens.css`, derived from DESIGN.md | 2026-10-26 |
+| D19 | Asset misses fall through to the Worker even with a scoped `run_worker_first`, so an unscoped `app.all("*")` in the Worker turns a missing page into a JSON 404. Set `not_found_handling` in `[assets]`, ship a real 404 page, and scope the Worker catch-all to `/api/*` | 2026-10-27 (found by S-1) |
+| D20 | Astro stays pinned at 6.4.8 for the spike because every doc says Astro 6, but 6.x carries a critical advisory fixed only in 7.3.2+, which needs Node newer than 22.23.4. Move to Astro 7.x at P-1 with a Node bump rather than carrying the advisory into the first real build | 2026-10-27 (found by S-1) |
 
 ## 16. Contribution protocol
 

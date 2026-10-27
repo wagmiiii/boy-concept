@@ -4,11 +4,11 @@ Single source of truth for project status and for the path to 100% readiness.
 
 | | |
 |---|---|
-| Last updated | 2026-10-26 |
-| Stack | Astro 6 (static), one Cloudflare Worker (Hono) and D1. Changed from Framer on 2026-10-26 (decision D13) |
-| Current phase | Foundations (F), moving to Discovery (D) and the stack spike (S) |
-| Readiness | 11% (9 of 82 Must tasks done) |
-| Gates passed | none |
+| Last updated | 2026-10-27 |
+| Stack | Astro 6 (static, pinned 6.4.8 for the spike, see D20), one Cloudflare Worker (Hono) and D1. Changed from Framer on 2026-10-26 (decision D13) |
+| Current phase | Discovery (D) and the stack spike (S). Foundations (F) is closed except the CI proof on F-7 |
+| Readiness | 13% (11 of 83 Must tasks done) |
+| Gates passed | none. G1: S-1 verified locally, deployed half and S-2 open |
 | CMS decision | Pending Q13. Section K (hosted CMS) is excluded from the score until Q13 is yes |
 
 ## Update rule (mandatory, applies to humans and agents)
@@ -37,9 +37,9 @@ Recalculate on every update.
 
 | Section | Must done | Should done | Conditional |
 |---|---|---|---|
-| F Foundations | 8 of 10 | 0 of 0 | n/a |
+| F Foundations | 10 of 10 | 0 of 0 | n/a |
 | D Discovery and pitch | 1 of 8 | 1 of 1 | n/a |
-| S Stack spike | 0 of 4 | 0 of 0 | n/a |
+| S Stack spike | 0 of 5 | 0 of 0 | n/a |
 | P Phase 0 | 0 of 19 | 0 of 2 | n/a |
 | C Phase 1 | 0 of 11 | 0 of 0 | n/a |
 | K Hosted CMS (conditional) | n/a | n/a | 0 of 4 |
@@ -47,14 +47,14 @@ Recalculate on every update.
 | B Phase 1 | 0 of 16 | 0 of 0 | n/a |
 | R Phase 1 | 0 of 10 | 0 of 0 | n/a |
 | X Post-launch | not counted | not counted | n/a |
-| **Total counted** | **9 of 82** | **1 of 4** | |
+| **Total counted** | **11 of 83** | **1 of 4** | |
 
 ## Gates
 
 | Gate | Condition | Decided by tasks | Status |
 |---|---|---|---|
 | G0 | Emmanuel agrees to proceed and answers Q1 | D-7, D-8 | open |
-| G1 | Stack spike passed: one Worker serves the build and /api/*, and Turnstile and the WhatsApp button work in the Instagram in-app browser. If routing fails, use two Workers with CORS. If the in-app browser fails, redesign the form flow | S-4 | open |
+| G1 | Stack spike passed: one Worker serves the build and /api/*, and Turnstile and the WhatsApp button work in the Instagram in-app browser. If routing fails, use two Workers with CORS. If the in-app browser fails, redesign the form flow | S-4 | open, S-1 local half passed 2026-10-27 |
 | G2 | Content bar met: minimum verified, permitted content is in the site | C-9, C-11 | open |
 | G3 | Launch checklist signed off by Emmanuel | R-6 | open |
 | G4 | Handover accepted: every account is in the client's name | R-10 | open |
@@ -67,6 +67,8 @@ Recalculate on every update.
 - A hand-built front end is slower to a polished first demo than a visual editor was [Likely]. P-1 to P-4 are the early risk, and DESIGN.md exists to shorten them.
 - Verified content is the credibility layer, which is the strongest part of the pitch. A thin content set is a schedule risk and a product risk.
 - Nothing here has dates. Add dates only after G0, once Emmanuel's response time is known.
+- S-5 needs a Cloudflare account before the deployed half of G1 can close. Use a throwaway builder account for the spike; the client-owned one is L-1 [Likely].
+- The GitHub repo is public and already holds the supplied logo and the proposal deck. If the pitch is sensitive before D-7, make it private. Nothing secrets-bearing is in it (Certain, checked .gitignore and tree).
 
 ## Tasks
 
@@ -81,8 +83,8 @@ Priority: M is Must, S is Should, C is conditional. Refs point to requirement ID
 | [x] | F-3 | ARCHITECTURE_ESSENTIALS | Agent | S | F-2 | ESSENTIALS | M |
 | [x] | F-4 | AGENTS.md and CLAUDE.md | Agent | S | F-3 | none | M |
 | [x] | F-5 | ROADMAP.md and PROJECT_STRUCTURE.md written; contribution protocol added to every instruction file and doc | Agent | M | F-4 | none | M |
-| [~] | F-6 | Create the repo, scaffold folders per PROJECT_STRUCTURE.md, move docs into /docs, add README.md and .gitignore. Skeleton and repo-setup.sh are prepared; done when the repo exists on GitHub | Ademola | S | F-5 | none | M |
-| [~] | F-7 | Add PR template and CI that fails a PR not touching ROADMAP.md, or adding, deleting or renaming files without PROJECT_STRUCTURE.md. Files are prepared; done when the first PR shows the check passing | Ademola | S | F-6 | none | M |
+| [x] | F-6 | Create the repo, scaffold folders per PROJECT_STRUCTURE.md, move docs into /docs, add README.md and .gitignore. Done 2026-10-27: wagmiiii/boy-concept exists on GitHub with main in sync, the duplicate root ARCHITECTURE.md is deleted, the workspaces are real. There was never a repo-setup.sh; that claim is dropped | Ademola, Agent | S | F-5 | none | M |
+| [x] | F-7 | Add PR template and CI that fails a PR not touching ROADMAP.md, or adding, deleting or renaming files without PROJECT_STRUCTURE.md. Done 2026-10-27: PR #1 ran the roadmap-and-structure check and it passed, and this very status flip is the second commit that had to touch ROADMAP.md to be allowed | Ademola, Agent | S | F-6 | none | M |
 | [x] | F-8 | Create skeletons for content/PLACEHOLDERS.md, content/verification-log.md and content/copy.md | Agent | S | F-6 | none | M |
 | [x] | F-9 | DESIGN.md written from the supplied logo; logo added under assets/brand | Agent | M | F-5 | docs/DESIGN.md | M |
 | [x] | F-10 | Stack changed from Framer to Astro, Worker and D1; every doc updated to match (decision D13) | Agent | M | F-9 | ARCH 3, D13 | M |
@@ -105,17 +107,18 @@ Priority: M is Must, S is Should, C is conditional. Refs point to requirement ID
 
 | Status | ID | Task | Owner | Size | Depends on | Refs | P |
 |---|---|---|---|---|---|---|---|
-| [ ] | S-1 | Confirm one Worker serves the Astro static build as assets and routes /api/* to a Hono app, locally and deployed to test | Agent, Ademola | S | F-6 | ARCH Verify 1 | M |
+| [~] | S-1 | Confirm one Worker serves the Astro static build as assets and routes /api/* to a Hono app, locally and deployed to test. Local half verified 2026-10-27: `run_worker_first = ["/api/*"]` works, typecheck clean, evidence in docs/spikes/stack-spike.md. Deployed half is S-5 | Agent, Ademola | S | F-6 | ARCH Verify 1 | M |
 | [ ] | S-2 | Confirm Turnstile and a form submit work in the Instagram in-app browser (iOS and Android) and the wa.me button opens WhatsApp | Ademola | M | S-1 | ARCH Verify 2 | M |
 | [ ] | S-3 | Check D1, Workers and Resend free-tier limits against expected volume; check that _headers and the CSP work with Worker assets | Ademola, Agent | S | S-1 | ARCH Verify 3, 4, 5 | M |
-| [ ] | S-4 | Write docs/spikes/stack-spike.md; update the Verify list; decide gate G1 | Agent | S | S-1, S-2, S-3 | none | M |
+| [ ] | S-4 | Write docs/spikes/stack-spike.md; update the Verify list; decide gate G1. The file exists with the S-1 section; finish it when S-2, S-3 and S-5 are in | Agent | S | S-1, S-2, S-3, S-5 | none | M |
+| [ ] | S-5 | Deploy the spike Worker to a throwaway test workers.dev address (noindex) and repeat checks A1 to A9 from the spike doc. Needs a Cloudflare account and a wrangler login or API token from Ademola. Not the production account: those move to the client at L-1 | Ademola, Agent | S | S-1 | ARCH Verify 1, G1 | M |
 
 ### P. Phase 0: Astro pitch demo (no backend)
 
 | Status | ID | Task | Owner | Size | Depends on | Refs | P |
 |---|---|---|---|---|---|---|---|
-| [ ] | P-1 | Scaffold workspaces: web (Astro 6, TypeScript, Tailwind v4, Preact), shared, root scripts, Node 22. tokens.css from docs/DESIGN.md, fonts, base layout. Move the web logo into web/src/assets/brand | Agent | M | F-6, F-9 | DESIGN.md, ARCH 3 | M |
-| [ ] | P-2 | Page skeleton and section order: nav, hero, showreel, portfolio, credentials, services, process, FAQ, form, footer | Agent | S | P-1 | none | M |
+| [ ] | P-1 | Scaffold workspaces: web (Astro 6, TypeScript, Tailwind v4, Preact), shared, root scripts, Node 22. tokens.css from docs/DESIGN.md, fonts, base layout. Move the web logo into web/src/assets/brand. The workspaces and root scripts already exist from S-1 and are spike-minimal: this task fills them in, adds eslint.config.js and vitest, and settles the Astro 6 advisory against Node per D20 | Agent | M | F-6, F-9 | DESIGN.md, ARCH 3 | M |
+| [ ] | P-2 | Page skeleton and section order: nav, hero, showreel, portfolio, credentials, services, process, FAQ, form, footer. Add 404.astro so the assets `not_found_handling` has a page to serve (D19) | Agent | S | P-1 | none | M |
 | [ ] | P-3 | Hero with both CTAs | Agent | S | P-2 | FR-1 | M |
 | [ ] | P-4 | Showreel: poster first, video created on tap | Agent | S | P-2 | FR-2 | M |
 | [ ] | P-5 | Content collections and schemas: projects with verified and publish_ok, the verification build guard; demo items marked as placeholders | Agent | M | P-2 | FR-3, FR-27, ARCH 5 | M |
@@ -253,6 +256,7 @@ Newest first. One line per PR or work session.
 
 | Date | Who | What | Tasks | Files |
 |---|---|---|---|---|
+| 2026-10-27 | Agent (Qoder) | Closed the foundations gaps honestly and ran the local half of the stack spike. Deleted the duplicate root ARCHITECTURE.md (byte-identical to docs/). Scaffolded the real workspaces: root package.json with web/worker/shared, tsconfig.base.json, .nvmrc, an Astro 6 static site, and one Worker whose `[assets] run_worker_first = ["/api/*"]` serves the build and routes the API. Ran the server, 9 checks, and `npm run build` plus `npm run typecheck` (0 errors). S-1 local half passes; asset misses fall through to the Worker, which is now decision D19. Added D20 for the Astro 6 critical advisory against the Node floor. The repo exists on GitHub with main in sync, so F-6 is done and the false repo-setup.sh claim is dropped. Deployed half of S-1 is the new S-5, waiting on a Cloudflare account. PR #1 then ran the CI check and passed, so F-7 closed on the same branch: 11 of 83, 13% | F-6, F-7, S-1, S-4 (started), S-5 (added), P-1, P-2 | package.json, package-lock.json, tsconfig.base.json, .nvmrc, web/*, worker/*, shared/package.json, docs/spikes/stack-spike.md, ROADMAP.md, PROJECT_STRUCTURE.md, docs/ARCHITECTURE.md, docs/ARCHITECTURE_ESSENTIALS.md; deleted ARCHITECTURE.md |
 | 2026-10-26 | Agent (Claude) | Changed the stack from Framer to Astro 6 (static), one Cloudflare Worker (Hono) and D1. Rewrote ARCHITECTURE, ESSENTIALS and PROJECT_STRUCTURE. Updated PRD, DESIGN, AGENTS, CLAUDE, README, copy.md and this roadmap. Replaced the Framer spike with a stack spike, made the backend tasks unconditional, added conditional CMS tasks (K) and question Q13, removed the old gate G1 meaning | F-10, S-1 to S-4 (replaced), P (rewritten), B (now Must), K (added), D-9 (updated) | all docs, ROADMAP.md, PROJECT_STRUCTURE.md |
 | 2026-10-10 | Agent (Claude) | Wrote docs/DESIGN.md from the supplied logo and added the logo files under assets/brand. Set the page background to black. Added tasks D-9 and P-21 and questions Q11 and Q12. Updated PROJECT_STRUCTURE, README, AGENTS, ESSENTIALS, PRD, ARCHITECTURE, PLACEHOLDERS and verification-log | F-9, D-9 (added), P-21 (added), P-1 and C-1 (updated) | docs/DESIGN.md, assets/brand/*, PROJECT_STRUCTURE.md, README.md, AGENTS.md, docs/PRD.md, docs/ARCHITECTURE.md, docs/ARCHITECTURE_ESSENTIALS.md, content/*, ROADMAP.md |
 | 2026-10-06 | Agent (Claude) | Prepared the GitHub repo skeleton: README, .gitignore, CODEOWNERS, PR template, CI checks for ROADMAP and PROJECT_STRUCTURE, content skeletons, research notes. Wrote repo-setup.sh. The repo does not exist on GitHub until Ademola runs it | F-6 (in progress), F-7 (in progress), F-8 | README.md, .gitignore, .github/*, content/*, docs/research/*, PROJECT_STRUCTURE.md, AGENTS.md, docs/ARCHITECTURE.md, ROADMAP.md |
