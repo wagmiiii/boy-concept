@@ -1,6 +1,6 @@
 # ARCHITECTURE: Alpha Movies Booking and Showcase Site
 
-Status: Draft v0.3 (stack changed from Framer to Astro, Worker and D1; see decision D13) | Date: 2026-10-26 | Pairs with PRD.md. Requirement IDs (FR-n) refer to the PRD.
+Status: Draft v0.4 (Astro pinned at 7.4.1, see D22; the Fonts API and the single-Worker routing are now verified) | Date: 2026-10-27 | Pairs with PRD.md. Requirement IDs (FR-n) refer to the PRD.
 
 Items marked "Verify" are technical assumptions to confirm before depending on them (section 13).
 
@@ -46,20 +46,20 @@ The browser talks only to the Worker, from the same origin. The Worker is the so
 
 | Layer | Choice | Why | Rejected |
 |---|---|---|---|
-| Site | Astro 6, TypeScript, static output | Sends almost no JavaScript by default, which suits a video-heavy site on mobile data. First-class content collections | Next.js on Vercel: heavier JS for a mostly static site, pick it if an admin or payment UI becomes central. Astro SSR adapter: reported Workers quirks around the prerender environment and image service, static output avoids it. Plain HTML with HTMX: hand-built content layer and facades. Framer: superseded, see D13 |
-| Styling | Tailwind CSS v4, with `web/src/styles/tokens.css` as the single source of design tokens | Tokens come straight from DESIGN.md, no copies | CSS-in-JS |
+| Site | Astro 7, TypeScript, static output, pinned 7.4.1 | Sends almost no JavaScript by default, which suits a video-heavy site on mobile data. First-class content collections. Astro 6.x carries the advisories in D20 and 7.4.1 is the newest release whose Node floor this machine meets (D22) | Next.js on Vercel: heavier JS for a mostly static site, pick it if an admin or payment UI becomes central. Astro SSR adapter: reported Workers quirks around the prerender environment and image service, static output avoids it. Plain HTML with HTMX: hand-built content layer and facades. Framer: superseded, see D13 |
+| Styling | Tailwind CSS v4 through `@tailwindcss/vite`, with `web/src/styles/tokens.css` as the single source of design tokens mapped to utilities by `@theme inline` in `global.css` | Tokens come straight from DESIGN.md, no copies, and a utility emits `var(--gold)` rather than a second hex value | CSS-in-JS |
 | Interactivity | One Preact island for `EnquiryForm`, hydrated when visible. The portfolio filter is a small vanilla script | Keeps client JavaScript small | A full React app |
 | Content | Astro content collections: YAML or Markdown files with Zod schemas in `web/src/content` | No vendor, reviewed in pull requests, schemas can enforce the verification rules | A hosted CMS from day one. Sanity is added only if Q13 is yes (ROADMAP section K) |
-| API | Cloudflare Worker with Hono and Zod. The same Worker serves the static build through its assets binding, running first for `/api/*` [Verify] | Same origin, no CORS, one deploy | A second Worker with CORS. It is the fallback if single-Worker routing fails |
+| API | Cloudflare Worker with Hono and Zod. The same Worker serves the static build through its assets binding, running first for `/api/*`. Verified locally and at the edge, see D17 | Same origin, no CORS, one deploy | A second Worker with CORS. It is the fallback if single-Worker routing fails, and it stayed unused |
 | Data | D1 (SQLite) | `UNIQUE` constraints give real idempotency and unique refs, no extra vendor, same platform | Airtable: external vendor, no unique constraint, API limits. Supabase: more than this needs |
 | Email | Resend | One API call per enquiry | SMTP |
 | Bot protection | Turnstile, honeypot field, rate limit per contact (a D1 count) | Free, low friction | Image CAPTCHA |
 | Phone parsing | libphonenumber-js (minimal metadata) in the Worker, light checks in the browser | Local numbers with a leading 0, foreign numbers, E.164 output | Regex |
 | Video | YouTube nocookie or Vimeo, created on tap | His channel is on YouTube | Autoplaying embeds, a hero loop |
-| Images | Astro build-time image optimization for posters and the logo | No runtime image service needed | A runtime transform service |
-| Fonts | Astro's built-in Fonts API for Marcellus and Inter [Verify] | Preload and swap handled for us | Hand-rolled font loading |
+| Images | Astro build-time image optimization for posters and the logo. The logo builds to a 48 kB WebP from the 160 kB source | No runtime image service needed | A runtime transform service |
+| Fonts | Astro's built-in Fonts API for Marcellus and Inter. Verified at P-1: it downloads woff2 at build time, serves them from the same origin, and adds `font-display: swap`, preload links and metric-matched fallback faces | Preload and swap handled for us, and no third-party font host in the CSP | Hand-rolled font loading. A Google Fonts `<link>`, which would add two origins to the CSP and a render-blocking request |
 | Analytics | GA4, two events: form_submit, whatsapp_tap | Free | A custom tracking endpoint |
-| Tooling | Node 22 or newer, npm workspaces, strict TypeScript, Vitest, ESLint, `astro check`, Wrangler, GitHub Actions | Astro 6 needs Node 22+ | |
+| Tooling | Node 22.22 or newer, npm workspaces, strict TypeScript, Vitest, ESLint, `astro check`, Wrangler, GitHub Actions | Astro 7.4.1 and `@astrojs/preact` 6.1.0 both ask for Node 22.22+ | |
 
 Validation for requests lives on the server in Zod. The browser uses native HTML validation only. Content schemas (Zod, in `web/src/content.config.ts`) enforce the content rules at build time.
 
@@ -177,7 +177,7 @@ A lead is lost only if the backend failed and the visitor did not send the messa
 - Secrets live only in Worker environment variables and `.dev.vars` locally. The only value shipped to the browser is the public Turnstile site key.
 - Input caps on every field. Strip control characters. URLs must be http or https.
 - Rate limit: 3 submissions per hour per phone number or email, plus Turnstile. Do not rely on IP, because mobile carriers in Nigeria commonly put many users behind one address [Likely]. A loose IP backstop through the Workers rate limiting binding is optional [Verify].
-- Security headers, including a Content Security Policy that allows Turnstile, GA4 and the YouTube nocookie domain, are set through `web/public/_headers`, which **is** honored for assets served by a Worker (S-3, 2026-10-27). It is not honored for `/api/*`, so the Worker sets its own `X-Content-Type-Options`, `Referrer-Policy` and `X-Frame-Options` in Hono middleware (D21).
+- Security headers, including a Content Security Policy that allows Turnstile, GA4 and the YouTube nocookie domain, are set through `web/public/_headers`, which **is** honored for assets served by a Worker (S-3, 2026-10-27). It is not honored for `/api/*`, so the Worker sets its own `X-Content-Type-Options`, `Referrer-Policy` and `X-Frame-Options` in Hono middleware (D21). Fonts are self-hosted at build time, so `font-src` and `style-src` carry no Google origins; `style-src 'unsafe-inline'` stays, because the Fonts API injects an inline `@font-face` block (P-1, 2026-10-27).
 - Logs hold the ref and error codes only. No names, numbers or emails.
 - No IP addresses are stored.
 - Consent is stored with a timestamp. Retention: spam deleted after 30 days, other enquiries after 24 months unless the owner chooses otherwise. Deletion on request is a documented D1 command. [Verify against NDPA 2023]
@@ -188,6 +188,7 @@ A lead is lost only if the backend failed and the visitor did not send the messa
 - No hero video loop. Video iframes are created on tap.
 - `EnquiryForm` hydrates when visible. The Turnstile script loads when the form section is first interacted with.
 - Budgets: LCP 2.5s or better on 4G, checked with PageSpeed Insights and a throttled Chrome profile. Client JavaScript on the home page, excluding GA4 and Turnstile, targets [agree a number at P-17].
+- Measured at P-1, one scaffold page: 3.0 kB HTML, 6.2 kB CSS, 0 kB JavaScript referenced (the Preact chunks build but nothing hydrates yet), 61 kB of self-hosted woff2 (Marcellus 13.9, Inter variable 47.3) and a 48.6 kB logo WebP. These are uncompressed file sizes, and they are the floor the P-17 budget starts from.
 
 ## 10. Environments, ownership and deployment
 
@@ -217,7 +218,7 @@ Deploy: `npm run deploy:test` builds the web workspace and runs `wrangler deploy
 
 - Cloudflare Worker logs. Alert on a spike in INTERNAL errors. [Verify]
 - First 30 days: every enquiry email also goes to the builder, so a silently failing owner inbox is noticed.
-- Unit tests only: phone normalization, WhatsApp message builder (encoding and length), ref generator, the Zod request schema.
+- Unit tests only: phone normalization, WhatsApp message builder (encoding and length), ref generator, the Zod request schema. Plus one build-hygiene test that exists from P-1: `web/src/styles/design-tokens.test.ts` checks that tokens.css declares every DESIGN.md section 3 token and that no other source file contains a hex literal.
 - CI on every PR: lint, typecheck, `astro check`, unit tests and the web build. The build runs the content guard.
 - Manual pre-launch matrix: iOS Safari, Android Chrome, and the Instagram in-app browser on both. Check the WhatsApp button, the copy fallback, slow 3G throttle and a keyboard-only submit.
 - Launch gate: the build passes with no unverified or unpermitted content visible and no bracketed placeholders in verified items.
@@ -238,8 +239,8 @@ Deploy: `npm run deploy:test` builds the web workspace and runs `wrangler deploy
 2. Turnstile and the form submit work inside the Instagram in-app browser on iOS and Android, and the `wa.me` button opens WhatsApp there. Blocks the form design.
 3. D1 and Workers free-tier limits against expected volume, and whether any paid plan is needed.
 4. Resend free-tier limits, sending-domain verification for the client domain, and Gmail inbox placement.
-5. `web/public/_headers` is honored for assets served by a Worker, and the CSP works with Turnstile, GA4 and YouTube nocookie. **Answered 2026-10-27 for the mechanism** (S-3, `docs/spikes/stack-spike.md`): `_headers` applies to asset responses and asset redirects, and does not apply to `/api/*` or to an asset miss that falls through to the Worker. **Still open for the values**, which cannot be exercised until the real scripts exist at P-4 and P-12.
-6. Astro 6 specifics: the Fonts API handles Marcellus and Inter, the Preact integration works, content config lives at `src/content.config.ts`.
+5. `web/public/_headers` is honored for assets served by a Worker, and the CSP works with Turnstile, GA4 and YouTube nocookie. **Answered 2026-10-27 for the mechanism** (S-3, `docs/spikes/stack-spike.md`): `_headers` applies to asset responses and asset redirects, and does not apply to `/api/*` or to an asset miss that falls through to the Worker. **Partly answered for the values** (P-1, 2026-10-27): the page loads under the enforced CSP with no console violations, which exercises `font-src 'self'` for the self-hosted woff2 files and `style-src 'unsafe-inline'` for the inline font block Astro injects. Turnstile, GA4 and YouTube nocookie stay unexercised until they exist at P-4 and P-12.
+6. Astro specifics: the Fonts API handles Marcellus and Inter, the Preact integration works, content config lives at `src/content.config.ts`. **Answered 2026-10-27 on Astro 7.4.1** (P-1): the Fonts API resolved both families from the Google provider, copied 2 woff2 files into `/_astro/fonts/`, emitted `@font-face` with `font-display: swap`, preload links and metric-adjusted fallback faces, and exposed `--font-marcellus` and `--font-inter`; `@astrojs/preact` 6.1.0 installs and builds on this Node. Content config is still open, it arrives at P-5.
 7. The Workers rate limiting binding, if the IP backstop is wanted.
 8. NDPA 2023 obligations for names, phone numbers and email addresses.
 9. `wa.me` links on iOS, Android and inside Instagram's browser. Keep the encoded message under about 1000 characters.
@@ -327,6 +328,7 @@ What stays because it earns its place: the verification gate and build guard, th
 | D19 | Asset misses fall through to the Worker even with a scoped `run_worker_first`, so an unscoped `app.all("*")` in the Worker turns a missing page into a JSON 404. Set `not_found_handling` in `[assets]`, ship a real 404 page, and scope the Worker catch-all to `/api/*` | 2026-10-27 (found by S-1) |
 | D20 | Astro stays pinned at 6.4.8 for the spike because every doc says Astro 6, but 6.x carries a critical advisory fixed only in 7.3.2+, which needs Node newer than 22.23.4. Move to Astro 7.x at P-1 with a Node bump rather than carrying the advisory into the first real build | 2026-10-27 (found by S-1) |
 | D21 | `web/public/_headers` governs asset responses and asset redirects only. `/api/*` and any asset miss that falls through to the Worker get nothing from it, so the Worker sets its own security headers in middleware, and the site is not switched to `run_worker_first = true` just to make headers apply everywhere | 2026-10-27 (found by S-3) |
+| D22 | Settles D20, whose Node premise was wrong. The Astro advisories are fixed in 7.3.2, which asks for Node 22.12, and 7.4.0 to 7.4.1 ask for 22.22. Only 7.4.2 wants 22.23.4, which this box cannot reach through apt. So Astro is pinned at exactly 7.4.1, `@astrojs/preact` at 6.1.0 (22.22 floor, preact 10 or 11) and preact at 11.0.2, the Node floor in `package.json` engines moves to 22.22, and no Node install is needed. `npm audit` reports 0 vulnerabilities, and checks A1 to A9 plus the S-3 header scope reproduce unchanged on the new build. Pin exactly, not with a caret: `^7` would resolve to 7.4.2 and fail the engine check on this machine | 2026-10-27 (found by P-1) |
 
 ## 16. Contribution protocol
 

@@ -5,9 +5,9 @@ Single source of truth for project status and for the path to 100% readiness.
 | | |
 |---|---|
 | Last updated | 2026-10-27 |
-| Stack | Astro 6 (static, pinned 6.4.8 for the spike, see D20), one Cloudflare Worker (Hono) and D1. Changed from Framer on 2026-10-26 (decision D13) |
-| Current phase | Discovery (D) and the stack spike (S). S-1 and S-5 are done; S-2, S-3 and S-4 remain, and S-2 needs real devices |
-| Readiness | 16% (13 of 83 Must tasks done) |
+| Stack | Astro 7 (static, pinned 7.4.1, see D20 and D22), one Cloudflare Worker (Hono) and D1. Changed from Framer on 2026-10-26 (decision D13) |
+| Current phase | Discovery (D), the stack spike (S) and the Phase 0 build (P). P-1 is done; S-2 and the S-3 volume half remain, and S-2 needs real devices |
+| Readiness | 17% (14 of 83 Must tasks done) |
 | Gates passed | none. G1: the single-Worker routing is verified locally and on the edge; S-2 and S-3 still decide the gate |
 | CMS decision | Pending Q13. Section K (hosted CMS) is excluded from the score until Q13 is yes |
 
@@ -40,14 +40,14 @@ Recalculate on every update.
 | F Foundations | 10 of 10 | 0 of 0 | n/a |
 | D Discovery and pitch | 1 of 8 | 1 of 1 | n/a |
 | S Stack spike | 2 of 5 | 0 of 0 | n/a |
-| P Phase 0 | 0 of 19 | 0 of 2 | n/a |
+| P Phase 0 | 1 of 19 | 0 of 4 | n/a |
 | C Phase 1 | 0 of 11 | 0 of 0 | n/a |
 | K Hosted CMS (conditional) | n/a | n/a | 0 of 4 |
 | L Phase 1 | 0 of 4 | 0 of 2 | n/a |
 | B Phase 1 | 0 of 16 | 0 of 0 | n/a |
 | R Phase 1 | 0 of 10 | 0 of 0 | n/a |
 | X Post-launch | not counted | not counted | n/a |
-| **Total counted** | **13 of 83** | **1 of 5** | |
+| **Total counted** | **14 of 83** | **1 of 7** | |
 
 ## Gates
 
@@ -117,7 +117,7 @@ Priority: M is Must, S is Should, C is conditional. Refs point to requirement ID
 
 | Status | ID | Task | Owner | Size | Depends on | Refs | P |
 |---|---|---|---|---|---|---|---|
-| [ ] | P-1 | Scaffold workspaces: web (Astro 6, TypeScript, Tailwind v4, Preact), shared, root scripts, Node 22. tokens.css from docs/DESIGN.md, fonts, base layout. Move the web logo into web/src/assets/brand. The workspaces and root scripts already exist from S-1 and are spike-minimal: this task fills them in, adds eslint.config.js and vitest, and settles the Astro 6 advisory against Node per D20 | Agent | M | F-6, F-9 | DESIGN.md, ARCH 3 | M |
+| [x] | P-1 | Scaffold workspaces: web (Astro 6, TypeScript, Tailwind v4, Preact), shared, root scripts, Node 22. tokens.css from docs/DESIGN.md, fonts, base layout. Move the web logo into web/src/assets/brand. The workspaces and root scripts already exist from S-1 and are spike-minimal: this task fills them in, adds eslint.config.js and vitest, and settles the Astro 6 advisory against Node per D20. Done 2026-10-27: the scaffold is real (tokens.css, global.css with the Tailwind v4 `@theme` map, the Fonts API, Base.astro, the moved logo, eslint.config.js, vitest, root lint and test scripts). D20 settled by moving to Astro 7.4.1, which needed no Node bump because 7.4.1 asks for Node 22.22.0 and this box runs 22.23.2. `npm audit` is now 0 vulnerabilities, and checks A1 to A9 plus the S-3 header scope reproduce unchanged on the new build. The task text said Astro 6, see D22 | Agent | M | F-6, F-9 | DESIGN.md, ARCH 3 | M |
 | [ ] | P-2 | Page skeleton and section order: nav, hero, showreel, portfolio, credentials, services, process, FAQ, form, footer. Add 404.astro so the assets `not_found_handling` has a page to serve (D19) | Agent | S | P-1 | none | M |
 | [ ] | P-3 | Hero with both CTAs | Agent | S | P-2 | FR-1 | M |
 | [ ] | P-4 | Showreel: poster first, video created on tap | Agent | S | P-2 | FR-2 | M |
@@ -138,6 +138,8 @@ Priority: M is Must, S is Should, C is conditional. Refs point to requirement ID
 | [ ] | P-19 | Placeholder register complete; every demo placeholder is bracketed | Agent | S | P-5, P-8 | PRD 8 | M |
 | [ ] | P-20 | Deploy the static site to the test Worker on a noindex workers.dev address | Ademola | S | P-17, P-18, P-19, S-1 | none | M |
 | [ ] | P-21 | Flat one-color wordmark, favicon mark and a 1200 x 630 social image for small sizes, tabs and link previews | Ademola, Agent | M | F-9, D-9 | DESIGN 2, 13 | M |
+| [ ] | P-22 | Lint coverage for .astro files. eslint 10 runs over .js, .ts and .tsx only; adding eslint-plugin-astro 3.2.1 means four more packages for one benefit, so it was left out at P-1. Revisit if .astro mistakes keep reaching review | Agent | S | P-1 | AGENTS how to work | S |
+| [ ] | P-23 | Deduplicate vite. @tailwindcss/vite 4.3.3 installs its own vite 7.3.7 next to the vite 8.3.5 Astro 7 runs on. Check whether an npm override to vite 8 is safe, and drop the duplicate if so | Agent | S | P-1 | none | S |
 
 ### G. Gates
 
@@ -257,6 +259,7 @@ Newest first. One line per PR or work session.
 
 | Date | Who | What | Tasks | Files |
 |---|---|---|---|---|
+| 2026-10-27 | Agent (Qoder) | Built P-1 for real. `web/src/styles/tokens.css` now holds every DESIGN.md section 3 value plus the section 8 motion values, and Tailwind v4 maps them through `@theme inline` so no utility repeats a hex. The Astro Fonts API serves self-hosted Marcellus and Inter with swap, preload and metric-matched fallbacks, which answers ARCHITECTURE Verify item 6 and let the CSP drop the two Google Fonts origins. `Base.astro` exists, the web logo moved to `web/src/assets/brand` and builds to a 48 kB WebP. eslint 10 and vitest 5 arrived with root `lint` and `test` scripts, and the first test enforces the two token rules. D20 is settled: the advisory is cleared by Astro 7.4.1, which asks for Node 22.22.0 on a box running 22.23.2, so no Node bump was needed and `npm audit` reports 0 vulnerabilities (new decision D22). Re-ran A1 to A9 and the S-3 header scope on the new build: unchanged, so D17, D19 and D21 still hold. Loaded the page under the enforced CSP with no console violations, and checked Marcellus against the logo at 40, 64 and 24 px: it holds at display and H2 sizes and is thin but readable at H3, so DESIGN 13 item 4 is closed with a new rule that Marcellus stops at H3. Added P-22 (.astro lint coverage) and P-23 (a duplicate vite 7 that @tailwindcss/vite drags in). 14 of 83, 17% | P-1, P-22 (added), P-23 (added), D20 (settled), D22, DESIGN 13.4, ARCH Verify 6 | web/src/styles/tokens.css, web/src/styles/global.css, web/src/styles/design-tokens.test.ts, web/src/layouts/Base.astro, web/src/pages/index.astro, web/astro.config.mjs, web/public/_headers, web/src/assets/brand/alpha-movies-logo.webp (moved), eslint.config.js, vitest.config.ts, package.json, web/package.json, package-lock.json, docs/spikes/stack-spike.md, docs/DESIGN.md, docs/ARCHITECTURE.md, docs/ARCHITECTURE_ESSENTIALS.md, PROJECT_STRUCTURE.md, README.md, ROADMAP.md |
 | 2026-10-27 | Agent (Qoder) | Answered ARCHITECTURE Verify item 5 (S-3 part 1). Added a real `web/public/_headers` with the CSP from section 8, deployed it, and probed six paths at the edge. `_headers` IS honored by Worker static assets, on asset responses and on asset redirects, so no `run_worker_first = true` is needed for headers. It is NOT applied to `/api/*`, nor to an asset miss that falls through to the Worker, so the Worker must set its own headers (new decision D21) and B-11 grew to cover both files plus a 404 re-test. `wrangler dev` applies the same block, so there is no local and edge divergence to trip over. The CSP values stay unexercised until Turnstile and GA4 exist at P-4 and P-12, and S-3 part 2 needs Q6 before "expected volume" means anything. Readiness unchanged at 13 of 83 | S-3 (part 1), B-11, S-4, D21 | web/public/_headers, ROADMAP.md, PROJECT_STRUCTURE.md, docs/spikes/stack-spike.md, docs/ARCHITECTURE.md, docs/ARCHITECTURE_ESSENTIALS.md |
 | 2026-10-27 | Agent (Qoder) | Closed S-5 and S-1. Ademola registered the workers.dev subdomain through the Workers and Pages onboarding, which chose `ademola2993k` rather than the agreed `boy-concept`. His dashboard build then failed for a genuine repo reason: `npx wrangler deploy` refuses to run in an npm workspace root. Added the deploy:test root script AGENTS.md always promised, verified with a dry run, deployed boy-concept-spike, and reran the whole check matrix against the live URL: A1 to A10 match the local results, so D17 holds on Cloudflare's edge and the two-Worker fallback stays unused. Bundle 826 KiB raw, 134 KiB gzipped, startup 14 ms, which feeds S-3. Recorded that the dashboard GitHub integration now competes with the GitHub Action and added L-6 to settle who owns deploys | S-1, S-5, S-4, L-6 (added) | package.json, ROADMAP.md, docs/spikes/stack-spike.md, docs/ARCHITECTURE.md, docs/ARCHITECTURE_ESSENTIALS.md |
 | 2026-10-27 | Agent (Qoder) | Attempted the deployed half of the spike (S-5) with an Account API token supplied by Ademola. whoami passed and the site built, but wrangler refuses to publish or run a remote preview because the account has no workers.dev subdomain, and the API rejects creating one with an Account token (10405). Nothing was published and nothing in the account changed. Recorded the whole attempt, the agreed subdomain name boy-concept, and the token rotation note in the spike doc. Marked S-5 blocked with a Blockers row and flagged that P-20 and B-15 inherit the same prerequisite | S-5 (blocked), S-1, S-4 | docs/spikes/stack-spike.md, ROADMAP.md |

@@ -1,7 +1,8 @@
 # Stack spike
 
-Status: S-1 and S-5 verified, locally and on the edge. S-3 is half answered: `_headers` and the CSP are verified, the free-tier limits check is open. S-2 open, so gate G1 is still open.
-Environment: Ubuntu x64, Node v22.23.2, npm 10.9.8, wrangler 4.153.0, astro 6.4.8, hono 4.13.14, zod 4.6.7. Runs on 2026-10-27 by Agent (Qoder).
+Status: S-1 and S-5 verified, locally and on the edge. S-3 is half answered: `_headers` and the CSP are verified, the free-tier limits check is open. S-2 open, so gate G1 is still open. P-1 re-verified the routing and the header scope on the Astro 7 build.
+Environment for S-1, S-5 and S-3: Ubuntu x64, Node v22.23.2, npm 10.9.8, wrangler 4.153.0, astro 6.4.8, hono 4.13.14, zod 4.6.7. Runs on 2026-10-27 by Agent (Qoder).
+Environment for the P-1 re-check below: the same machine, astro 7.4.1, vite 8.3.5, @astrojs/preact 6.1.0, preact 11.0.2, tailwindcss 4.3.3, eslint 10.13.0, vitest 5.0.5.
 
 ## S-1: one Worker serves the Astro build and routes /api/* to Hono
 
@@ -137,6 +138,66 @@ Local parity was checked too: `wrangler dev` applies the same `_headers` block o
 
 The CSP is applied, but its **values** are untested, because nothing it references exists yet. Turnstile (`challenges.cloudflare.com`), GA4 (`www.googletagmanager.com`, `region1.google-analytics.com`) and the YouTube nocookie embed frame are only exercised at P-12 and P-4. `style-src 'unsafe-inline'` is in there for Astro and island inline styles; if Tailwind v4 at P-1 emits a single stylesheet and nothing inlines, tighten it. Re-check the whole policy on the real page, not on the spike page.
 
+## P-1: the Astro 7 move, and does the spike still hold afterwards?
+
+The spike ran on astro 6.4.8. P-1 settled D20 by moving to astro 7.4.1, which meant re-running the S-1 and S-3 checks rather than trusting that a framework patch is inert.
+
+### The Node premise in D20 was wrong
+
+Measured with `npm view <pkg> engines.node`, all on this box (Node 22.23.2, NodeSource, apt candidate 22.23.3, no nvm):
+
+| Package | engines.node | Installable here |
+|---|---|---|
+| astro 7.3.2 (first release outside the advisory range `<=7.3.1`) | `>=22.12.0` | yes |
+| astro 7.4.0 and 7.4.1 | `>=22.22.0` | yes |
+| astro 7.4.2 (latest) | `>=22.23.4` | no |
+| @astrojs/preact 6.1.0 | `>=22.22.0` | yes |
+| @astrojs/preact 6.1.1 | `>=22.23.4` | no |
+
+So the advisory could be cleared with no Node change at all, and D22 replaces D20's plan. `astro`, `@astrojs/preact` and `preact` are pinned at exact versions because `^7` resolves to 7.4.2 and fails the engine check here. After install and `npm audit fix` (which only moved the transitive esbuild to 0.28.2), `npm audit` reports **0 vulnerabilities**, down from 1 critical, 1 high and 1 low.
+
+### Re-verification on the new build
+
+`wrangler dev`, same config, same dist directory. Every check reproduces.
+
+| Check | On astro 6.4.8 | On astro 7.4.1 |
+|---|---|---|
+| A1 `GET /` | 200 text/html | 200 text/html, 3117 bytes with the real scaffold |
+| A2 `GET /api/ping` | 200 JSON from Hono | same |
+| A3 `POST /api/spike` valid | 200 | same |
+| A4 `POST /api/spike` invalid | 400 `VALIDATION` | same |
+| A5 `GET /api/nope` | 404 JSON | same |
+| A6 `GET /missing.html` | 404 JSON, the D19 gotcha | same gotcha, unchanged |
+| A7 `POST /` | 405 | same |
+| A8 `GET /index.html` | 307 to `/` | same |
+| A9 assets | n/a | `/_astro/fonts/*.woff2` serves as `font/woff2`, the optimized logo as `image/webp`, both with the `_headers` CSP |
+| S-3 scope | `_headers` on assets and redirects, nothing on `/api/*` or the fall-through miss | identical |
+
+D17, D19 and D21 all survive the upgrade. Nothing in the plan changes.
+
+### The CSP values, first exercise
+
+`wrangler dev` serves the real page with `_headers` applied, and the browser logs no console violation while loading it. That covers two directives that were previously only assumed:
+
+- `font-src 'self'`, because the Fonts API self-hosts the woff2 files. The Google Fonts origins came out of the policy at P-1.
+- `style-src 'unsafe-inline'`, which S-3 left in tentatively. It is **required**, not tentative: the Fonts API injects an inline `<style>` block with the `@font-face` rules into the head. Do not remove it.
+
+Turnstile, GA4 and the YouTube nocookie frame are still unexercised; they do not exist yet.
+
+### Fonts API, measured
+
+Configured with `fontProviders.google()` for Marcellus (400) and Inter (400 and 600). At build time Astro downloaded the files, copied 2 woff2 into `/_astro/fonts/`, emitted `@font-face` rules with `font-display: swap`, added `<link rel="preload">` for each, generated metric-adjusted fallback faces (`size-adjust`, `ascent-override`), and exposed `--font-marcellus` and `--font-inter` with the configured fallback lists inside them. Setting `styles: ["normal"]` dropped a third italic file. Verified item 6 in ARCHITECTURE is answered for the fonts and the Preact integration; the content config half stays open for P-5.
+
+One trap: the API only emits CSS for a family the page renders with `<Font cssVariable="..." />` from `astro/components/Font.astro`. A configured family nobody renders is silently absent.
+
+### Page weight the budget starts from
+
+Single scaffold page, uncompressed file sizes: 3.0 kB HTML, 6.2 kB CSS, 0 kB JavaScript referenced (the Preact and signals chunks build but nothing hydrates yet), 61 kB of woff2 (Marcellus 13.9, Inter variable 47.3), 48.6 kB logo WebP.
+
+### Marcellus against the logo, the DESIGN section 13 item 4 check
+
+Rendered in a browser at 1024 px wide on black with the logo above it, and probed at 64, 40, 24 and 18 px. At 64 and 40 it is confident and its flared caps rhyme with the logo's without copying them. At 24 px (H3) it is thin but clean. At 18 px the serifs fade against black. Verdict: keep Marcellus, cap the display role at H3, and do not spend the Syne 700 switch. Recorded in DESIGN section 4.
+
 ## Open
 
 | Item | Status | Blocks |
@@ -145,13 +206,15 @@ The CSP is applied, but its **values** are untested, because nothing it referenc
 | S-3 part 2: D1, Workers, Resend and Turnstile free-tier limits against expected volume | open, and it needs Q6 (enquiries per week) before "expected volume" means anything | G1, L-1 |
 | S-4 write the verdict and decide G1 | open, waiting on S-2 and S-3 | G1 |
 | L-6 settle who owns deploys | open, see account state above | P-20 |
+| Astro upgrades: 7.4.2 and `@astrojs/preact` 6.1.1 both want Node 22.23.4, which this box cannot reach through apt (candidate 22.23.3, no nvm). To take either, install nvm or a newer NodeSource build first, then relax the exact pins | open, low urgency, no advisory pending | P-17 and any later upgrade |
 
 ## Dependency versions worth noting
 
-`npm audit` after install: 1 critical and 1 high, both reachable only through the astro dependency tree.
+Historic, from the S-1 install on astro 6.4.8. The last three bullets were corrected by P-1, see the section above and decision D22.
 
-- astro 6.4.8 is inside the advisory range `<=7.3.1` (unescaped attribute/script XSS paths, plus an RCE through AVIF image optimization, and inherited sharp/libvips issues).
-- The fixes land in astro 7.3.2+, which requires Node `>=22.23.4` for 7.4.2. This machine is on 22.23.2, so Astro 7 is not installable here without a Node patch bump.
-- The spike page uses none of the affected features. The site will: P-1 uses `astro:image` for posters and the logo, and C-2 supplies client files.
+`npm audit` after that install: 1 critical and 1 high, both reachable only through the astro dependency tree.
 
-Decision taken for the spike: pin astro `^6.4.8` because D13 and every doc say Astro 6. Flagged for P-1: bump Node past 22.23.4 and move to Astro 7.x at the same time as the scaffold, rather than carrying a critical advisory into the first real build. Do not silently stay on 6.
+- astro 6.4.8 is inside the advisory range `<=7.3.1` (unescaped attribute and script XSS paths, plus an RCE through AVIF image optimization, and inherited sharp and libvips issues).
+- Wrong as written: "the fixes land in astro 7.3.2+, which requires Node `>=22.23.4` for 7.4.2, so Astro 7 is not installable here without a Node bump." Only 7.4.2 wants 22.23.4. 7.3.2 asks for 22.12 and 7.4.1 for 22.22, both of which this box already runs.
+- The spike page used none of the affected features, and the risk went away by moving to 7.4.1 rather than by bumping Node.
+- Decision taken for the spike: pin astro at 6.4.8, because D13 and every doc said Astro 6. P-1 settled it on 7.4.1.
