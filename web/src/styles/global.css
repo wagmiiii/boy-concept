@@ -62,6 +62,7 @@
 @layer base {
   html {
     background-color: var(--bg);
+    scroll-behavior: smooth;
   }
 
   body {
@@ -76,6 +77,17 @@
     outline-offset: 2px;
   }
 
+  /* Anchor targets sit below the sticky nav (section 7: 64 px mobile, 72 px desktop). */
+  section[id] {
+    scroll-margin-top: 64px;
+  }
+
+  @media (min-width: 768px) {
+    section[id] {
+      scroll-margin-top: 72px;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -83,7 +95,144 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
     }
+
+    /* Above the * rule, which cannot beat the specificity of html. */
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  /*
+    DESIGN.md section 7 specs as shared component classes, so a page never re-states a
+    button. `@theme inline` values are not emitted as CSS custom properties, so these
+    rules use @apply for the scale and radius and plain CSS for the tokens.css colors.
+  */
+  .btn-primary,
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-button text-button font-semibold;
+    height: 52px;
+    padding-inline: 24px;
+    transition:
+      background-color var(--motion-fast) var(--motion-ease),
+      border-color var(--motion-fast) var(--motion-ease),
+      color var(--motion-fast) var(--motion-ease),
+      box-shadow var(--motion-fast) var(--motion-ease);
+  }
+
+  @media (min-width: 768px) {
+    .btn-primary,
+    .btn-secondary {
+      height: 48px;
+    }
+  }
+
+  .btn-primary {
+    @apply bg-gold text-bg;
+  }
+
+  .btn-primary:hover {
+    background-image: var(--gradient-gold);
+    @apply shadow-glow-gold;
+  }
+
+  .btn-primary:active {
+    background-color: var(--gold-deep);
+    background-image: none;
+  }
+
+  .btn-primary:disabled {
+    background-color: var(--line);
+    color: var(--text-muted);
+  }
+
+  .btn-secondary {
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
+    background-color: transparent;
+  }
+
+  .btn-secondary:hover {
+    background-color: transparent;
+    background-color: color-mix(in srgb, var(--gold) 12%, transparent);
+  }
+
+  .btn-secondary:active {
+    background-color: transparent;
+    background-color: color-mix(in srgb, var(--gold) 20%, transparent);
+  }
+
+  .btn-secondary:disabled {
+    border-color: var(--line);
+    color: var(--text-muted);
+    background-color: transparent;
+  }
+
+  /* Section 7: eyebrow label above a section heading. */
+  .eyebrow {
+    @apply text-eyebrow font-semibold uppercase text-gold;
+    letter-spacing: 0.18em;
+  }
+
+  /* Section 5 and 7: category and filter chips. Inactive is outlined, active is filled. */
+  .chip {
+    @apply inline-flex items-center rounded-full text-small font-semibold;
+    border: 1px solid color-mix(in srgb, var(--gold) 60%, transparent);
+    color: var(--gold);
+    min-height: 32px;
+    padding: 4px 14px;
+  }
+
+  .chip[data-active="true"],
+  .chip-active {
+    background-color: var(--gold);
+    color: var(--bg);
+    border-color: var(--gold);
+  }
+
+  /* The skeleton ships with the filter inert, so an unusable chip must not look selectable. */
+  .chip:disabled:not([data-active="true"]) {
+    border-color: var(--line-input);
+    color: var(--text-muted);
+  }
+
+  /* Section 6: depth from lightness and borders, never from shadows. */
+  .card {
+    @apply rounded-card border border-line bg-surface-2;
+    transition:
+      border-color var(--motion-fast) var(--motion-ease),
+      transform var(--motion-fast) var(--motion-ease);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card:hover {
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+  }
+
+  /* A 16:9 poster stand-in. The bottom gradient keeps overlaid text readable. */
+  .poster-frame {
+    @apply relative aspect-video overflow-hidden rounded-card bg-surface-3;
+  }
+
+  .poster-frame::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 40%;
+    background-image: linear-gradient(to top, var(--bg) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Roadmap: content that is layout only and carries no verified claim. */
+  .demo-tag {
+    @apply inline-flex items-center rounded-full border border-line text-small uppercase text-text-muted;
+    min-height: 24px;
+    padding: 2px 10px;
+    letter-spacing: 0.12em;
   }
 }

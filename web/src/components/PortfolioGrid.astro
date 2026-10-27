@@ -1,0 +1,38 @@
+---
+// DESIGN.md section 7 Category filter and Portfolio card. The categories come from
+// content/copy.md; the projects themselves are placeholders until P-5 verifies them.
+// FR-26: a chip with no verified projects hides, which is what P-6 wires up.
+import ProjectCard from "./ProjectCard.astro";
+
+const categories = ["Commercial", "Cultural Festivals", "Weddings", "Documentaries"];
+const demoCards = ["[project title]", "[project title]", "[project title]"];
+---
+
+<section
+  id="work"
+  class="mx-auto flex max-w-site flex-col gap-6 px-5 py-18 md:px-8 md:py-30"
+>
+  <div class="flex flex-col gap-2">
+    <p class="eyebrow">Work</p>
+    <h2 class="font-display text-h2">[Portfolio heading, written at C-10]</h2>
+  </div>
+
+  <div class="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter by category">
+    <button type="button" class="chip shrink-0" data-active="true" disabled>All</button>
+    {
+      categories.map((category) => (
+        <button type="button" class="chip shrink-0" disabled>
+          {category}
+        </button>
+      ))
+    }
+  </div>
+
+  <p class="text-small text-text-muted">
+    The chips are disabled: filtering needs the verified projects, and that is task P-6.
+  </p>
+
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {demoCards.map((title) => <ProjectCard category="DEMO" title={title} />)}
+  </div>
+</section>

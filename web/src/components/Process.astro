@@ -1,0 +1,25 @@
+---
+// FR-19: the five-step process. Step names and copy come from the client answers at C-10.
+const steps = [1, 2, 3, 4, 5];
+---
+
+<section id="process" class="bg-surface-1">
+  <div class="mx-auto flex max-w-site flex-col gap-6 px-5 py-18 md:px-8 md:py-30">
+    <div class="flex flex-col gap-2">
+      <p class="eyebrow">Process</p>
+      <h2 class="font-display text-h2">[Process heading, written at C-10]</h2>
+    </div>
+
+    <ol class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      {
+        steps.map((n) => (
+          <li class="card flex flex-col gap-2 p-6">
+            <span class="eyebrow">Step {n}</span>
+            <h3 class="font-display text-h3">[Step {n} name]</h3>
+            <p class="text-body text-text-2">[Step copy, written at C-10]</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

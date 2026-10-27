@@ -1,0 +1,48 @@
+---
+// FR-20 and DESIGN.md section 7 Footer. Handles, the base city and the owner WhatsApp number are
+// not supplied yet, so nothing here links out: the number exists only in shared/site-config.ts
+// (P-10) and the wa.me link is built at P-15 (FR-24).
+import { Image } from "astro:assets";
+import logo from "../assets/brand/alpha-movies-logo.webp";
+
+const year = new Date().getFullYear();
+const links = [
+  { label: "Instagram", value: "[handle]" },
+  { label: "YouTube", value: "[channel]" },
+  { label: "WhatsApp", value: "[number, P-10]" },
+];
+---
+
+<footer class="border-t border-line bg-surface-1">
+  <div class="mx-auto flex max-w-site flex-col gap-8 px-5 py-18 md:px-8">
+    <Image
+      src={logo}
+      widths={[440, 880]}
+      sizes="(max-width: 767px) 350px, 440px"
+      alt="Alpha Movies"
+      class="w-full max-w-110"
+    />
+
+    <ul class="flex flex-col gap-2">
+      {
+        links.map((link) => (
+          <li class="flex flex-wrap items-baseline gap-2 text-body">
+            <span class="font-semibold text-text">{link.label}</span>
+            <span class="text-text-muted">{link.value}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="text-body text-text-2">Base city: [confirm, Q3]</p>
+
+    <p class="text-small text-text-muted">
+      Already booked with us? Message directly on WhatsApp. The link goes live at P-15 and works
+      without JavaScript.
+    </p>
+
+    <p class="text-small text-text-muted">
+      © {year} Boy Concept (Alpha Movies Ltd). RC [confirm on CAC public search]
+    </p>
+  </div>
+</footer>
