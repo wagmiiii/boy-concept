@@ -1,0 +1,43 @@
+/* The only implementation of docs/DESIGN.md tokens. Change the doc and this file in the same commit. */
+
+:root {
+  /* surfaces, DESIGN.md section 3 */
+  --bg:            #000000;
+  --surface-1:     #0B0B0B;
+  --surface-2:     #141414;
+  --surface-3:     #1C1C1C;
+
+  /* lines */
+  --line:          #2A2A2A;
+  --line-input:    #77736A;
+
+  /* text */
+  --text:          #F5F1E6;
+  --text-2:        #B8B2A3;
+  --text-muted:    #8A8578;
+
+  /* gold ramp, from the logo */
+  --gold-bright:   #FFEF00;
+  --gold:          #FBC300;
+  --gold-deep:     #D29A00;
+  --gold-shadow:   #9F6A00;
+  --bronze:        #491700;
+
+  /* flare */
+  --flare-core:    #FFFEFB;
+  --flare-glow:    #D29600;
+
+  /* gradient and glow */
+  --gradient-gold: linear-gradient(100deg, #FFE100 0%, #FFEC00 25%, #F5C500 50%, #D19900 70%, #DBA200 100%);
+  --glow-gold:     0 0 32px rgba(251, 195, 0, 0.20);
+
+  /* semantic */
+  --error:         #FF6B6B;
+  --success:       #3DDC97;
+
+  /* motion, DESIGN.md section 8 */
+  --motion-fast:   150ms;
+  --motion-base:   250ms;
+  --motion-slow:   400ms;
+  --motion-ease:   cubic-bezier(0.2, 0.7, 0.2, 1);
+}

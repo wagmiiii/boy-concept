@@ -1,0 +1,89 @@
+@import "./tokens.css";
+@import "tailwindcss";
+
+/* DESIGN.md values live in tokens.css. This block only maps them to Tailwind utilities. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+
+  --color-line: var(--line);
+  --color-line-input: var(--line-input);
+
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-muted: var(--text-muted);
+
+  --color-gold-bright: var(--gold-bright);
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --color-gold-shadow: var(--gold-shadow);
+  --color-bronze: var(--bronze);
+
+  --color-flare-core: var(--flare-core);
+  --color-flare-glow: var(--flare-glow);
+
+  --color-error: var(--error);
+  --color-success: var(--success);
+
+  /* Astro's Fonts API puts the configured fallbacks inside these variables. */
+  --font-display: var(--font-marcellus);
+  --font-sans: var(--font-inter);
+
+  --text-display: clamp(2.5rem, 6vw + 1rem, 5rem);
+  --text-display--line-height: 1.05;
+  --text-h2: clamp(2rem, 4vw, 3rem);
+  --text-h2--line-height: 1.1;
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.2;
+  --text-body-large: 1.125rem;
+  --text-body-large--line-height: 1.6;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
+  --text-eyebrow: 0.8125rem;
+  --text-eyebrow--line-height: 1.2;
+  --text-button: 0.9375rem;
+  --text-button--line-height: 1;
+
+  --radius-button: 4px;
+  --radius-input: 6px;
+  --radius-card: 8px;
+
+  --shadow-glow-gold: var(--glow-gold);
+
+  --container-site: 1200px;
+
+  --ease-standard: var(--motion-ease);
+}
+
+@layer base {
+  html {
+    background-color: var(--bg);
+  }
+
+  body {
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* DESIGN.md section 7: a 2px ring with a 2px offset, never color alone for state. */
+  :focus-visible {
+    outline: 2px solid var(--gold-bright);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
