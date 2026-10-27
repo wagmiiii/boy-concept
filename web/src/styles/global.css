@@ -59,6 +59,21 @@
   --ease-standard: var(--motion-ease);
 }
 
+/*
+  DESIGN.md section 5 pins the breakpoints at 768, 1200 and 1440. Tailwind's default scale also
+  offers 640, 1024, 1280 and 1536, and those are what the skeleton was reaching for: at 1024 the
+  portfolio showed three 299 px posters and the process five 176 px columns. The scale is reset to
+  the design's own, so the 640 and 1280 steps no longer exist and a typo in a variant produces no
+  CSS at all rather than a wrong width. design-tokens.test.ts keeps those variants out of the
+  source, and the only widths to write against are md (768), lg (1200) and xl (1440).
+*/
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1200px;
+  --breakpoint-xl: 1440px;
+}
+
 @layer base {
   html {
     background-color: var(--bg);
@@ -170,6 +185,11 @@
     background-color: transparent;
   }
 
+  /* Section 5: one container rule, so the gutters live once and no section drifts. */
+  .container-site {
+    @apply mx-auto max-w-site px-5 md:px-8 lg:px-10;
+  }
+
   /* Section 7: eyebrow label above a section heading. */
   .eyebrow {
     @apply text-eyebrow font-semibold uppercase text-gold;
@@ -196,6 +216,17 @@
   .chip:disabled:not([data-active="true"]) {
     border-color: var(--line-input);
     color: var(--text-muted);
+  }
+
+  /*
+    Section 5 asks for a tap target of at least 44 x 44 px, and the chip renders 32 px tall. Only a
+    chip that is a control has to meet it: the tag chips inside the service cards are labels, and
+    fattening those would put a 44 px pill around a word nobody taps.
+  */
+  button.chip,
+  a.chip {
+    min-height: 44px;
+    padding-block: 10px;
   }
 
   /* Section 6: depth from lightness and borders, never from shadows. */
