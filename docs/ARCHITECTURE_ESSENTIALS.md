@@ -54,7 +54,7 @@ Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECT
 - Web build: `PUBLIC_TURNSTILE_SITE_KEY`.
 
 ## Known breakpoints
-- Single-Worker routing of assets plus `/api/*` is verified locally (S-1, `docs/spikes/stack-spike.md`): `[assets] run_worker_first = ["/api/*"]`. The deployed-to-test half is unverified. Fallback: two Workers with CORS. An asset miss falls through to the Worker, so scope the Worker catch-all to `/api/*` and set `not_found_handling` (D19).
+- Single-Worker routing of assets plus `/api/*` is verified locally and on a deployed Worker (S-1, S-5, `docs/spikes/stack-spike.md`): `[assets] run_worker_first = ["/api/*"]`. An asset miss falls through to the Worker, so scope the Worker catch-all to `/api/*` and set `not_found_handling` (D19). Deploy with `npm run deploy:test`; a root-level `npx wrangler deploy` fails in an npm workspace.
 - Turnstile and `wa.me` inside the Instagram in-app browser are untested and block the form design.
 - Email deliverability from a new domain.
 - `_headers` and the CSP with Worker assets are unverified.

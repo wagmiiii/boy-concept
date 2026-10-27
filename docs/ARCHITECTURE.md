@@ -211,7 +211,7 @@ Account ownership at launch:
 
 Handover checklist: all accounts above, how to rotate each secret, how to apply a D1 migration, how to delete an enquiry on request, how to update content, and a one-page owner guide.
 
-Deploy: `npm run deploy:test` builds the web workspace, applies D1 migrations to the test database and runs `wrangler deploy --env test`. Production deploys happen only when asked.
+Deploy: `npm run deploy:test` builds the web workspace and runs `wrangler deploy --config worker/wrangler.toml`, and later applies D1 migrations to the test database. A bare `npx wrangler deploy` from the repo root fails: wrangler refuses to run in the root of an npm workspace (found by the Cloudflare dashboard build on 2026-10-27), which is why the script passes `--config`. Production deploys happen only when asked. Only one pipeline should own deploys; if a Cloudflare dashboard GitHub integration exists, its deploy command must be `npm run deploy:test` or the integration should be disconnected.
 
 ## 11. Observability and testing
 
@@ -234,7 +234,7 @@ Deploy: `npm run deploy:test` builds the web workspace, applies D1 migrations to
 
 ## 13. Verify before building
 
-1. One Worker serves the Astro static build as assets and routes `/api/*` to Hono. Fallback: two Workers with CORS. **Verified locally 2026-10-27** (`docs/spikes/stack-spike.md`, S-1): `[assets] run_worker_first = ["/api/*"]` serves the build for every path except `/api/*`, which reaches Hono. Still to verify: the same behavior deployed to a test `workers.dev` address. Two side effects found and covered by D19: an asset miss falls through to the Worker, and `POST` outside `/api/*` returns 405 from the assets layer without reaching Hono.
+1. One Worker serves the Astro static build as assets and routes `/api/*` to Hono. Fallback: two Workers with CORS. **Verified locally and on the edge 2026-10-27** (`docs/spikes/stack-spike.md`, S-1 and S-5): `[assets] run_worker_first = ["/api/*"]` serves the build for every path except `/api/*`, which reaches Hono, both in `wrangler dev` and on a deployed `workers.dev` Worker. Two side effects found and covered by D19: an asset miss falls through to the Worker, and `POST` outside `/api/*` returns 405 from the assets layer without reaching Hono.
 2. Turnstile and the form submit work inside the Instagram in-app browser on iOS and Android, and the `wa.me` button opens WhatsApp there. Blocks the form design.
 3. D1 and Workers free-tier limits against expected volume, and whether any paid plan is needed.
 4. Resend free-tier limits, sending-domain verification for the client domain, and Gmail inbox placement.
@@ -264,7 +264,7 @@ Ranked by likelihood times damage. "Fixed" means the design already addresses it
 | 10 | The credentials section looks empty because little is verified | Fixed: section hides below a threshold |
 | 11 | Source video files do not exist, only Instagram uploads | Open: PRD Q7 |
 | 12 | Accounts sit in the builder's name and the site breaks when he steps away | Fixed: client-owned accounts and a handover checklist |
-| 13 | Single-Worker routing of assets and `/api/*` does not work as assumed | Mostly fixed: verified locally by S-1 (Verify item 1), deployed half still open. Fallback remains two Workers with CORS |
+| 13 | Single-Worker routing of assets and `/api/*` does not work as assumed | Fixed: verified locally and against a deployed Worker (S-1, S-5, 2026-10-27). Fallback remains two Workers with CORS, unused so far |
 | 14 | Astro on Workers SSR quirks | Avoided: static output, no adapter |
 | 15 | The owner cannot edit content himself | Open: default is builder-maintained files, Q13 decides on a hosted CMS |
 | 16 | A placeholder or unverified claim ships | Fixed: the build guard fails the build |
