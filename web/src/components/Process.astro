@@ -1,25 +1,75 @@
 ---
 // FR-19: the five-step process. Step names and copy come from the client answers at C-10.
+//
+// The P-25 audit replaced five cards in a row with this rail, for two reasons. With the container
+// capped at 1200 px, five columns leave 211 px each and 163 px of text after the card padding, so
+// a step paragraph was about ten characters a line at every width the site offers. And a process
+// IS a sequence, which is the one case where numbered markers carry information rather than
+// decorate it, so the number leads each row instead of sitting in a chip above it.
 const steps = [1, 2, 3, 4, 5];
 ---
 
 <section id="process" class="bg-surface-1">
-  <div class="mx-auto flex max-w-site flex-col gap-6 px-5 py-18 md:px-8 md:py-30">
+  <div class="container-site grid gap-8 py-18 md:py-30 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-16">
     <div class="flex flex-col gap-2">
       <p class="eyebrow">Process</p>
       <h2 class="font-display text-h2">[Process heading, written at C-10]</h2>
     </div>
 
-    <ol class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+    <ol class="steps">
       {
         steps.map((n) => (
-          <li class="card flex flex-col gap-2 p-6">
-            <span class="eyebrow">Step {n}</span>
-            <h3 class="font-display text-h3">[Step {n} name]</h3>
-            <p class="text-body text-text-2">[Step copy, written at C-10]</p>
+          <li class="step">
+            <span class="step-number" aria-hidden="true">{n}</span>
+            <div class="flex flex-col gap-2">
+              <h3 class="font-display text-h3">[Step {n} name]</h3>
+              <p class="max-w-[60ch] text-body text-text-2">[Step copy, written at C-10]</p>
+            </div>
           </li>
         ))
       }
     </ol>
   </div>
 </section>
+
+<style>
+  /* Section 6: depth from borders, never from shadows, so the rows are divided rather than boxed. */
+  .steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    padding-block: 24px;
+    border-top: 1px solid var(--line);
+  }
+
+  .step:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .step:last-child {
+    padding-bottom: 0;
+  }
+
+  /* 44 px is the section 5 tap target, and it keeps the number legible at 13 px with tracking. */
+  .step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 9999px;
+    color: var(--gold);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+  }
+</style>

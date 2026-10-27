@@ -1,6 +1,6 @@
 # DESIGN: Alpha Movies Booking and Showcase Site
 
-Status: Draft v0.6 (P-4 findings: the showreel tap is wired and its script must ship external (D26), the placeholder label belongs in the artwork not on top of it, and the section 6 poster gradient has to come off once a player is in the frame) | Date: 2026-10-27 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
+Status: Draft v0.7 (P-4 findings: the showreel tap is wired and its script must ship external (D26), the placeholder label belongs in the artwork not on top of it, and the section 6 poster gradient has to come off once a player is in the frame. P-25 added the Process rail and the FAQ treatment, wrote the 44 px tap-target reading for chips, and moved the build onto the section 5 breakpoint scale) | Date: 2026-10-27 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
 
 Everything visual in the site comes from here. If a value is not in this file, ask before inventing one. Colors were sampled from the logo file, not from a brand guide, so they are provisional until Emmanuel confirms the logo is current (ROADMAP D-9).
 
@@ -181,7 +181,7 @@ Implemented at P-2 with two changes to that paragraph, both recorded here so the
 - The left slot holds the brand as **text** (Marcellus at the H3 size, 24 px, "Boy Concept"), not the 3D logo. See section 2 rule 4: at 64 px tall the logo is 135 px wide, under its own minimum.
 - The mobile menu is a `<details>` disclosure, so it works with JavaScript disabled. Two labels are duplicated in markup, one row for desktop and one for the disclosure, because a closed `<details>` cannot be forced open by CSS at the desktop breakpoint.
 
-Nav link labels are Showreel, Portfolio, Services and FAQ, which are the section names from `content/copy.md`. Add or change them there first.
+Nav link labels are Showreel, Work, Services and FAQ, which are the section names from `content/copy.md`. Add or change them there first. "Work" is the same word the section itself prints: the nav said Portfolio until P-25, and one destination needs one name, which also buys back about 20 px in a bar that has 12 px of slack at 320 px.
 
 ### Hero
 
@@ -206,6 +206,18 @@ Built at P-4. Three implementation notes:
 ### Category filter
 
 Chips in a row that scrolls horizontally on mobile. Active chip: bg `--gold`, text black. Inactive: outlined. Hide a chip with no verified projects.
+
+Section 5 asks every tap target for at least 44 x 44 px and the chip renders 32 px tall, so P-25 read the rule as applying to a chip that is a control: `button.chip` and `a.chip` are 44 px, the label chips inside a card or a service tile stay 32 px. The filter row is the one place a thumb does the work, and it is live from P-6.
+
+### Process
+
+Not specified before P-25. The five steps are a sequence, which is the one case where numbering carries information, so each row leads with the number rather than wearing it as a chip: a 44 px outlined numeral, the step name in H3 beside it, the step copy under the name, and a 1 px `--line` rule between rows instead of a card each (`--surface-1` section, so the dividers are the only depth).
+
+The row replaced five cards in a row. With the container capped at 1200 px, five columns are 211 px each and 163 px of text after the card padding, which is about ten characters a line at every width the site has, so the old layout could not hold real step copy at any breakpoint. From the 1200 px breakpoint the heading sits in a left column and the rail in a right one, which keeps a step line near 60 characters instead of running the full 1200.
+
+### FAQ
+
+Four disclosures, `<details>` so they work without JavaScript, each a `--surface-2` card with the question in body semibold and the answer below. No Q1 to Q4 markers: a FAQ is scanned, not stepped through, so numbering them is decoration. The numbered list in the enquiry shell went for the same reason; the field order still reads top to bottom, which is the sequence that matters (FR-11).
 
 ### Credentials
 
@@ -275,11 +287,13 @@ When a sentence is not approved yet, decision D25 in ARCHITECTURE allows the bui
 - The section 4 type scale is implemented as Tailwind theme entries in `global.css` (`text-display`, `text-h2`, `text-h3`, `text-body-large`, `text-body`, `text-small`, `text-eyebrow`, `text-button`), because that is where Tailwind reads them. They carry no color values.
 - Fonts load through Astro's built-in Fonts API for Marcellus and Inter. Verified at P-1 on Astro 7.4.1: the woff2 files are downloaded at build time and served from the same origin with `font-display: swap`, preload links and metric-matched fallback faces, and the API exposes `--font-marcellus` and `--font-inter`. No third-party font host is needed in the CSP.
 - The logo and posters go through Astro's build-time image optimization. The 2.4 MB original is never imported. The web logo now lives at `web/src/assets/brand/alpha-movies-logo.webp` and builds to 48.6 kB.
-- Use the focus ring, button and form specs above as shared component styles, not per-page overrides. The focus ring is already in `global.css` as a `:focus-visible` outline.
+- Use the focus ring, button and form specs above as shared component styles, not per-page overrides. The focus ring is in the base layer of `web/src/styles/global.css` as a `:focus-visible` rule, so it applies to every interactive element without any component opting in.
 - Since P-2 the shared specs are classes in an `@layer components` block in `web/src/styles/global.css`: `.btn-primary`, `.btn-secondary`, `.eyebrow`, `.chip` (with `[data-active="true"]` for the filled state), `.card`, `.poster-frame` and `.demo-tag`. They are written with `@apply` for anything from the `@theme inline` map (type size, radius, color utilities) and with plain CSS for the `tokens.css` variables. `@theme inline` values are **not** emitted as CSS custom properties, so `var(--text-button)` and `var(--radius-button)` do not exist in the browser and only resolve through `@apply`. Verified against the built stylesheet on 2026-10-27.
 - Button height is 52 px, becoming 48 px from the 768 px breakpoint, so a hand-written rule, not a utility. Same for the 1.5 px secondary border, the chip outline (gold at 60% through `color-mix`, with a `transparent` fallback declared first), and the poster bottom gradient in section 6, which uses `var(--bg)` rather than a second copy of black.
 - Section anchors get `scroll-margin-top` equal to the nav height (64 px, 72 px from 768 px) in the base layer, so "Check a date" does not bury the heading under the sticky nav. Verified at P-3 at 730 px wide: both hero CTAs land their section 64 px from the top, with the heading below the 65 px nav. The 72 px desktop offset is the same rule at the other breakpoint and was not re-measured.
 - The hero sparkle flares are the one motion spec that lives in a component rather than `global.css`, in a scoped `<style>` block in `Hero.astro`, because no other section uses them. Astro inlines a style block that small directly into the HTML head instead of emitting a CSS file, so the rules are in the served document and can be checked there.
+- The breakpoint scale is the section 5 one, not Tailwind's. `web/src/styles/global.css` resets `--breakpoint-*` and re-declares md 768, lg 1200 and xl 1440, so 640, 1024, 1280 and 1536 do not exist as utilities and a wrong variant name emits no CSS at all rather than a wrong width. Verified against the built stylesheet at P-25: the only width queries in the output are 768, 1200 and 1440. `web/src/styles/design-tokens.test.ts` refuses any `sm:`, `xs:` or `2xl:` in `web/src`.
+- One container, one gutter rule: `.container-site` is `mx-auto max-w-site px-5 md:px-8 lg:px-10`, i.e. 20 / 32 / 40 px from section 5, and every section, the nav, the footer and the 404 use it instead of writing `mx-auto max-w-site px-*` per component. Before P-25 ten components each repeated the gutters and the 40 px desktop step existed nowhere.
 - The showreel tap is the site's only client script, and it must arrive as a file. Astro 7 inlines a small component `<script>` into the page, `script-src 'self'` then refuses to run it, and the button does nothing with only a console violation to show for it. `vite.build.assetsInlineLimit: 0` in `web/astro.config.mjs` keeps it external (decision D26). `style-src 'unsafe-inline'` is a different matter and stays: the Fonts API and Astro's scoped styles both inject inline `<style>`.
 - Posters go through Astro's image pipeline (`web/src/assets/media`), video does not and is served untouched from `web/public/media`. The poster renders at 640 and 1280 widths from one 16 kB source, and the browser picks by `sizes`, so a phone downloads 4 kB rather than the original.
 - If a token changes, change this file and `tokens.css` in the same pull request.
@@ -296,3 +310,5 @@ When a sentence is not approved yet, decision D25 in ARCHITECTURE allows the bui
 | 6 | Section 2 rule 4 (the 3D logo is never below 220 px wide) and section 7 (the nav is 64 px tall) are geometrically incompatible. P-2 resolved it by putting text in the nav. Revisit when the flat wordmark exists, and confirm the interim nav treatment is acceptable | Ademola, Emmanuel | P-21, Q12 |
 | 7 | Approve or replace the hero headline. P-3 built it with the builder's draft "Shot for the occasion" under D25; two alternatives are in `content/copy.md`. The page reads as finished copy while no one at Alpha Movies has chosen it | Emmanuel | D-7, P-3, PLACEHOLDERS |
 | 8 | Replace the showreel stand-in. P-4 built the poster-first tap and, at Ademola's call, pointed it at a labelled placeholder card so the demo plays. Real poster and video arrive at C-2, then the `YOUTUBE_ID` is set or the file swapped, and the stand-in is deleted with the rest of the scaffolding text | Emmanuel, Agent | C-2, P-24, section 9 exception |
+| 9 | Check that the desktop nav still reads as designed now that the breakpoint moved from 1024 to 1200 px, and confirm the 44 px tap-target reading in section 7 (a chip is 44 px when it is a control, 32 px when it is a label) is the treatment you want to keep | Ademola | P-17, P-25 |
+| 10 | Two rules in this file are currently claims without a measurement: the 72 px anchor offset at the desktop breakpoint, and section 11's "keyboard-operable form", which has no form until P-12. Measure the first at 1200 px in the P-17 pass; the second arrives with the island | Agent | P-12, P-17 |

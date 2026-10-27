@@ -6,7 +6,7 @@ Where everything lives and why. Read this before creating, moving or deleting a 
 |---|---|
 | Last updated | 2026-10-27 |
 | Structure version | 0.8 |
-| Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. Since P-1 the `web` workspace is a normal Astro 7 site with Tailwind v4, the Preact integration, the Fonts API, the design tokens and a base layout, and since P-2 it has the ten section components, the real page order, a 404 page and the assets `not_found_handling` that goes with it; `shared` is still an empty workspace until P-10 and P-11, and `worker` still holds only the spike routes. P-3 built the hero and P-4 wired the showreel, which is now the one component that ships JavaScript |
+| Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. Since P-1 the `web` workspace is a normal Astro 7 site with Tailwind v4, the Preact integration, the Fonts API, the design tokens and a base layout, and since P-2 it has the ten section components, the real page order, a 404 page and the assets `not_found_handling` that goes with it; `shared` is still an empty workspace until P-10 and P-11, and `worker` still holds only the spike routes. P-3 built the hero and P-4 wired the showreel, which is now the one component that ships JavaScript. P-25 moved the whole site onto DESIGN section 5's breakpoints and gutters and rebuilt the Process section as a rail |
 
 ## Update rule (mandatory, applies to humans and agents)
 
@@ -107,8 +107,8 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       │   └── demo-reel-poster.webp  (exists, P-4) 1920 x 1080, 16 kB, the showreel poster. Build output picks 640 and 1280 widths from it
 │       ├── styles/
 │       │   ├── tokens.css             (exists, P-1) the only implementation of the DESIGN.md tokens, plus the section 8 motion values
-│       │   ├── global.css             (exists, P-1) Tailwind v4 entry, the `@theme inline` map, the type scale, base styles and the shared component classes (P-2)
-│       │   └── design-tokens.test.ts  (exists, P-1) checks tokens.css against DESIGN.md and bans hex literals elsewhere
+│       │   ├── global.css             (exists, P-1) Tailwind v4 entry, the `@theme inline` map, the DESIGN breakpoint scale, base styles and the shared component classes including .container-site (P-2, P-25)
+│       │   └── design-tokens.test.ts  (exists, P-1) checks tokens.css against DESIGN.md, bans hex literals elsewhere, and refuses responsive variants outside the design's three breakpoints (P-25)
 │       ├── content.config.ts          (P-5) collection schemas and the verification build guard
 │       ├── content/
 │       │   ├── projects/              (P-5) one file per project
@@ -124,7 +124,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       │   ├── ProjectCard.astro        (exists, P-2) 16:9 poster, category chip, H3 title
 │       │   ├── Credentials.astro        (exists, P-2) DEMO cards showing the verified-only treatment
 │       │   ├── Services.astro           (exists, P-2) four service cards with tag chips
-│       │   ├── Process.astro            (exists, P-2) five numbered steps
+│       │   ├── Process.astro            (exists, P-2) the five-step rail: 44 px numeral, divider per row, heading beside it from 1200 px (P-25)
 │       │   ├── Faq.astro                (exists, P-2) four details and summary disclosures, works with JavaScript off
 │       │   ├── Footer.astro             (exists, P-2) logo, social and contact placeholders, base city, copyright
 │       │   └── EnquiryForm.tsx        (P-12) the only Preact island
@@ -208,8 +208,8 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | content/PLACEHOLDERS.md | Every `[bracketed]` placeholder: where it is, who owns it, status | exists | A placeholder is added or resolved |
 | content/verification-log.md | Evidence for every shown credential or stat | exists | A fact is verified or withdrawn |
 | web/src/styles/tokens.css | Design tokens, the only implementation | exists (P-1) | DESIGN.md changes a token. The test below fails if they drift |
-| web/src/styles/global.css | Tailwind v4 entry, the `@theme inline` map to tokens.css, the type scale, base styles and the shared component classes (.btn-primary, .btn-secondary, .eyebrow, .chip, .card, .poster-frame, .demo-tag) | exists (P-1) | A DESIGN.md scale, base or component rule changes. Component classes use @apply because @theme inline values are not emitted as CSS variables |
-| web/src/styles/design-tokens.test.ts | Asserts tokens.css matches DESIGN.md section 3 and that no other source file holds a hex literal | exists (P-1) | Either rule changes |
+| web/src/styles/global.css | Tailwind v4 entry, the `@theme inline` map to tokens.css, the DESIGN section 5 breakpoint reset, base styles and the shared component classes (.container-site, .btn-primary, .btn-secondary, .eyebrow, .chip, .card, .poster-frame, .demo-tag) | exists (P-1) | A DESIGN.md scale, base or component rule changes. Component classes use @apply because @theme inline values are not emitted as CSS variables. Never add a breakpoint outside md/lg/xl (D27) |
+| web/src/styles/design-tokens.test.ts | Asserts tokens.css matches DESIGN.md section 3, that no other source file holds a hex literal, and that no `sm:`, `xs:` or `2xl:` variant appears in web/src | exists (P-1) | Either token rule changes, or the breakpoint scale in D27 changes |
 | web/src/layouts/Base.astro | Head, fonts, noindex, body shell. No nav or footer: pages compose those, so the 404 page can drop the anchor nav | exists (P-1) | A page-level tag or the font loading changes |
 | web/src/assets/brand/alpha-movies-logo.webp | The web logo Astro optimizes | exists (P-1) | The brand changes, see D-9 and P-21 |
 | eslint.config.js | Flat eslint config over .js, .ts and .tsx | exists (P-1) | A lint rule changes. .astro coverage is P-22 |
@@ -225,7 +225,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | web/src/components/ProjectCard.astro | Poster, category chip, H3 title, no link yet | exists (P-2) | P-5 and P-7 give it real content and a project page |
 | web/src/components/Credentials.astro | DEMO cards in the verified-only treatment | exists (P-2) | P-8 replaces it with the collection and the hide rule |
 | web/src/components/Services.astro | Four service cards with tag chips | exists (P-2) | P-9 and C-10 put real names, tags and copy in |
-| web/src/components/Process.astro | Five numbered steps | exists (P-2) | P-9 and C-10 |
+| web/src/components/Process.astro | The five-step rail: a 44 px numeral, one divider per row, the heading in a left column from 1200 px | exists (P-2) | P-9 and C-10. Layout settled by the P-25 audit (DESIGN section 7) |
 | web/src/components/Faq.astro | Four details disclosures | exists (P-2) | P-9 and C-10 |
 | web/src/components/Footer.astro | Logo, contact rows, base city, copyright | exists (P-2) | P-10 supplies settings and the number, P-15 the direct link |
 | web/src/pages/404.astro | The page served for an asset miss, with status 404 | exists (P-2) | DESIGN changes, or the assets 404 handling changes (D19) |
@@ -280,6 +280,7 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-10-27 | Agent (Qoder) | P-25 conformance pass. No file added, moved, renamed or deleted. `global.css` gained the DESIGN section 5 breakpoint reset (`--breakpoint-*: initial`, then md 768, lg 1200, xl 1440) and `.container-site`, which took the gutter rule away from ten components and added the 40 px desktop step the design always asked for. `design-tokens.test.ts` gained a third assertion: no `sm:`, `xs:` or `2xl:` in `web/src`, which is what keeps the reset from silently swallowing a mistyped variant. `Process.astro` was rewritten as a numbered rail, `Faq.astro` lost its decorative Q markers, `index.astro` lost the 1 to 13 field numbers and gained `md:self-start` on the submit, `Nav.astro` links read "Work" and carry 44 px targets, and every section container now uses `.container-site` | P-25, D27, ESSENTIALS 19, DESIGN 5, 7, 11, 12, 13 |
 | 2026-10-27 | Agent (Qoder) | P-4 wired the showreel. Added `web/src/assets/media/demo-reel-poster.webp` (goes through Astro's image pipeline) and `web/public/media/demo-reel.mp4` (served as is, because a build step cannot optimize video), both rendered locally with ffmpeg and both labelled as placeholder artwork. `Showreel.astro` gained the poster, the play button, the tap handler and the youtube-nocookie branch, which made it the first component with client JavaScript, so `astro.config.mjs` now sets `vite.build.assetsInlineLimit: 0`: Astro 7 inlines a small component script into the page as an inline module, and the CSP `script-src 'self'` refuses to run it (D26). No file moved or was deleted | P-4, D26, P-24 (the clip is on its removal list) |
 | 2026-10-27 | Agent (Qoder) | P-2 built the page skeleton. Added the ten section components under `web/src/components`, `web/src/pages/404.astro`, and rewrote `index.astro` as the PRD section order. `global.css` gained an `@layer components` block with the DESIGN section 7 shared classes, and `worker/wrangler.toml` gained `not_found_handling = "404-page"`, which is what 404.astro exists for (D19, re-probed in docs/spikes/stack-spike.md). No file moved or was deleted | P-2, P-24 (added), D23, D24 |
 | 2026-10-27 | Agent (Qoder) | P-1 filled the scaffold in. Added `web/src/styles/tokens.css`, `global.css` and `design-tokens.test.ts`, `web/src/layouts/Base.astro`, root `eslint.config.js` and `vitest.config.ts`. Moved `assets/brand/alpha-movies-logo.webp` to `web/src/assets/brand/`, so `assets/brand` now holds only the archive original and the P-21 planned files. `web/src/pages/index.astro` stopped being a spike page and became the scaffold page P-2 replaces. Root `package.json` gained `lint` and `test` and the Node 22.22 floor | P-1, P-22, P-23 |

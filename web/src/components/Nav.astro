@@ -4,18 +4,15 @@
 // rule 4. That rule and the nav height cannot both hold until the flat wordmark exists (P-21).
 const links = [
   { href: "#showreel", label: "Showreel" },
-  { href: "#work", label: "Portfolio" },
+  { href: "#work", label: "Work" },
   { href: "#services", label: "Services" },
   { href: "#faq", label: "FAQ" },
 ];
 ---
 
 <header class="sticky top-0 z-50 border-b border-line bg-bg/60 backdrop-blur-[12px]">
-  <nav
-    class="mx-auto flex h-16 max-w-site items-center gap-4 px-5 md:h-18 md:px-8"
-    aria-label="Main"
-  >
-    <a href="/" class="font-display text-h3 text-text">Boy Concept</a>
+  <nav class="container-site flex h-16 items-center gap-4 md:h-18" aria-label="Main">
+    <a href="/" class="inline-flex min-h-11 items-center font-display text-h3 text-text">Boy Concept</a>
 
     <ul class="mx-auto hidden items-center gap-6 md:flex">
       {
@@ -23,7 +20,7 @@ const links = [
           <li>
             <a
               href={link.href}
-              class="text-small font-semibold text-text-2 transition-colors hover:text-gold"
+              class="inline-flex min-h-11 items-center text-small font-semibold text-text-2 transition-colors hover:text-gold"
             >
               {link.label}
             </a>

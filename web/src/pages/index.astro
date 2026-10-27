@@ -14,7 +14,9 @@ import Faq from "../components/Faq.astro";
 import Footer from "../components/Footer.astro";
 
 // The order is the PRD section 7 field list. Event date is first, and there is no budget field
-// anywhere on the site (FR-11).
+// anywhere on the site (FR-11). The list carries no numbers: the order is the sequence, and 1 to 13
+// would be decoration. The submit button is full width on mobile and md:self-start is what shrinks
+// it at desktop, because a flex column stretches its items whatever width the item asks for.
 const fields = [
   "Event date",
   "Second date or end date",
@@ -45,7 +47,7 @@ const fields = [
     <Faq />
 
     <section id="enquiry" class="bg-surface-1">
-      <div class="mx-auto flex max-w-site flex-col gap-6 px-5 py-18 md:px-8 md:py-30">
+      <div class="container-site flex flex-col gap-6 py-18 md:py-30">
         <div class="flex flex-col gap-2">
           <p class="eyebrow">Check a date</p>
           <h2 class="font-display text-h2">[Enquiry heading, written at C-10]</h2>
@@ -56,16 +58,18 @@ const fields = [
             Packages start from <span class="font-semibold text-gold">₦[amount]</span>
           </p>
 
-          <ol class="flex flex-col gap-1 text-body text-text-2">
-            {fields.map((field, i) => <li><span class="text-gold">{i + 1}.</span> {field}</li>)}
-          </ol>
+          <ul class="flex flex-col gap-1 text-body text-text-2">
+            {fields.map((field) => <li>{field}</li>)}
+          </ul>
 
           <p class="text-small text-text-muted">
             The fields are a list, not a working form yet. The island arrives at P-12 with
             validation, the confirmation screen and the WhatsApp handoff.
           </p>
 
-          <button type="button" class="btn-primary w-full sm:w-auto" disabled>Send brief</button>
+          <button type="button" class="btn-primary w-full md:w-auto md:self-start" disabled>
+            Send brief
+          </button>
 
           <p class="text-body text-text-2">[Response-time line, FR-15: only a time someone keeps]</p>
         </div>

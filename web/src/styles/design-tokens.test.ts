@@ -46,4 +46,18 @@ describe("design tokens", () => {
     }
     expect(offenders).toEqual([]);
   });
+
+  // DESIGN.md section 5 gives the site three breakpoints, and global.css resets the Tailwind scale
+  // to them. A 640 or 1280 variant therefore emits no CSS at all, which is a layout that differs
+  // from the design in silence rather than in an error.
+  it("keeps responsive variants to the documented breakpoints", () => {
+    const offenders: string[] = [];
+    for (const file of sourceFiles("web/src")) {
+      const hits = [
+        ...readFileSync(join(repoRoot, file), "utf8").matchAll(/(?:^|[^A-Za-z0-9-])(?:sm|xs|2xl):[a-z]/g),
+      ];
+      if (hits.length > 0) offenders.push(`${file}: ${hits.map((m) => m[0].trim()).join(" ")}`);
+    }
+    expect(offenders).toEqual([]);
+  });
 });
