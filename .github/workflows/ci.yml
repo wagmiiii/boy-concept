@@ -1,0 +1,39 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  roadmap-and-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ROADMAP.md must change in every PR
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          changed=$(git diff --name-only "origin/${BASE_REF}...HEAD")
+          echo "Changed files:"
+          echo "$changed"
+          if ! echo "$changed" | grep -qx 'ROADMAP.md'; then
+            echo "::error::ROADMAP.md was not changed. Update task statuses, the scorecard and add a progress log line."
+            exit 1
+          fi
+
+      - name: PROJECT_STRUCTURE.md must change when files are added, deleted or renamed
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          structural=$(git diff --name-only --diff-filter=ADR "origin/${BASE_REF}...HEAD" | grep -v -x -e 'ROADMAP.md' -e 'PROJECT_STRUCTURE.md' || true)
+          if [ -n "$structural" ]; then
+            echo "Files added, deleted or renamed:"
+            echo "$structural"
+            if ! git diff --name-only "origin/${BASE_REF}...HEAD" | grep -qx 'PROJECT_STRUCTURE.md'; then
+              echo "::error::Files were added, deleted or renamed but PROJECT_STRUCTURE.md was not changed."
+              exit 1
+            fi
+          fi

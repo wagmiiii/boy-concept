@@ -1,0 +1,20 @@
+# dependencies and build output
+node_modules/
+dist/
+.astro/
+.wrangler/
+coverage/
+
+# secrets and local config (never commit)
+.dev.vars
+.env
+.env.*
+!.dev.vars.example
+
+# editor and OS
+.DS_Store
+.idea/
+*.log
+
+# personal data from real enquiries
+enquiries-export*
