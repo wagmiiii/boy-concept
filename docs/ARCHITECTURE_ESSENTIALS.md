@@ -1,6 +1,6 @@
 # ARCHITECTURE_ESSENTIALS
 
-Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.5.
+Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.6.
 
 ## What this is
 - Booking and showcase site for Boy Concept (Alpha Movies Ltd). The enquiry flow and the credibility layer are the product.
@@ -49,6 +49,7 @@ Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECT
 14. UI follows `docs/DESIGN.md`: tokens only, no hardcoded colors, black page background, the logo only on black or very dark surfaces and never recolored.
 15. The owner WhatsApp number is defined only in `shared/site-config.ts`.
 16. Unverified content renders as a neutral block labelled DEMO, never as a claim: no client name, no stat, no price, no credential (D23). Bracketed placeholders stay out of anything presented as verified.
+17. Never invent a fact. Where a task needs a sentence the client has not written, the builder may draft one only under D25: no claim a verification row would not back, alternatives recorded in `content/copy.md`, and an open row in `content/PLACEHOLDERS.md` so launch stays blocked until the client approves it. Prices, RC numbers, credentials, client names and stats are never drafted, only bracketed.
 
 ## Env vars and bindings
 - Worker: binding `DB`, `TURNSTILE_SECRET`, `RESEND_API_KEY`, `OWNER_EMAILS`, `ALLOWED_ORIGIN`.
