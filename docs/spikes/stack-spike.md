@@ -107,7 +107,7 @@ Worker startup time 14 ms. Bundle: 826 KiB raw, 134 KiB gzipped, which is mostly
 ### Account state worth knowing
 
 - The subdomain registered itself as `ademola2993k`, not the agreed `boy-concept`. Cloudflare chose it during onboarding. Renaming it in the dashboard changes every preview URL, including this spike's, so the name in this doc goes stale if he renames it.
-- The dashboard held a GitHub build integration for this repo whose deploy command was `npx wrangler deploy`, which failed from the workspace root on every push. L-6 closed it on 2026-10-28 by deleting the Worker it was keyed to, the hello-world stub onboarding created and this repo never deployed. The failing check is gone and `npm run deploy:test` is the only pipeline; D30 records why disconnecting beat rewiring.
+- The dashboard holds a GitHub build integration for this repo whose deploy command is `npx wrangler deploy`, which fails from the workspace root on every push and PR. L-6 deleted the hello-world Worker it was keyed to on 2026-10-28 and the check kept firing, because a Workers Builds project is a separate object that outlives its Worker. The project itself still needs deleting in the Cloudflare dashboard, and no token available here can do it: `/builds/workers/{tag}/triggers` answers 12006 "Invalid token" for the spike token. Until then, a red Cloudflare check beside the green GitHub Action is expected and says nothing about the code. D30 records why disconnecting beats rewiring.
 - The spike Worker `boy-concept-spike` is live and public. It serves one noindex page and a stub API, and holds no data. Delete it in the dashboard when S-4 closes, or leave it as the deploy target for P-20.
 - Rotate the Cloudflare API token used here: it was shared in plain text outside a secret store. It lives only in `~/.cfspike` (mode 600), never in the repo.
 
@@ -235,6 +235,7 @@ Built page, no island on it, `npm run build` at 2 pages:
 | S-2 Turnstile and `wa.me` inside the Instagram in-app browser (iOS and Android) | open, device test, cannot be done by an agent | G1, the form design |
 | S-3 part 2: D1, Workers, Resend and Turnstile free-tier limits against expected volume | open, and it needs Q6 (enquiries per week) before "expected volume" means anything | G1, L-1 |
 | S-4 write the verdict and decide G1 | open, waiting on S-2 and S-3 | G1 |
+| L-6 settle who owns deploys | in progress: the hello-world Worker the dashboard build was keyed to is deleted, but the Workers Builds project survived it and still posts a failing check, and only a dashboard delete clears it. D30 | P-20 |
 | Astro upgrades: 7.4.2 and `@astrojs/preact` 6.1.1 both want Node 22.23.4, which this box cannot reach through apt (candidate 22.23.3, no nvm). To take either, install nvm or a newer NodeSource build first, then relax the exact pins | open, low urgency, no advisory pending | P-17 and any later upgrade |
 
 ## Dependency versions worth noting
