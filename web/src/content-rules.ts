@@ -104,6 +104,23 @@ interface ProjectLike {
   data: ProjectData;
 }
 
+/**
+ * The stand-in a reel item wears in place of a title it does not have yet. A demo entry's own title
+ * field holds `[project title]`, which is the wording D23 asks for in the grid, where a bracket
+ * tells the builder the row is unfinished. The reel is the surface someone judges the quality of, so
+ * P-27 gave it a label that reads as finished instead (D25). A shorable entry prints its own title
+ * and nothing is substituted.
+ */
+export const placeholderReelTitle = "Placeholder reel";
+
+/**
+ * The title the showreel prints for a project. The grid keeps passing `data.title` until P-6.
+ * @param project any collection entry
+ */
+export function reelTitle<T extends ProjectLike>(project: T): string {
+  return project.data.demo ? placeholderReelTitle : project.data.title;
+}
+
 function inSortOrder<T extends ProjectLike>(projects: T[]): T[] {
   return [...projects].sort((a, b) => a.data.sort_order - b.data.sort_order);
 }

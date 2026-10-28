@@ -5,8 +5,10 @@ import { describe, expect, it } from "vitest";
 import {
   bracketedFieldsIn,
   placeholderProjects,
+  placeholderReelTitle,
   projectSchema,
   reelItems,
+  reelTitle,
   shorableProjects,
   visibleProjects,
   type ProjectData,
@@ -159,6 +161,16 @@ describe("the demo flag", () => {
 
   it("refuses a real project still flagged as a demo", () => {
     expect(messagesFor({ ...realProject, demo: true })).toContain("designed placeholder");
+  });
+
+  it("names the stand-in the reel prints for a title that does not exist yet", () => {
+    // D23 keeps the bracket in the content file and in the grid. D25 asks the reel, the surface
+    // someone judges the quality of, to wear a finished-looking label instead.
+    expect(reelTitle(entry(demoDraft))).toBe(placeholderReelTitle);
+    expect(reelTitle(entry(realProject))).toBe(realProject.title);
+    // The stand-in claims nothing: no bracket, no client, no superlative, no count.
+    expect(placeholderReelTitle).not.toMatch(/\[[^\]]*\]/);
+    expect(placeholderReelTitle).toBe("Placeholder reel");
   });
 });
 
