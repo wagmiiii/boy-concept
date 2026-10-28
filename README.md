@@ -23,7 +23,7 @@ npm run deploy:test    # builds, then deploys the spike Worker to workers.dev
 
 `npm run deploy:test` is the only deploy target and it points at the throwaway spike Worker. Do not run it unless you mean to publish, and there is no production deploy command.
 
-One warning: the Cloudflare dashboard also holds a GitHub build integration for this repo, so two pipelines can deploy. Task L-6 decides which one stays.
+There is exactly one deploy pipeline: this command. The Cloudflare dashboard also holds a GitHub build integration left over from account onboarding, and it fails on every push and PR. L-6 deleted the hello-world Worker it was keyed to on 2026-10-28, which turned out not to remove the Builds project itself: that survives its Worker and still needs deleting in the dashboard. Its deploy step cannot succeed from a workspace root, so it can publish nothing, but expect a red external check beside the green `roadmap-and-structure` until it is gone. Do not attach a Cloudflare build to this repo without setting its deploy command to `npm run deploy:test`.
 
 ## Docs
 
