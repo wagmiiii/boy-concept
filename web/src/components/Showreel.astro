@@ -7,9 +7,14 @@
 // The items are the projects flagged hero_reel (FR-2, ARCH section 5). C-2 has delivered no
 // footage, so today they are three labelled placeholder cards the builder rendered with ffmpeg
 // (DESIGN section 9 exception, D23). A real reel is a file swap plus hero_reel: true.
+//
+// The heading is a builder draft under D25 and is registered as an open placeholder. What a demo
+// entry calls itself comes from reelTitle, so the carousel never prints the bracketed title that the
+// grid still prints on purpose (D23). Each item wears that label plus its category, on the stage and
+// under its thumbnail, and the label hides with the poster once the frame is playing.
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
-import { reelItems } from "../content-rules";
+import { reelItems, reelTitle } from "../content-rules";
 import { isSelfHostedVideo } from "../media-sources";
 import { posterFor } from "../poster-index";
 
@@ -24,16 +29,17 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
     <section id="showreel" class="container-site flex flex-col gap-6 py-18 md:py-30" data-reel>
       <div class="flex flex-col gap-2">
         <p class="eyebrow">Showreel</p>
-        <h2 class="font-display text-h2">[Showreel heading, written at C-10]</h2>
+        <h2 class="font-display text-h2">See the work in motion</h2>
       </div>
 
       <div>
         {reels.map((reel, index) => {
           const poster = posterFor(reel.data.poster ?? "");
           const selfHosted = isSelfHostedVideo(reel.data.video_url);
+          const title = reelTitle(reel);
           const alt = reel.data.demo
-            ? `${reel.data.title} poster. Placeholder artwork, not client work`
-            : `${reel.data.title} poster`;
+            ? `${title} poster. Placeholder artwork, not client work`
+            : `${title} poster`;
 
           return (
             <div
@@ -55,9 +61,19 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
                 />
               ) : null}
 
+              <div
+                class="pointer-events-none absolute bottom-0 left-0 z-10 flex max-w-[70%] flex-col gap-0.5 p-3 md:p-4"
+                data-reel-caption
+              >
+                <span class="truncate text-small font-semibold text-text">{title}</span>
+                <span class="truncate text-eyebrow uppercase tracking-[0.12em] text-text-muted">
+                  {reel.data.category}
+                </span>
+              </div>
+
               <button type="button" data-reel-play class="group relative z-10 flex size-full items-center justify-center">
                 <span class="flex size-18 items-center justify-center rounded-full border-[1.5px] border-gold bg-black/40 transition-colors group-hover:bg-black/60">
-                  <span class="sr-only">Play {reel.data.title}</span>
+                  <span class="sr-only">Play {title}</span>
                   <svg class="ml-1 size-6 text-gold" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M8 5.5v13l11-6.5z" />
                   </svg>
@@ -106,20 +122,28 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
       <ol class="flex gap-3 overflow-x-auto pb-1 md:gap-4" aria-label="Reel">
         {reels.map((reel, index) => {
           const poster = posterFor(reel.data.poster ?? "");
+          // The caption goes inside the button, so the words printed under the thumbnail are also its
+          // accessible name and a voice-control user can say them.
+          const title = reelTitle(reel);
           return (
-            <li class="w-[128px] shrink-0 md:w-[200px]">
-              <button type="button" class="block w-full" data-reel-select={index} aria-current={index === 0 || null}>
+            <li class="w-[176px] shrink-0 md:w-[200px]">
+              <button type="button" class="block w-full text-left" data-reel-select={index} aria-current={index === 0 || null}>
                 <span class="poster-frame block">
                   {poster ? (
                     <Image
                       src={poster}
-                      widths={[160, 320]}
-                      sizes="(max-width: 767px) 128px, 200px"
+                      widths={[176, 400]}
+                      sizes="(max-width: 767px) 176px, 200px"
                       alt=""
                       class="absolute inset-0 z-0 size-full object-cover"
                     />
                   ) : null}
-                  <span class="sr-only">{reel.data.title}</span>
+                </span>
+                <span class="mt-2 flex flex-col gap-0.5">
+                  <span class="truncate text-small text-text">{title}</span>
+                  <span class="truncate text-eyebrow uppercase tracking-[0.12em] text-text-muted">
+                    {reel.data.category}
+                  </span>
                 </span>
               </button>
             </li>
@@ -327,6 +351,13 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
     display: none;
   }
 
+  /* The caption belongs to the poster, and the clip carries its own label in the artwork, so the
+  DOM caption would be a third line of text over the player chrome. The same reasoning already hides
+  the .poster-frame bottom gradient once a frame plays. */
+  [data-playing="true"] [data-reel-caption] {
+    display: none;
+  }
+
   /* One icon per state. Muted and running is the default, so the other two are the exceptions. */
   .icon-play,
   .icon-loud {
@@ -343,7 +374,7 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
     display: block;
   }
 
-  [data-reel-select][aria-current="true"] > span {
+  [data-reel-select][aria-current="true"] > .poster-frame {
     outline: 2px solid var(--gold);
     outline-offset: 2px;
   }
