@@ -235,7 +235,6 @@ Built page, no island on it, `npm run build` at 2 pages:
 | S-2 Turnstile and `wa.me` inside the Instagram in-app browser (iOS and Android) | open, device test, cannot be done by an agent | G1, the form design |
 | S-3 part 2: D1, Workers, Resend and Turnstile free-tier limits against expected volume | open, and it needs Q6 (enquiries per week) before "expected volume" means anything | G1, L-1 |
 | S-4 write the verdict and decide G1 | open, waiting on S-2 and S-3 | G1 |
-| L-6 settle who owns deploys | removed 2026-10-28: the Worker the dashboard build was keyed to is deleted and the Cloudflare Workers and Pages GitHub App is uninstalled, which is what clears the check. Closes when a push lists only `roadmap-and-structure`. D30 | none |
 | Astro upgrades: 7.4.2 and `@astrojs/preact` 6.1.1 both want Node 22.23.4, which this box cannot reach through apt (candidate 22.23.3, no nvm). To take either, install nvm or a newer NodeSource build first, then relax the exact pins | open, low urgency, no advisory pending | P-17 and any later upgrade |
 
 ## Dependency versions worth noting
