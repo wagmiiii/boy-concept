@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -6,7 +6,9 @@ import {
   bracketedFieldsIn,
   placeholderProjects,
   projectSchema,
+  reelItems,
   shorableProjects,
+  visibleProjects,
   type ProjectData,
 } from "./content-rules";
 
@@ -34,15 +36,16 @@ const demoDraft = {
 };
 
 // Fixture values, never rendered. They stand in for the fields C-2 has to fill with real,
-// permitted work.
+// permitted work. The id is eleven characters because that is what a YouTube id is; the link
+// itself points at nothing.
 const realProject = {
   title: "Launch reel for a fixture brand",
   category: "Commercial",
   client_name: "Fixture Client",
   year: 2026,
   location: "Lagos",
-  video_url: "https://example.invalid/fixture",
-  poster: "media/demo-reel-poster.webp",
+  video_url: "https://www.youtube.com/watch?v=FIXTUREvid1",
+  poster: "media/demo-reel-1-poster.webp",
   hero_reel: true,
   deliverables: ["highlight reel"],
   summary: "One sentence about the fixture shoot.",
@@ -97,10 +100,24 @@ describe("the verification build guard", () => {
       "year",
       "poster",
       "deliverables",
-      "video_url as an https URL",
+      "video_url as a /media path",
     ]) {
       expect(issues).toContain(field);
     }
+  });
+
+  it("refuses a verified project whose video cannot be played", () => {
+    // An https URL with no YouTube id is a file on someone else's host. The reel embeds YouTube or
+    // plays a file we serve; it does not hotlink a third-party clip.
+    expect(messagesFor({ ...realProject, video_url: "https://example.invalid/clip.mp4" })).toContain(
+      "video_url as a /media path",
+    );
+    expect(messagesFor({ ...realProject, video_url: "/media/demo-reel-1.mp4" })).toBe("");
+    expect(messagesFor({ ...realProject, video_url: "https://youtu.be/FIXTUREvid1" })).toBe("");
+  });
+
+  it("accepts a verified project whose video is a file we serve", () => {
+    expect(messagesFor({ ...realProject, video_url: "/media/demo-reel-2.mp4" })).toBe("");
   });
 
   it("leaves an unverified project alone", () => {
@@ -171,12 +188,47 @@ describe("the render rules", () => {
   });
 });
 
+describe("what the reel and the grid render", () => {
+  const reelPlaceholder = entry({ ...demoDraft, hero_reel: true, sort_order: 10 });
+  const gridOnlyPlaceholder = entry({ ...demoDraft, hero_reel: false, sort_order: 20 });
+  const heldBackWedding = entry({
+    ...realProject,
+    category: "Weddings",
+    hero_reel: true,
+    verified: false,
+    publish_ok: false,
+    sort_order: 1,
+  });
+
+  it("shows the placeholders while nothing is shorable and the real work once it is", () => {
+    expect(visibleProjects([reelPlaceholder, gridOnlyPlaceholder, heldBackWedding])).toEqual([
+      reelPlaceholder,
+      gridOnlyPlaceholder,
+    ]);
+    const shorable = entry({ ...realProject, sort_order: 5 });
+    expect(visibleProjects([shorable, reelPlaceholder])).toEqual([shorable]);
+  });
+
+  it("takes the carousel from the visible projects and never from held-back work", () => {
+    expect(reelItems([reelPlaceholder, gridOnlyPlaceholder, heldBackWedding])).toEqual([reelPlaceholder]);
+    expect(reelItems([reelPlaceholder, gridOnlyPlaceholder])).toHaveLength(1);
+  });
+
+  it("comes back empty when no project is flagged for the reel", () => {
+    expect(reelItems([gridOnlyPlaceholder, heldBackWedding])).toEqual([]);
+  });
+});
+
 describe("the demo content files", () => {
+  const projectTexts = () =>
+    readdirSync(join(repoRoot, projectsDir))
+      .filter((name) => name.endsWith(".yaml"))
+      .map((name) => readFileSync(join(repoRoot, projectsDir, name), "utf8"));
+
   it("are all placeholders while C-2 has delivered nothing", () => {
-    const files = readdirSync(join(repoRoot, projectsDir)).filter((name) => name.endsWith(".yaml"));
-    expect(files).toHaveLength(4);
-    for (const name of files) {
-      const text = readFileSync(join(repoRoot, projectsDir, name), "utf8");
+    const texts = projectTexts();
+    expect(texts).toHaveLength(4);
+    for (const text of texts) {
       expect(text).toContain("demo: true");
       expect(text).toContain("verified: false");
       expect(text).toContain("publish_ok: false");
@@ -190,5 +242,37 @@ describe("the demo content files", () => {
     expect([...categories].sort()).toEqual(
       ["Commercial", "Cultural Festivals", "Documentaries", "Weddings"],
     );
+  });
+
+  it("names media files that exist on disk", () => {
+    // A poster path is a string relative to web/src/assets, resolved by poster-index.ts at build
+    // time, and a video_url is served straight out of public/. Neither fails the build when the
+    // file is absent: the card loses its image or the clip 404s on tap. This is the check.
+    for (const text of projectTexts()) {
+      const poster = /^poster: (.+)$/m.exec(text)?.[1];
+      if (poster !== undefined) {
+        expect(existsSync(join(repoRoot, "web/src/assets", poster)), poster).toBe(true);
+      }
+      const video = /^video_url: (\/media\/.+)$/m.exec(text)?.[1];
+      if (video !== undefined) {
+        expect(existsSync(join(repoRoot, "web/public", video)), video).toBe(true);
+      }
+    }
+  });
+
+  it("puts every clip that plays in the reel under a placeholder label", () => {
+    // Every /media source has to have a poster saying it is a stand-in, and the Weddings entry,
+    // which is the private category, stays out of the reel entirely (D23, D29).
+    const texts = projectTexts();
+    expect(texts.filter((text) => /^video_url: \/media\//m.test(text))).toHaveLength(3);
+    for (const text of texts) {
+      if (/^category: Weddings$/m.test(text)) {
+        expect(text).toContain("hero_reel: false");
+        expect(text).not.toMatch(/^poster: /m);
+      } else {
+        expect(text).toContain("hero_reel: true");
+        expect(text).toMatch(/^poster: /m);
+      }
+    }
   });
 });

@@ -1,6 +1,6 @@
 # PRD: Alpha Movies Booking and Showcase Site
 
-Status: Draft v0.3 (stack changed from Framer to Astro, Worker and D1; stress-tested, see section 13) | Date: 2026-10-26 | Builder: Ademola | Client: Boy Concept (operating as Alpha Movies Ltd, led by Emmanuel Feranmi Odeyale)
+Status: Draft v0.4 (stack changed from Framer to Astro, Worker and D1; stress-tested, see section 13. FR-2 and section 9 were amended on 2026-10-28 under decision D29: the showreel is a carousel and the first item's own muted clip may start by itself) | Date: 2026-10-28 | Builder: Ademola | Client: Boy Concept (operating as Alpha Movies Ltd, led by Emmanuel Feranmi Odeyale)
 
 Living docs: progress is tracked in `ROADMAP.md` and files are mapped in `PROJECT_STRUCTURE.md`. Both are updated on every contribution (see `AGENTS.md`).
 
@@ -79,7 +79,7 @@ Priority: M = must, S = should, C = could.
 | ID | Requirement | P |
 |---|---|---|
 | FR-1 | Hero with brand statement, primary CTA "Check a date" (scrolls to form), secondary CTA "View showreel" | M |
-| FR-2 | Showreel in 16:9. Poster image first, video loads only on tap | M |
+| FR-2 | Showreel in 16:9: a carousel of reel items, one on stage at a time with a strip to choose between them. Each item shows its poster first and its video loads only on tap. The one exception (D29, 2026-10-28): the first item's clip, when it is a file we serve, starts by itself muted and looping, waits for the page to finish loading, only runs while the section is on screen, and carries a visible pause control. No iframe ever starts by itself | M |
 | FR-3 | Portfolio grid filterable by Commercial, Cultural Festivals, Weddings, Documentaries. Cards show category tag, title, poster | M |
 | FR-4 | Project page: video, client, event, year, location, deliverables, short story | M |
 | FR-5 | Vertical short-form row for reels (parked) | C |
@@ -181,7 +181,7 @@ Phase 0 has no ref. The Ref line is omitted when there is none.
 ## 9. Non-functional requirements
 
 - Mobile first. Most visitors arrive from Instagram on phones over mobile data.
-- Performance: LCP 2.5s or better on 4G. No autoplaying video iframes. Poster-first everywhere.
+- Performance: LCP 2.5s or better on 4G. No autoplaying video iframes, and the only autoplaying file is the first reel item's own muted clip, which waits for `load`, pauses off-screen and is capped at 15 seconds and 400 kB (D29). Poster-first everywhere.
 - Accessibility: WCAG AA contrast on the dark theme, keyboard-operable form, labels on all fields.
 - Privacy: collect only the form fields above. Consent recorded. Align with the Nigeria Data Protection Act 2023. [verify obligations]
 - Resilience: if the API is down, the form falls back to a direct WhatsApp link with the brief in the message. A backend failure must never lose a lead.

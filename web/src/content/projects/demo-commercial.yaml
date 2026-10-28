@@ -1,11 +1,14 @@
-# A designed placeholder (D23, decision D28), not a project. Every unknown is bracketed so the
+# A designed placeholder (D23, decision D28), not a project. Every fact is bracketed so the
 # verification guard in web/src/content-rules.ts cannot be satisfied by accident, and C-2 replaces
-# this whole file with real, permitted work. demo: true keeps verified and publish_ok false.
+# this whole file with real, permitted work. The poster and the clip are the product's own labelled
+# placeholder artwork (DESIGN section 9 exception), not a stand-in for a specific job.
 title: "[project title]"
 category: Commercial
 client_name: "[client name]"
 location: "[city]"
-video_url: "[video url]"
+video_url: /media/demo-reel-1.mp4
+poster: media/demo-reel-1-poster.webp
+hero_reel: true
 deliverables:
   - "[deliverable]"
 summary: "[one or two sentences on what the brief was and what shipped, written at C-10]"
