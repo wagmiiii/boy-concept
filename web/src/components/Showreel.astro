@@ -1,90 +1,350 @@
 ---
-// DESIGN.md section 7 Showreel, and FR-2: a 16:9 poster first, and the player created only on
-// tap, so a visitor on mobile data decides when to spend the bytes.
+// DESIGN.md section 7 Showreel, and FR-2 as amended by D29: a 16:9 poster per item, one item on
+// stage at a time, and a strip to choose between them. The first item's self-hosted clip starts by
+// itself, muted and looping, and only while the stage is in view. Everything else, and every
+// YouTube source, waits for a tap, so a visitor on mobile data still decides when to spend bytes.
 //
-// C-2 has not delivered footage. Until it does the tap plays a stand-in card the builder rendered
-// with ffmpeg, /media/demo-reel.mp4, and the poster and the clip itself both say it is a
-// placeholder (D23). Setting YOUTUBE_ID switches the tap to a youtube-nocookie embed instead,
-// which is where the real reel will live; that origin is already in the CSP frame-src, and the id
-// moves to shared/site-config.ts with the rest of the site settings at P-10.
+// The items are the projects flagged hero_reel (FR-2, ARCH section 5). C-2 has delivered no
+// footage, so today they are three labelled placeholder cards the builder rendered with ffmpeg
+// (DESIGN section 9 exception, D23). A real reel is a file swap plus hero_reel: true.
 import { Image } from "astro:assets";
-import poster from "../assets/media/demo-reel-poster.webp";
+import { getCollection } from "astro:content";
+import { reelItems } from "../content-rules";
+import { isSelfHostedVideo } from "../media-sources";
+import { posterFor } from "../poster-index";
 
-const YOUTUBE_ID = "";
+const reels = reelItems(await getCollection("projects"));
+// The stage holds one frame per item and shows only the active one. Index 0 is the only frame the
+// script may start on its own, and only when the source is a file we serve.
+const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video_url) ? 0 : null;
 ---
 
-<section
-  id="showreel"
-  class="container-site flex flex-col gap-6 py-18 md:py-30"
->
-  <div class="flex flex-col gap-2">
-    <p class="eyebrow">Showreel</p>
-    <h2 class="font-display text-h2">[Showreel heading, written at C-10]</h2>
-  </div>
+{
+  reels.length > 0 ? (
+    <section id="showreel" class="container-site flex flex-col gap-6 py-18 md:py-30" data-reel>
+      <div class="flex flex-col gap-2">
+        <p class="eyebrow">Showreel</p>
+        <h2 class="font-display text-h2">[Showreel heading, written at C-10]</h2>
+      </div>
 
-  <div
-    class="poster-frame flex items-center justify-center"
-    data-reel
-    data-youtube={YOUTUBE_ID || null}
-  >
-    <!-- The placeholder label is drawn into the poster and the clip rather than sitting on top as
-    a DOM tag, so it survives at every width and does not have to be removed again for the player. -->
-    <Image
-      src={poster}
-      widths={[640, 1280]}
-      sizes="(max-width: 767px) 100vw, 1136px"
-      alt="Showreel poster. Placeholder artwork, not client work"
-      class="absolute inset-0 z-0 size-full object-cover"
-    />
+      <div>
+        {reels.map((reel, index) => {
+          const poster = posterFor(reel.data.poster ?? "");
+          const selfHosted = isSelfHostedVideo(reel.data.video_url);
+          const alt = reel.data.demo
+            ? `${reel.data.title} poster. Placeholder artwork, not client work`
+            : `${reel.data.title} poster`;
 
-    <button
-      type="button"
-      data-reel-play
-      class="group relative z-10 flex size-18 items-center justify-center rounded-full border-[1.5px] border-gold transition-colors"
-    >
-      <span class="sr-only">Play the showreel</span>
-      <svg class="ml-1 size-6 text-gold" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M8 5.5v13l11-6.5z" />
-      </svg>
-    </button>
-  </div>
+          return (
+            <div
+              class="poster-frame"
+              data-reel-frame
+              data-index={index}
+              data-src={reel.data.video_url}
+              data-kind={selfHosted ? "file" : "youtube"}
+              data-autoplay={index === autoplayIndex || null}
+              hidden={index === 0 ? null : true}
+            >
+              {poster ? (
+                <Image
+                  src={poster}
+                  widths={[640, 1280]}
+                  sizes="(max-width: 767px) 100vw, 1136px"
+                  alt={alt}
+                  class="absolute inset-0 z-0 size-full object-cover"
+                />
+              ) : null}
 
-  <p class="max-w-[60ch] text-body text-text-muted">
-    Nothing loads until you press play. The reel is 16:9 and the player is created on tap, so the
-    page never spends your data on a video you did not ask for.
-  </p>
-</section>
+              <button type="button" data-reel-play class="group relative z-10 flex size-full items-center justify-center">
+                <span class="flex size-18 items-center justify-center rounded-full border-[1.5px] border-gold bg-black/40 transition-colors group-hover:bg-black/60">
+                  <span class="sr-only">Play {reel.data.title}</span>
+                  <svg class="ml-1 size-6 text-gold" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5.5v13l11-6.5z" />
+                  </svg>
+                </span>
+              </button>
+
+              {index === autoplayIndex ? (
+                <div class="absolute right-3 bottom-3 z-20 flex gap-2" data-reel-controls>
+                  <button
+                    type="button"
+                    class="relative flex size-11 items-center justify-center rounded-full border-[1.5px] border-gold bg-black/40 text-gold"
+                    data-reel-pause
+                  >
+                    <span class="sr-only" data-reel-pause-label>
+                      Pause the reel
+                    </span>
+                    <svg class="icon-pause size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M9 5.5h2.6v13H9zM12.9 5.5h2.6v13h-2.6z" />
+                    </svg>
+                    <svg class="icon-play size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M8 5.5v13l11-6.5z" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="relative flex size-11 items-center justify-center rounded-full border-[1.5px] border-gold bg-black/40 text-gold"
+                    data-reel-sound
+                  >
+                    <span class="sr-only" data-reel-sound-label>
+                      Turn the sound on
+                    </span>
+                    <svg class="icon-muted size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M4 9.5h3.5L12 5.8v12.4L7.5 14.5H4zM15.4 9l1.2-1.2 2 2 2-2 1.2 1.2-2 2 2 2-1.2 1.2-2-2-2 2-1.2-1.2 2-2z" />
+                    </svg>
+                    <svg class="icon-loud size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M4 9.5h3.5L12 5.8v12.4L7.5 14.5H4zM14.6 9.4c1.3 1.3 1.3 3.9 0 5.2l-1-1c.7-.8.7-2.4 0-3.2zM17 7c2.5 2.5 2.5 7.5 0 10l-1-1c1.9-2.1 1.9-5.9 0-8z" />
+                    </svg>
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+
+      <ol class="flex gap-3 overflow-x-auto pb-1 md:gap-4" aria-label="Reel">
+        {reels.map((reel, index) => {
+          const poster = posterFor(reel.data.poster ?? "");
+          return (
+            <li class="w-[128px] shrink-0 md:w-[200px]">
+              <button type="button" class="block w-full" data-reel-select={index} aria-current={index === 0 || null}>
+                <span class="poster-frame block">
+                  {poster ? (
+                    <Image
+                      src={poster}
+                      widths={[160, 320]}
+                      sizes="(max-width: 767px) 128px, 200px"
+                      alt=""
+                      class="absolute inset-0 z-0 size-full object-cover"
+                    />
+                  ) : null}
+                  <span class="sr-only">{reel.data.title}</span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+
+      <p class="max-w-[60ch] text-body text-text-muted">
+        The first clip starts on its own, muted and looping, and stops when you scroll past it.
+        Nothing else loads until you press play, so the page never spends your data on a video you
+        did not ask for.
+      </p>
+    </section>
+  ) : null
+}
 
 <script>
-  // One listener, and the player element is created inside it, which is what keeps FR-2 honest:
-  // the poster is an <img> and nothing points at the video until a visitor presses play.
-  const frame = document.querySelector<HTMLElement>("[data-reel]");
+  import { youtubeEmbedUrl } from "../media-sources";
 
-  frame?.querySelector("[data-reel-play]")?.addEventListener("click", () => {
-    const youtubeId = frame.dataset.youtube;
-    let media: HTMLElement;
+  // The stage holds every frame and plays one. Media is created inside a frame and never before,
+  // so no byte of video moves until the first clip reaches the visitor on their own scroll or they
+  // press play (FR-2 as amended by D29).
+  const stage = document.querySelector<HTMLElement>("[data-reel]");
 
-    if (youtubeId) {
-      const iframe = document.createElement("iframe");
-      iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(youtubeId)}?autoplay=1&rel=0`;
-      iframe.allow = "autoplay; encrypted-media; picture-in-picture";
-      iframe.allowFullscreen = true;
-      iframe.title = "Showreel";
-      media = iframe;
-    } else {
-      const video = document.createElement("video");
-      video.src = "/media/demo-reel.mp4";
-      video.controls = true;
-      video.autoplay = true;
-      video.playsInline = true;
-      media = video;
+  if (stage) {
+    const frames = [...stage.querySelectorAll<HTMLElement>("[data-reel-frame]")];
+    const strip = [...stage.querySelectorAll<HTMLButtonElement>("[data-reel-select]")];
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const videoIn = (frame: HTMLElement) => frame.querySelector("video");
+
+    const stop = (frame: HTMLElement) => {
+      frame.querySelectorAll("video, iframe").forEach((media) => media.remove());
+      delete frame.dataset.playing;
+      delete frame.dataset.paused;
+      delete frame.dataset.muted;
+      delete frame.dataset.autopaused;
+      delete frame.dataset.userOwned;
+    };
+
+    const setPaused = (frame: HTMLElement, paused: boolean) => {
+      const video = videoIn(frame);
+      if (!video) return;
+      if (paused) video.pause();
+      else void video.play().catch(() => undefined);
+      frame.dataset.paused = String(paused);
+      const label = frame.querySelector<HTMLElement>("[data-reel-pause-label]");
+      if (label) label.textContent = paused ? "Play the reel" : "Pause the reel";
+    };
+
+    const start = (frame: HTMLElement, muted: boolean) => {
+      const src = frame.dataset.src ?? "";
+      let media: HTMLElement;
+
+      if (frame.dataset.kind === "youtube") {
+        const embed = youtubeEmbedUrl(src);
+        if (!embed) return;
+        const iframe = document.createElement("iframe");
+        // An embed is a third-party byte stream, so it only ever exists after a tap (rule 10).
+        iframe.src = embed;
+        iframe.allow = "autoplay; encrypted-media; picture-in-picture";
+        iframe.allowFullscreen = true;
+        iframe.title = "Reel";
+        media = iframe;
+      } else {
+        const video = document.createElement("video");
+        video.src = src;
+        video.muted = muted;
+        video.defaultMuted = muted;
+        video.playsInline = true;
+        // The muted loop is the banner and our two buttons cover it. A clip the visitor asked for
+        // is the real viewing, so it gets the native controls and stops looping.
+        video.controls = !muted;
+        video.loop = muted;
+        media = video;
+      }
+
+      media.className = "absolute inset-0 z-0 size-full bg-black object-cover";
+      frame.dataset.playing = "true";
+      frame.dataset.muted = String(muted);
+      frame.append(media);
+
+      if (media instanceof HTMLVideoElement) {
+        if (muted) {
+          // A click on the banner pauses it. Once the visitor has taken the clip over, the native
+          // controls own the clicks and this handler must not fight them.
+          media.addEventListener("click", () => {
+            if (frame.dataset.muted !== "true") return;
+            setPaused(frame, frame.dataset.paused !== "true");
+          });
+          media.play().then(() => (frame.dataset.paused = "false")).catch(() => stop(frame));
+        } else {
+          media.play().catch(() => undefined);
+        }
+      }
+    };
+
+    const activate = (index: number) => {
+      frames.forEach((frame, frameIndex) => {
+        const selected = frameIndex === index;
+        frame.toggleAttribute("hidden", !selected);
+        if (!selected) stop(frame);
+      });
+      strip.forEach((button, buttonIndex) => {
+        if (buttonIndex === index) button.setAttribute("aria-current", "true");
+        else button.removeAttribute("aria-current");
+      });
+    };
+
+    strip.forEach((button) => {
+      button.addEventListener("click", () => {
+        const index = Number(button.dataset.reelSelect);
+        if (Number.isInteger(index)) activate(index);
+      });
+    });
+
+    frames.forEach((frame) => {
+      frame.querySelector<HTMLButtonElement>("[data-reel-play]")?.addEventListener("click", () => {
+        start(frame, false);
+      });
+    });
+
+    stage.querySelectorAll<HTMLButtonElement>("[data-reel-pause]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const frame = button.closest<HTMLElement>("[data-reel-frame]");
+        if (frame) setPaused(frame, frame.dataset.paused !== "true");
+      });
+    });
+
+    stage.querySelectorAll<HTMLButtonElement>("[data-reel-sound]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const frame = button.closest<HTMLElement>("[data-reel-frame]");
+        const video = frame ? videoIn(frame) : undefined;
+        if (!frame || !video) return;
+        video.muted = !video.muted;
+        video.loop = video.muted;
+        frame.dataset.muted = String(video.muted);
+        const label = button.querySelector<HTMLElement>("[data-reel-sound-label]");
+        if (label) label.textContent = video.muted ? "Turn the sound on" : "Turn the sound off";
+        if (!video.muted) {
+          // The visitor has asked to watch, so the clip is theirs now: the native controls appear,
+          // and the scroll gate stops pausing it. Restarting an audible clip the moment they scroll
+          // back would be the worst possible surprise on a phone.
+          video.controls = true;
+          frame.dataset.userOwned = "true";
+        }
+      });
+    });
+
+    const autoplayFrame = frames.find((frame) => frame.dataset.autoplay === "true");
+
+    if (autoplayFrame && !reducedMotion) {
+      let inView = false;
+      let pageLoaded = document.readyState === "complete";
+
+      // Both gates matter. Waiting for load keeps the bytes off the hero's critical path, and
+      // waiting for the section to be in view means nobody downloads a clip they never saw.
+      const maybeStart = () => {
+        if (!inView || !pageLoaded) return;
+        if (!autoplayFrame.dataset.playing) start(autoplayFrame, true);
+        else if (autoplayFrame.dataset.autopaused === "true") {
+          delete autoplayFrame.dataset.autopaused;
+          setPaused(autoplayFrame, false);
+        }
+      };
+
+      new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            inView = entry.isIntersecting;
+            const playing = autoplayFrame.dataset.playing === "true";
+            const banner = autoplayFrame.dataset.userOwned !== "true";
+            if (!inView && banner && playing && autoplayFrame.dataset.paused !== "true") {
+              setPaused(autoplayFrame, true);
+              autoplayFrame.dataset.autopaused = "true";
+            }
+          }
+          maybeStart();
+        },
+        { threshold: 0.5 },
+      ).observe(autoplayFrame);
+
+      window.addEventListener("load", () => {
+        pageLoaded = true;
+        maybeStart();
+      });
     }
-
-    media.className = "absolute inset-0 z-0 size-full bg-black object-cover";
-    // The section 6 bottom gradient exists to keep the label readable over a poster. Over a
-    // playing video it would sit on top of the player chrome.
-    frame.dataset.playing = "true";
-    frame.replaceChildren(media);
-    media.focus();
-  });
+  }
 </script>
+
+<style>
+  /* The controls only exist over a playing frame, and the play button only over a poster. Both
+  states live on the frame, so the media and its chrome cannot disagree. No @apply here: a scoped
+  component style block cannot see the Tailwind theme, so the tokens come through as CSS variables
+  and the utility classes stay in the markup. */
+  [data-reel-controls] {
+    display: none;
+  }
+
+  [data-playing="true"] [data-reel-controls] {
+    display: flex;
+  }
+
+  [data-playing="true"] [data-reel-play] {
+    display: none;
+  }
+
+  /* One icon per state. Muted and running is the default, so the other two are the exceptions. */
+  .icon-play,
+  .icon-loud {
+    display: none;
+  }
+
+  [data-paused="true"] .icon-pause,
+  [data-muted="false"] .icon-muted {
+    display: none;
+  }
+
+  [data-paused="true"] .icon-play,
+  [data-muted="false"] .icon-loud {
+    display: block;
+  }
+
+  [data-reel-select][aria-current="true"] > span {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+</style>

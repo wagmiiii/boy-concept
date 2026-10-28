@@ -1,10 +1,12 @@
-# A designed placeholder (D23, decision D28), not a project. See demo-commercial.yaml for why
-# every value here is bracketed.
+# A designed placeholder (D23, decision D28), not a project. See demo-commercial.yaml for why the
+# facts are bracketed and the media is the product's own labelled artwork.
 title: "[project title]"
 category: Documentaries
 client_name: "[commissioning client]"
 location: "[city]"
-video_url: "[video url]"
+video_url: /media/demo-reel-3.mp4
+poster: media/demo-reel-3-poster.webp
+hero_reel: true
 deliverables:
   - "[deliverable]"
 summary: "[one or two sentences on the film and who commissioned it, written at C-10]"

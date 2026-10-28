@@ -4,15 +4,14 @@
 // name a category a project cannot be filed under.
 // FR-26: a chip with no verified projects hides, which is what P-6 wires up.
 import { getCollection } from "astro:content";
-import { placeholderProjects, projectCategories, shorableProjects } from "../content-rules";
+import { projectCategories, visibleProjects } from "../content-rules";
 import ProjectCard from "./ProjectCard.astro";
 
-const projects = await getCollection("projects");
 // FR-3 and FR-27: only a verified, permitted project is shorable. While none is, the section keeps
-// its shape with the entries the schema marks demo: true, and those can never carry a claim
-// (D23). Real work that is merely unverified renders nothing at all.
-const shorable = shorableProjects(projects);
-const cards = shorable.length > 0 ? shorable : placeholderProjects(projects);
+// its shape with the entries the schema marks demo: true, and those can never carry a claim (D23).
+// Real work that is merely unverified renders nothing at all. The reel goes through the same rule,
+// so the two sections can never disagree about what is visible.
+const cards = visibleProjects(await getCollection("projects"));
 ---
 
 <section

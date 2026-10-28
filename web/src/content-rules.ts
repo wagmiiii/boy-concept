@@ -2,7 +2,10 @@
 // guard and the render predicates live here rather than in content.config.ts because this module
 // imports no Astro virtual modules, so a Vitest run can exercise the guard without a build.
 // content.config.ts wires this schema to the loader, which is what makes a violation fail the build.
+// The two video source helpers live in media-sources.ts: the reel's client script needs them, and
+// importing this module into the page would ship zod to a visitor's phone.
 import { z } from "astro/zod";
+import { isSelfHostedVideo, youtubeEmbedUrl } from "./media-sources";
 
 // FR-3. The chips in the grid come from this list, so a project cannot be filed under a category
 // that the page does not offer.
@@ -38,7 +41,12 @@ const incompleteVerifiedProject = (project: ProjectData): string[] => {
   if (project.year === undefined) missing.push("year");
   if (project.poster === undefined) missing.push("poster");
   if (project.deliverables.length === 0) missing.push("deliverables");
-  if (!project.video_url.startsWith("https://")) missing.push("video_url as an https URL");
+  if (isSelfHostedVideo(project.video_url)) return missing;
+  // A verified entry has to actually play. An https URL that is not a YouTube link with an id is a
+  // direct file on someone else's host, and the player here only knows how to embed YouTube.
+  if (youtubeEmbedUrl(project.video_url) === undefined) {
+    missing.push("video_url as a /media path or a YouTube link that carries a video id");
+  }
   return missing;
 };
 
@@ -51,6 +59,8 @@ export const projectSchema = z
     year: z.number().int().min(2015).max(2100).optional(),
     location: z.string().min(1).optional(),
     video_url: z.string().min(1),
+    // A path under web/src/assets, resolved to an optimized image by poster-index.ts. It is a
+    // string rather than an image reference so a content file stays plain data a CMS can write.
     poster: z.string().min(1).optional(),
     hero_reel: z.boolean().default(false),
     deliverables: z.array(z.string().min(1)).default([]),
@@ -114,4 +124,23 @@ export function shorableProjects<T extends ProjectLike>(projects: T[]): T[] {
  */
 export function placeholderProjects<T extends ProjectLike>(projects: T[]): T[] {
   return inSortOrder(projects.filter((project) => project.data.demo));
+}
+
+/**
+ * What a section renders: shorable projects when any exist, otherwise the designed placeholders.
+ * Both the grid and the reel go through this, so neither can invent its own fallback rule (D23).
+ * @param projects the collection entries, in any order
+ */
+export function visibleProjects<T extends ProjectLike>(projects: T[]): T[] {
+  const shorable = shorableProjects(projects);
+  return shorable.length > 0 ? shorable : placeholderProjects(projects);
+}
+
+/**
+ * FR-2: the carousel is the visible projects flagged `hero_reel`. Going through visibleProjects is
+ * what keeps a wedding that has no permission out of the reel, because it is not visible at all.
+ * @param projects the collection entries, in any order
+ */
+export function reelItems<T extends ProjectLike>(projects: T[]): T[] {
+  return visibleProjects(projects).filter((project) => project.data.hero_reel);
 }

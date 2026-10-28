@@ -1,6 +1,6 @@
 # DESIGN: Alpha Movies Booking and Showcase Site
 
-Status: Draft v0.7 (P-4 findings: the showreel tap is wired and its script must ship external (D26), the placeholder label belongs in the artwork not on top of it, and the section 6 poster gradient has to come off once a player is in the frame. P-25 added the Process rail and the FAQ treatment, wrote the 44 px tap-target reading for chips, and moved the build onto the section 5 breakpoint scale) | Date: 2026-10-27 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
+Status: Draft v0.8 (P-4 findings: the showreel tap is wired and its script must ship external (D26), the placeholder label belongs in the artwork not on top of it, and the section 6 poster gradient has to come off once a player is in the frame. P-25 added the Process rail and the FAQ treatment, wrote the 44 px tap-target reading for chips, and moved the build onto the section 5 breakpoint scale. P-26 rebuilt the showreel as a carousel and, under D29, made the first item's own muted clip the one thing on the site that may start by itself) | Date: 2026-10-28 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
 
 Everything visual in the site comes from here. If a value is not in this file, ask before inventing one. Colors were sampled from the logo file, not from a brand guide, so they are provisional until Emmanuel confirms the logo is current (ROADMAP D-9).
 
@@ -191,13 +191,24 @@ Built at P-3 in `web/src/components/Hero.astro`, centered. Two implementation no
 
 ### Showreel
 
-16:9 container, poster first, a centered play control, video created on tap. The play control is a 72 px circle with a 1.5 px `--gold` ring and a gold triangle.
+16:9 stage, one reel item at a time, a strip of 16:9 thumbnails under it to choose between them (128 px at mobile, 200 px from `md`). Each item shows its poster first with a centered play control: a 72 px circle with a 1.5 px `--gold` ring and a gold triangle. The active thumbnail carries a 2 px `--gold` outline.
 
-Built at P-4. Three implementation notes:
+The items are the visible projects flagged `hero_reel` (ARCH section 5). A wedding with no permission is not visible at all, so it cannot reach the reel.
+
+Autoplay, decision D29, chosen by Ademola on 2026-10-28:
+
+- Only the first item starts by itself, only when its source is a file we serve from `/media`, and never an iframe.
+- It is muted, looping and silent, waits for the page `load` event so it cannot compete with the hero's LCP, and runs only while the stage is at least half on screen. Scrolling away pauses it; scrolling back resumes it.
+- It has two visible 44 px controls, pause and sound, which is what WCAG 2.2.2 asks of a moving or auto-playing block (DESIGN section 11). Turning the sound on hands the clip to the visitor: native controls appear, the loop stops, and the scroll gate lets it run.
+- Every other item, and every YouTube source, is tap-only. Nothing points at a video byte until the visitor asks.
+- The clip is capped at 15 seconds and 400 kB. The three placeholder clips run 7 seconds at 1280 x 720 and weigh 68, 66 and 56 kB, so the reel's first video costs about the same as one photograph.
+
+Built at P-4 and rebuilt as a carousel at P-26. Four implementation notes:
 
 - The placeholder label is drawn into the poster artwork and into the clip, not bolted on as a `.demo-tag` pill. A pill over a 335 x 188 px frame at 390 px wrapped to two lines and covered a fifth of the image. The in-artwork label scales with the frame and disappears with the poster when the player replaces it, which is also what keeps it off the playing controls.
 - The section 6 bottom gradient is suppressed once the frame carries a player (`[data-playing]`), because it exists to keep text readable over a poster and would otherwise sit on top of the native controls.
-- Until C-2 delivers footage the tap plays `web/public/media/demo-reel.mp4`, a 7 second silent card the builder rendered with ffmpeg (50 kB, poster 16 kB). It says "DEMO REEL" and "Placeholder motion. Not client work." in the frame. Setting `YOUTUBE_ID` in `Showreel.astro` switches the same tap to the youtube-nocookie player, so real footage is a config change and not a rebuild.
+- Until C-2 delivers footage the three items play `web/public/media/demo-reel-1.mp4` to `demo-reel-3.mp4`, 7 second silent cards the builder rendered with ffmpeg, each labelled "DEMO REEL 1 OF 3" and "Placeholder motion. Not client work." inside the frame with its own poster. A real reel is a file swap plus `hero_reel: true` in the content entry, and a YouTube source needs nothing but the watch link in `video_url`. The old single `YOUTUBE_ID` config is gone: the source is per item, and `media-sources.ts` turns any link that carries an id into a youtube-nocookie embed at tap time.
+- Every visibility state lives on data attributes on the frame (`data-playing`, `data-paused`, `data-muted`), and one scoped style block reads them. `@apply` cannot be used in that block: a component style tag does not see the Tailwind theme, so `border-gold` fails the build there. Utility classes stay in the markup and the raw token variables in the CSS.
 
 ### Portfolio card
 
@@ -253,17 +264,17 @@ Implemented in `tokens.css` as `--motion-fast`, `--motion-base`, `--motion-slow`
 
 - Scroll reveal: fade up 16 px, once per element, Base duration.
 - Sparkle twinkle: opacity 0.55 to 1 and scale 0.95 to 1.05 over 3 to 4 seconds, at most three flares in view, decorative only. Static on mobile.
-- Honor `prefers-reduced-motion`: no reveal, no twinkle, no hover lift.
-- No autoplaying video iframes anywhere.
+- Honor `prefers-reduced-motion`: no reveal, no twinkle, no hover lift, and no reel autoplay (D29). The rule is read once, in the reel script, and a visitor who asks for less motion still gets the poster and can still press play.
+- No autoplaying video iframes anywhere (D29). The one thing that starts by itself is the first reel item's own muted, looping file, which pauses off-screen and carries a pause control.
 
 Implemented at P-3, the twinkle only (scroll reveal waits until the sections hold real content). Three four-point SVG flares sit around the hero logo in `Hero.astro`, each `aria-hidden`, `--gold` at 0.55 opacity, animated by one scoped `@keyframes twinkle` with staggered durations (3.4 s, 4 s, 3.4 s) and delays (0, 1.2 s, 2.3 s). "Static on mobile" is read as static below the 768 px breakpoint, so the animation sits inside `@media (min-width: 768px)` and the reduced-motion query sets `animation: none` with opacity 0.8. Verified in a browser: three flares, `animation-name: twinkle` at 1200 px and `none` at 730 px. The reduced-motion branch is written but not exercised, because the available tools cannot emulate that media feature (S-2 and P-17 cover it on devices).
 
 ## 9. Imagery and iconography
 
 - Posters and stills are the color on the page. Do not tint them gold.
-- Icons are 1.5 px stroke line icons, 24 px grid, currentColor. The sparkle star (four-point) is the only filled glyph, used as a bullet or section marker at 12 to 16 px in `--gold`.
+- Icons are 1.5 px stroke line icons, 24 px grid, currentColor. The sparkle star (four-point) is the only filled glyph, used as a bullet or section marker at 12 to 16 px in `--gold`. The one carve-out is media transport: play, pause and the muted and unmuted speaker are filled, because a stroked play triangle reads as a outline of nothing at 20 px, and this is the convention every operating system's own player uses. They appear only in the showreel controls, which P-26 added.
 - Real work only. No stock footage and no AI-generated stand-ins for client work.
-- One exception, recorded because Ademola chose it on 2026-10-27 at P-4: the showreel plays a silent title card the builder rendered locally (ffmpeg, gold on black, the words "DEMO REEL" and "Placeholder motion. Not client work." inside the frame). It is the product's own artwork, not a stand-in for a specific job, and it is labelled in the image rather than in a caption, so it cannot be mistaken for client work at any size or in a screenshot. It is on P-24's removal list and leaves the moment C-2 delivers footage. Stock footage, AI imagery and unlabelled stills stay barred.
+- One exception, recorded because Ademola chose it on 2026-10-27 at P-4 and extended to the carousel at P-26: the showreel plays three silent title cards the builder rendered locally (ffmpeg, gold on black, "DEMO REEL 1 OF 3" through "3 OF 3" and "Placeholder motion. Not client work." inside the frame). They are the product's own artwork, not a stand-in for a specific job, and each is labelled in the image rather than in a caption, so it cannot be mistaken for client work at any size or in a screenshot. They are on P-24's removal list and leave the moment C-2 delivers footage. Stock footage, AI imagery and unlabelled stills stay barred.
 - Every project image needs the client's permission (CMS `publish_ok`).
 
 ## 10. Voice
@@ -279,6 +290,7 @@ When a sentence is not approved yet, decision D25 in ARCHITECTURE allows the bui
 - Form fields have labels, not placeholders alone. Errors name the field.
 - Logo and posters have alt text. Decorative sparkles are `aria-hidden`.
 - Keyboard-only submit works and the confirmation button receives focus.
+- Any motion that starts by itself has a pause control and a `prefers-reduced-motion` escape (WCAG 2.2.2). That is the reel's first clip, and the rule is why it carries a 44 px pause button rather than only a click on the video.
 
 ## 12. Implementation notes
 
@@ -292,6 +304,7 @@ When a sentence is not approved yet, decision D25 in ARCHITECTURE allows the bui
 - Button height is 52 px, becoming 48 px from the 768 px breakpoint, so a hand-written rule, not a utility. Same for the 1.5 px secondary border, the chip outline (gold at 60% through `color-mix`, with a `transparent` fallback declared first), and the poster bottom gradient in section 6, which uses `var(--bg)` rather than a second copy of black.
 - Section anchors get `scroll-margin-top` equal to the nav height (64 px, 72 px from 768 px) in the base layer, so "Check a date" does not bury the heading under the sticky nav. Verified at P-3 at 730 px wide: both hero CTAs land their section 64 px from the top, with the heading below the 65 px nav. The 72 px desktop offset is the same rule at the other breakpoint and was not re-measured.
 - The hero sparkle flares are the one motion spec that lives in a component rather than `global.css`, in a scoped `<style>` block in `Hero.astro`, because no other section uses them. Astro inlines a style block that small directly into the HTML head instead of emitting a CSS file, so the rules are in the served document and can be checked there.
+- `@apply` works only inside `global.css`. A component `<style>` block is compiled without the `@theme inline` map, so `@apply border-gold` in `Showreel.astro` failed the P-26 build with "Cannot apply unknown utility class". The rule now: utilities go in the markup, and a component style block holds plain CSS that reads the `tokens.css` variables directly (`var(--gold)`), which is what `Process.astro` and `Nav.astro` already do.
 - The breakpoint scale is the section 5 one, not Tailwind's. `web/src/styles/global.css` resets `--breakpoint-*` and re-declares md 768, lg 1200 and xl 1440, so 640, 1024, 1280 and 1536 do not exist as utilities and a wrong variant name emits no CSS at all rather than a wrong width. Verified against the built stylesheet at P-25: the only width queries in the output are 768, 1200 and 1440. `web/src/styles/design-tokens.test.ts` refuses any `sm:`, `xs:` or `2xl:` in `web/src`.
 - One container, one gutter rule: `.container-site` is `mx-auto max-w-site px-5 md:px-8 lg:px-10`, i.e. 20 / 32 / 40 px from section 5, and every section, the nav, the footer and the 404 use it instead of writing `mx-auto max-w-site px-*` per component. Before P-25 ten components each repeated the gutters and the 40 px desktop step existed nowhere.
 - The showreel tap is the site's only client script, and it must arrive as a file. Astro 7 inlines a small component `<script>` into the page, `script-src 'self'` then refuses to run it, and the button does nothing with only a console violation to show for it. `vite.build.assetsInlineLimit: 0` in `web/astro.config.mjs` keeps it external (decision D26). `style-src 'unsafe-inline'` is a different matter and stays: the Fonts API and Astro's scoped styles both inject inline `<style>`.
@@ -309,6 +322,6 @@ When a sentence is not approved yet, decision D25 in ARCHITECTURE allows the bui
 | 5 | Validate that gold stays under about 10% of a viewport on the built pages | Ademola | P-17 |
 | 6 | Section 2 rule 4 (the 3D logo is never below 220 px wide) and section 7 (the nav is 64 px tall) are geometrically incompatible. P-2 resolved it by putting text in the nav. Revisit when the flat wordmark exists, and confirm the interim nav treatment is acceptable | Ademola, Emmanuel | P-21, Q12 |
 | 7 | Approve or replace the hero headline. P-3 built it with the builder's draft "Shot for the occasion" under D25; two alternatives are in `content/copy.md`. The page reads as finished copy while no one at Alpha Movies has chosen it | Emmanuel | D-7, P-3, PLACEHOLDERS |
-| 8 | Replace the showreel stand-in. P-4 built the poster-first tap and, at Ademola's call, pointed it at a labelled placeholder card so the demo plays. Real poster and video arrive at C-2, then the `YOUTUBE_ID` is set or the file swapped, and the stand-in is deleted with the rest of the scaffolding text | Emmanuel, Agent | C-2, P-24, section 9 exception |
+| 8 | Replace the showreel stand-ins. P-4 built the poster-first tap and P-26 made it a carousel; at Ademola's call the three slots play labelled placeholder cards so the demo moves. Real posters and footage arrive at C-2, each entry gets its own `video_url` and `poster` and `hero_reel: true`, and the stand-ins are deleted with the rest of the scaffolding text | Emmanuel, Agent | C-2, P-24, section 7, section 9 exception |
 | 9 | Check that the desktop nav still reads as designed now that the breakpoint moved from 1024 to 1200 px, and confirm the 44 px tap-target reading in section 7 (a chip is 44 px when it is a control, 32 px when it is a label) is the treatment you want to keep | Ademola | P-17, P-25 |
 | 10 | Two rules in this file are currently claims without a measurement: the 72 px anchor offset at the desktop breakpoint, and section 11's "keyboard-operable form", which has no form until P-12. Measure the first at 1200 px in the P-17 pass; the second arrives with the island | Agent | P-12, P-17 |

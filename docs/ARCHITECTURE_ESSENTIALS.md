@@ -1,6 +1,6 @@
 # ARCHITECTURE_ESSENTIALS
 
-Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.9.
+Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.10 (P-26: rule 10 gains the muted autoplay exception, D29).
 
 ## What this is
 - Booking and showcase site for Boy Concept (Alpha Movies Ltd). The enquiry flow and the credibility layer are the product.
@@ -42,7 +42,7 @@ Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECT
 7. Submit is idempotent on `clientRequestId`, backed by a `UNIQUE` constraint.
 8. Content renders only if verified and permitted. Empty sections and categories hide. No bracketed placeholders in verified items: the guard is a refinement on the projects schema in `web/src/content-rules.ts`, wired by `web/src/content.config.ts`, so `astro build` and `npm run deploy:test` fail on it (D28). `ci.yml` runs no build, which means a bad entry is caught at build or deploy, not at PR review.
 9. Always show a direct WhatsApp link that works without JavaScript.
-10. No autoplaying video iframes. Poster first, load on tap.
+10. No autoplaying video iframes, ever. Poster first, load on tap (D29). The one exception the owner chose on 2026-10-28: the first carousel item may start by itself, and only when its source is a file we serve from `/media`. Muted, looping, silent, started after `load`, running only while the section is at least half on screen, capped at 15 seconds and 400 kB, with a visible 44 px pause control and a `prefers-reduced-motion` escape. Everything else, including every self-hosted clip in slot two and beyond and every YouTube source, waits for a tap.
 11. No PII in logs. No IP storage.
 12. Secrets only in Worker env vars and `.dev.vars`. Every account is held by the client.
 13. Every contribution updates `ROADMAP.md` (always) and `PROJECT_STRUCTURE.md` (when files or folders change) before it counts as done. State what you updated in your report.
@@ -61,14 +61,14 @@ Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECT
 - Single-Worker routing of assets plus `/api/*` is verified locally and on a deployed Worker (S-1, S-5, `docs/spikes/stack-spike.md`): `[assets] run_worker_first = ["/api/*"]`. A former asset miss fell through to the Worker; `not_found_handling = "404-page"` plus `web/src/pages/404.astro` (P-2) means a miss now serves the HTML 404 page with the `_headers` policy, while `/api/*` still reaches Hono. Keep the Worker catch-all scoped to `/api/*` (D19). Deploy with `npm run deploy:test`; a root-level `npx wrangler deploy` fails in an npm workspace.
 - Turnstile and `wa.me` inside the Instagram in-app browser are untested and block the form design.
 - Email deliverability from a new domain.
-- `_headers` is honored for Worker assets, but only for asset responses and asset redirects. `/api/*` gets nothing from it, so the Worker sets its own security headers (D21). Re-probed at P-2: the 404 page is an assets response, so it carries the full policy. The font and inline-style parts of the CSP are exercised (P-1) and `frame-src https://www.youtube-nocookie.com` is now exercised by the showreel tap (P-4); Turnstile and GA4 are still unexercised until P-12.
+- `_headers` is honored for Worker assets, but only for asset responses and asset redirects. `/api/*` gets nothing from it, so the Worker sets its own security headers (D21). Re-probed at P-2: the 404 page is an assets response, so it carries the full policy. The font and inline-style parts of the CSP are exercised (P-1); `media-src` falls through to `default-src 'self'` and is exercised by the reel's own clips at P-26, and `frame-src https://www.youtube-nocookie.com` by the reel's tap on a YouTube item (P-4, re-checked at P-26 with the per-item embed builder); Turnstile and GA4 are still unexercised until P-12.
 - The public brand text currently reads Boy Concept in the nav, the page title and the copyright while Q12 stays open, and the supplied logo still spells ALPHA MOVIES in the hero and footer (D24). The nav is text, not the logo, because the 3D mark cannot be 220 px wide inside a 64 px bar (DESIGN section 2 rule 4 against section 7). P-21 and Q12 settle both.
 - `astro`, `@astrojs/preact` and `preact` are pinned at exact versions. A caret on astro resolves to 7.4.2, which demands Node 22.23.4 and fails the engine check on this machine (D22).
 
 ## Cut or parked (do not build unprompted)
 - Availability picker, `blocked_date`, `date_conflict`.
 - Owner dashboard, `/api/events`, `wa_tapped`, IP hashing.
-- Service and FAQ collections, hero loop video, short-form row.
+- Service and FAQ collections, hero loop video (a clip behind the hero, which D29 does not lift: the autoplay it allows is inside the showreel stage), short-form row.
 - A hosted CMS unless Q13 is yes, a shared client-side Zod schema, a third environment, Phase 2 payments.
 
 ## Layout
