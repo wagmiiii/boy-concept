@@ -141,7 +141,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       └── pages/
 │           ├── index.astro            (exists, P-2) the real section order plus the enquiry section shell and its field list
 │           ├── 404.astro              (exists, P-2) the page `not_found_handling = "404-page"` serves, so a miss is HTML with status 404 (D19)
-│           ├── projects/[slug].astro  (P-7)
+│           ├── projects/[slug].astro  (exists, P-7) dynamic project page template (FR-4)
 │           └── privacy.astro          (exists, L-4) NDPA 2023 statutory privacy notice
 │
 ├── shared/                            (exists, S-1) pure code imported by web and worker.
@@ -248,6 +248,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | web/src/components/Faq.astro | Four details disclosures | exists (P-2) | P-9 and C-10 |
 | web/src/components/Footer.astro | Logo, contact rows, base city, copyright, direct WhatsApp link | exists (P-2, P-15) | P-10 supplies settings and the number, P-15 the direct link |
 | web/src/pages/404.astro | The page served for an asset miss, with status 404 | exists (P-2) | DESIGN changes, or the assets 404 handling changes (D19) |
+| web/src/pages/projects/[slug].astro | Project page template: video, client, event, year, location, deliverables, story (FR-4) | exists (P-7) | Project page requirements change |
 | web/src/pages/privacy.astro | NDPA 2023 statutory privacy notice | exists (L-4) | Statutory compliance requirements change |
 | web/src/pages/index.astro | Page order plus the enquiry section shell and its field list | exists (P-2) | A section is added, removed or reordered. P-12 replaces the shell with the island |
 | web/src/components/EnquiryForm.tsx | Enquiry form island: date-first form, native validation, confirmation screen and WhatsApp handoff | exists (P-12) | Form behavior changes |
@@ -301,6 +302,7 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-11-16 | Agent | Landed task P-7: built `web/src/pages/projects/[slug].astro` project page template (video player, category, client, event, year, location, deliverables list, and overview story per FR-4), and updated `ProjectCard.astro` to link to `/projects/${slug}/` | P-7 |
 | 2026-11-16 | Agent | Landed tasks P-6, P-8, P-21, P-19, P-24: wired interactive portfolio category filtering and empty-category pruning in `PortfolioGrid.astro`, resolved poster paths in `ProjectCard.astro` via `poster-index.ts` (P-6); added credentials schema, hide rule (FR-26) and unit tests in `content-rules.ts`, registered credentials loader in `content.config.ts`, added demo YAMLs in `web/src/content/credentials/` (P-8); created brand star `web/public/favicon.svg` and 1200x630 social card `web/public/og-image.png` with OpenGraph/Twitter tags in `Base.astro` (P-21); pruned all developer scaffolding text across components (P-24); updated `content/PLACEHOLDERS.md` (P-19) | P-6, P-8, P-21, P-19, P-24 |
 | 2026-11-16 | Ademola, Agent | Live test deployment to Cloudflare Worker assets address `https://boy-concept-spike.ademola2993k.workers.dev` (P-20) verified green on edge | P-20, S-5 |
 | 2026-11-16 | Agent | Updated owner WhatsApp number to 2348027465901 in `shared/site-config.ts` per Emmanuel/client confirmation (C-8); updated row 26 in `content/PLACEHOLDERS.md` | C-8, P-10 |

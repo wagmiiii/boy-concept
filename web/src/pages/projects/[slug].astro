@@ -1,0 +1,160 @@
+---
+// Project page template (ROADMAP Task P-7, PRD FR-4).
+// Renders single project details: video or poster, category, client, event,
+// year, location, deliverables list, and summary brief story.
+import { getCollection, type CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import Footer from "../../components/Footer.astro";
+import { visibleProjects } from "../../content-rules";
+import { posterFor } from "../../poster-index";
+import { isSelfHostedVideo, youtubeEmbedUrl } from "../../media-sources";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  const visible = visibleProjects(projects);
+  return visible.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const data = project.data;
+const posterImage = data.poster ? posterFor(data.poster) : undefined;
+const youtubeUrl = data.video_url ? youtubeEmbedUrl(data.video_url) : undefined;
+const isSelfHosted = data.video_url ? isSelfHostedVideo(data.video_url) : false;
+---
+
+<Base
+  title={`${data.title} | Boy Concept`}
+  description={data.summary || `${data.title} - ${data.category} video by Boy Concept (Alpha Movies Ltd)`}
+>
+  <Nav />
+
+  <main class="container-site flex flex-col gap-10 py-12 md:py-20 max-w-4xl">
+    <nav aria-label="Breadcrumb" class="flex items-center">
+      <a
+        href="/#work"
+        class="inline-flex min-h-11 items-center gap-2 text-small font-semibold text-text-muted transition-colors hover:text-gold"
+      >
+        <span aria-hidden="true">&larr;</span> Back to Work
+      </a>
+    </nav>
+
+    <header class="flex flex-col gap-3">
+      <div class="flex items-center gap-3">
+        <span class="chip">{data.category}</span>
+        {data.year && <span class="text-small text-text-muted">{data.year}</span>}
+      </div>
+      <h1 class="font-display text-display text-text">{data.title}</h1>
+    </header>
+
+    <section class="card overflow-hidden">
+      <div class="poster-frame flex items-center justify-center bg-surface-2">
+        {
+          isSelfHosted && data.video_url ? (
+            <video
+              src={data.video_url}
+              poster={posterImage ? posterImage.src : undefined}
+              controls
+              playsinline
+              class="h-full w-full object-cover"
+            >
+              Your browser does not support the video tag.
+            </video>
+          ) : youtubeUrl ? (
+            <iframe
+              src={youtubeUrl}
+              title={data.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              class="h-full w-full border-0"
+            />
+          ) : posterImage ? (
+            <Image
+              src={posterImage}
+              widths={[640, 1280]}
+              sizes="(max-width: 767px) 100vw, 896px"
+              alt={`${data.title} poster`}
+              class="h-full w-full object-cover"
+            />
+          ) : (
+            <span class="text-small uppercase tracking-[0.12em] text-text-muted">DEMO preview</span>
+          )
+        }
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+      <div class="md:col-span-2 flex flex-col gap-4">
+        <h2 class="font-display text-h3 text-gold">Overview</h2>
+        <p class="text-body-large text-text-2 leading-relaxed">
+          {data.summary || "Project overview and production brief notes."}
+        </p>
+      </div>
+
+      <aside class="card flex flex-col gap-4 p-6 self-start">
+        <h2 class="font-display text-h3 text-text">Project Details</h2>
+        <dl class="flex flex-col gap-3 text-small">
+          {
+            data.client_name && (
+              <div>
+                <dt class="text-text-muted">Client</dt>
+                <dd class="font-medium text-text">{data.client_name}</dd>
+              </div>
+            )
+          }
+          {
+            data.event_name && (
+              <div>
+                <dt class="text-text-muted">Event</dt>
+                <dd class="font-medium text-text">{data.event_name}</dd>
+              </div>
+            )
+          }
+          {
+            data.location && (
+              <div>
+                <dt class="text-text-muted">Location</dt>
+                <dd class="font-medium text-text">{data.location}</dd>
+              </div>
+            )
+          }
+          {
+            data.deliverables && data.deliverables.length > 0 && (
+              <div>
+                <dt class="text-text-muted">Deliverables</dt>
+                <dd class="mt-1">
+                  <ul class="flex flex-col gap-1 text-text">
+                    {data.deliverables.map((item) => (
+                      <li class="flex items-center gap-2">
+                        <span class="text-gold" aria-hidden="true">&bull;</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+            )
+          }
+        </dl>
+      </aside>
+    </div>
+
+    <section class="card flex flex-col gap-4 p-6 md:p-8 mt-4 text-center items-center">
+      <h2 class="font-display text-h3 text-gold">Ready to film your event?</h2>
+      <p class="max-w-[50ch] text-body text-text-2">
+        Let us know your event date and required deliverables. We confirm availability and pricing directly on WhatsApp.
+      </p>
+      <a href="/#enquiry" class="btn-primary">Check a date</a>
+    </section>
+  </main>
+
+  <Footer />
+</Base>

@@ -1,6 +1,7 @@
 ---
 // DESIGN.md section 7 Portfolio card.
 // P-6: Resolves the poster path string to an optimized Astro image via poster-index.
+// P-7: Links to project page template via slug.
 import { Image } from "astro:assets";
 import { posterFor } from "../poster-index";
 
@@ -8,14 +9,15 @@ interface Props {
   category: string;
   title: string;
   poster?: string;
+  slug?: string;
 }
 
-const { category, title, poster } = Astro.props;
+const { category, title, poster, slug } = Astro.props;
 const posterImage = poster ? posterFor(poster) : undefined;
 ---
 
 <article class="card overflow-hidden" data-category={category}>
-  <div class="poster-frame flex items-center justify-center">
+  <div class="poster-frame flex items-center justify-center relative">
     <span class="chip z-10 absolute top-3 left-3">{category}</span>
     {
       posterImage ? (
@@ -32,6 +34,19 @@ const posterImage = poster ? posterFor(poster) : undefined;
     }
   </div>
   <div class="p-4">
-    <h3 class="font-display text-h3">{title}</h3>
+    {
+      slug ? (
+        <h3 class="font-display text-h3">
+          <a
+            href={`/projects/${slug}/`}
+            class="inline-flex min-h-11 items-center text-text transition-colors hover:text-gold"
+          >
+            {title}
+          </a>
+        </h3>
+      ) : (
+        <h3 class="font-display text-h3">{title}</h3>
+      )
+    }
   </div>
 </article>
