@@ -56,27 +56,15 @@ const isSelfHosted = data.video_url ? isSelfHostedVideo(data.video_url) : false;
     </header>
 
     <section class="card overflow-hidden">
-      <div class="poster-frame flex items-center justify-center bg-surface-2">
+      <div
+        id="project-player-frame"
+        class="poster-frame relative flex items-center justify-center bg-surface-2 group"
+        data-src={data.video_url}
+        data-kind={isSelfHosted ? "file" : youtubeUrl ? "youtube" : "none"}
+        aria-label={`Play ${data.title}`}
+      >
         {
-          isSelfHosted && data.video_url ? (
-            <video
-              src={data.video_url}
-              poster={posterImage ? posterImage.src : undefined}
-              controls
-              playsinline
-              class="h-full w-full object-cover"
-            >
-              Your browser does not support the video tag.
-            </video>
-          ) : youtubeUrl ? (
-            <iframe
-              src={youtubeUrl}
-              title={data.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-              class="h-full w-full border-0"
-            />
-          ) : posterImage ? (
+          posterImage ? (
             <Image
               src={posterImage}
               widths={[640, 1280]}
@@ -85,7 +73,23 @@ const isSelfHosted = data.video_url ? isSelfHostedVideo(data.video_url) : false;
               class="h-full w-full object-cover"
             />
           ) : (
-            <span class="text-small uppercase tracking-[0.12em] text-text-muted">DEMO preview</span>
+            <div class="flex h-full w-full items-center justify-center bg-surface-2">
+              <span class="text-small uppercase tracking-[0.12em] text-text-muted">DEMO preview</span>
+            </div>
+          )
+        }
+        {
+          (isSelfHosted || youtubeUrl) && (
+            <button
+              type="button"
+              id="project-play-btn"
+              class="btn-primary absolute flex h-14 w-14 items-center justify-center rounded-full p-0 shadow-lg cursor-pointer transition-transform hover:scale-105"
+              aria-label={`Play ${data.title}`}
+            >
+              <svg class="h-6 w-6 fill-current ml-1" viewBox="0 0 24 24" aria-hidden="true">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+            </button>
           )
         }
       </div>
@@ -157,4 +161,48 @@ const isSelfHosted = data.video_url ? isSelfHostedVideo(data.video_url) : false;
   </main>
 
   <Footer />
+
+  <script>
+    import { youtubeEmbedUrl } from "../../media-sources";
+
+    const frame = document.getElementById("project-player-frame") as HTMLElement | null;
+    const playBtn = document.getElementById("project-play-btn") as HTMLButtonElement | null;
+
+    const startPlayback = () => {
+      if (!frame) return;
+      const kind = frame.dataset.kind;
+      const src = frame.dataset.src;
+      if (!src || kind === "none") return;
+
+      if (kind === "youtube") {
+        const embed = youtubeEmbedUrl(src);
+        if (!embed) return;
+        const iframe = document.createElement("iframe");
+        iframe.src = embed;
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+        iframe.allowFullscreen = true;
+        iframe.className = "absolute inset-0 h-full w-full border-0";
+        iframe.title = frame.getAttribute("aria-label") || "Project video";
+        frame.innerHTML = "";
+        frame.appendChild(iframe);
+      } else if (kind === "file") {
+        const video = document.createElement("video");
+        video.src = src;
+        video.controls = true;
+        video.playsInline = true;
+        video.autoplay = true;
+        video.className = "absolute inset-0 h-full w-full object-cover";
+        frame.innerHTML = "";
+        frame.appendChild(video);
+      }
+    };
+
+    playBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      startPlayback();
+    });
+    frame?.addEventListener("click", () => {
+      startPlayback();
+    });
+  </script>
 </Base>

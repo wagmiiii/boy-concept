@@ -5,6 +5,7 @@ import {
   buildWhatsAppUrl,
   buildWhatsAppDeepLink,
   buildWhatsAppDirectLink,
+  normalizePhoneDigits,
   type BriefInput,
 } from "../../../shared/whatsapp";
 
@@ -102,6 +103,18 @@ export default function EnquiryForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submittedBrief, setSubmittedBrief] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
+  const [clientRequestId] = useState(() =>
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `req_${Date.now()}_${Math.random().toString(36).slice(2)}`
+  );
+
+  const trackEvent = (name: string, params?: Record<string, unknown>) => {
+    if (typeof window !== "undefined" && typeof (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag === "function") {
+      (window as unknown as { gtag: (...args: unknown[]) => void }).gtag("event", name, params);
+    }
+  };
 
   const directWhatsAppUrl = buildWhatsAppDirectLink(siteConfig.ownerWhatsAppDigits);
 
@@ -125,8 +138,17 @@ export default function EnquiryForm() {
   const validate = (): boolean => {
     const nextErrors: Record<string, string> = {};
 
+    // Silently reject bot submissions if hidden honeypot is populated (Audit Item 5)
+    if (honeypot) return false;
+
     if (!form.eventDate) {
       nextErrors.eventDate = "Please choose an event date.";
+    } else if (form.eventDate < today || form.eventDate > maxDate) {
+      nextErrors.eventDate = "Event date must be between today and 24 months out.";
+    }
+
+    if (form.secondDate && (form.secondDate < form.eventDate || form.secondDate > maxDate)) {
+      nextErrors.secondDate = "Second date must be on or after the first date.";
     }
 
     if (!form.city.trim()) {
@@ -155,6 +177,13 @@ export default function EnquiryForm() {
 
     if (!form.whatsapp.trim() && !form.email.trim()) {
       nextErrors.contact = "Provide either a WhatsApp number or an email address.";
+    } else {
+      if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+        nextErrors.email = "Please enter a valid email address.";
+      }
+      if (form.whatsapp.trim() && normalizePhoneDigits(form.whatsapp).length < 10) {
+        nextErrors.whatsapp = "Please enter a valid phone number with area/country code.";
+      }
     }
 
     if (!form.consent) {
@@ -181,11 +210,33 @@ export default function EnquiryForm() {
       referenceVideo: form.describeInstead ? undefined : form.referenceVideo.trim(),
       name: form.name.trim(),
       company: form.company.trim() || undefined,
+      email: form.email.trim() || undefined,
+      whatsapp: form.whatsapp.trim() || undefined,
       notes: form.notes.trim() || undefined,
     };
 
     const message = buildWhatsAppMessage(briefInput);
     setSubmittedBrief(message);
+
+    // Track GA4 conversion event (Task P-16, PRD FR-21, Audit Item 19)
+    trackEvent("form_submit", { project_type: form.projectType });
+
+    // Asynchronously dispatch background POST to persist lead in D1 & send alert email (Audit Item 1).
+    // Rule 5: A backend failure never blocks the WhatsApp handoff.
+    const payload = {
+      ...briefInput,
+      clientRequestId,
+      website: honeypot,
+    };
+
+    fetch("/api/enquiries", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch(() => {
+      // Backend failure is logged in network and never blocks WhatsApp handoff
+    });
+
     window.scrollTo({ top: (document.getElementById("enquiry")?.offsetTop || 0) - 70, behavior: "smooth" });
   };
 
@@ -222,6 +273,7 @@ export default function EnquiryForm() {
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackEvent("whatsapp_tap", { source: "confirmation_web" })}
             class="btn-primary w-full md:w-auto md:self-start"
           >
             Open WhatsApp
@@ -229,6 +281,7 @@ export default function EnquiryForm() {
 
           <a
             href={deepLinkUrl}
+            onClick={() => trackEvent("whatsapp_tap", { source: "confirmation_deeplink" })}
             class="text-small text-gold underline underline-offset-4 hover:text-gold-bright"
           >
             Opening inside Instagram or TikTok? Tap here for native app handoff
@@ -261,6 +314,7 @@ export default function EnquiryForm() {
               href={directWhatsAppUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackEvent("whatsapp_tap", { source: "confirmation_direct" })}
               class="font-semibold text-gold underline hover:text-gold-bright"
             >
               Message directly on WhatsApp
@@ -613,12 +667,14 @@ export default function EnquiryForm() {
                   setErrors((prev) => {
                     const next = { ...prev };
                     delete next.contact;
+                    delete next.whatsapp;
                     return next;
                   });
                 }
               }}
               class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
             />
+            {errors.whatsapp && <p class="text-small text-error">{errors.whatsapp}</p>}
           </div>
 
           <div class="flex flex-col gap-2">
@@ -633,16 +689,18 @@ export default function EnquiryForm() {
               onInput={(e) => {
                 const val = (e.target as HTMLInputElement).value;
                 setForm((p) => ({ ...p, email: val }));
-                if (errors.contact) {
+                if (errors.contact || errors.email) {
                   setErrors((prev) => {
                     const next = { ...prev };
                     delete next.contact;
+                    delete next.email;
                     return next;
                   });
                 }
               }}
               class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
             />
+            {errors.email && <p class="text-small text-error">{errors.email}</p>}
           </div>
         </div>
         {errors.contact && <p class="text-small text-error">{errors.contact}</p>}
@@ -704,6 +762,20 @@ export default function EnquiryForm() {
           </span>
         </label>
         {errors.consent && <p class="text-small text-error">{errors.consent}</p>}
+      </div>
+
+      {/* Honeypot field (Audit Item 5): Hidden from users, traps automated form-scraping bots */}
+      <div style={{ display: "none" }} aria-hidden="true">
+        <label htmlFor={`${idPrefix}-website`}>Leave this field blank</label>
+        <input
+          id={`${idPrefix}-website`}
+          type="text"
+          name="website"
+          value={honeypot}
+          autoComplete="off"
+          tabIndex={-1}
+          onInput={(e) => setHoneypot((e.target as HTMLInputElement).value)}
+        />
       </div>
 
       {/* Submit row & Response-time promise (FR-15) */}

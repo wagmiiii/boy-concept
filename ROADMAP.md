@@ -6,8 +6,8 @@ Single source of truth for project status and for the path to 100% readiness.
 |---|---|
 | Last updated | 2026-11-16 |
 | Stack | Astro 7 (static, pinned 7.4.1, see D20 and D22), one Cloudflare Worker (Hono) and D1. Changed from Framer on 2026-10-26 (decision D13) |
-| Current phase | Discovery (D), the stack spike (S) and the Phase 0 build (P). P-1, P-2, P-4, P-5, P-6, P-7, P-8, P-10, P-11, P-12, P-13, P-14, P-15, P-19, P-20, P-21, P-24, P-25, P-26, P-27 done; C-8 done; L-4, B-7, B-11, B-16 done; B-14 documented; P-3 built awaiting headline approval; S-2 and S-3 volume half remain |
-| Readiness | 42% (36 of 86 Must tasks done) |
+| Current phase | Discovery (D), the stack spike (S) and the Phase 0 build (P). P-1, P-2, P-4, P-5, P-6, P-7, P-8, P-10, P-11, P-12, P-13, P-14, P-15, P-16, P-19, P-20, P-21, P-24, P-25, P-26, P-27 done; C-8 done; L-4, B-2, B-5, B-7, B-11, B-16 done; B-14 documented; P-3 built awaiting headline approval; S-2 and S-3 volume half remain |
+| Readiness | 44% (38 of 86 Must tasks done) |
 | Gates passed | none. G1: the single-Worker routing is verified locally and on the edge; S-2 and S-3 still decide the gate |
 | CMS decision | Pending Q13. Section K (hosted CMS) is excluded from the score until Q13 is yes |
 
@@ -40,14 +40,14 @@ Recalculate on every update.
 | F Foundations | 10 of 10 | 0 of 0 | n/a |
 | D Discovery and pitch | 1 of 8 | 1 of 1 | n/a |
 | S Stack spike | 2 of 5 | 0 of 0 | n/a |
-| P Phase 0 | 18 of 22 | 2 of 5 | n/a |
+| P Phase 0 | 18 of 22 | 3 of 5 | n/a |
 | C Phase 1 | 1 of 11 | 0 of 0 | n/a |
 | K Hosted CMS (conditional) | n/a | n/a | 0 of 4 |
 | L Phase 1 | 1 of 4 | 1 of 2 | n/a |
-| B Phase 1 | 3 of 16 | 0 of 0 | n/a |
+| B Phase 1 | 5 of 16 | 0 of 0 | n/a |
 | R Phase 1 | 0 of 10 | 0 of 0 | n/a |
 | X Post-launch | not counted | not counted | n/a |
-| **Total counted** | **36 of 86** | **4 of 8** | |
+| **Total counted** | **38 of 86** | **5 of 8** | |
 
 ## Gates
 
@@ -132,7 +132,7 @@ Priority: M is Must, S is Should, C is conditional. Refs point to requirement ID
 | [x] | P-13 | Form rules: date window and short-notice flag, second date, country-aware phone input, WhatsApp-or-email rule, reference-video escape. Done 2026-11-16: implemented inside `EnquiryForm.tsx` (today to 24mo window, 7-day short notice indicator, reference-video describe-instead toggle, and WhatsApp-or-email requirement) | Agent | M | P-12 | PRD 7 | M |
 | [x] | P-14 | From-price line and response-time copy bound to settings. Done 2026-11-16: from-price line and response-time copy placed in `EnquiryForm.tsx` per FR-10 and FR-15 | Agent | S | P-10, P-12 | FR-10, FR-15 | M |
 | [x] | P-15 | Direct WhatsApp link that works without JavaScript. Done 2026-11-16: `Footer.astro` now links directly to the owner WhatsApp via `buildWhatsAppDirectLink` from `shared/site-config.ts` | Agent | S | P-10 | FR-24 | M |
-| [ ] | P-16 | GA4 events: form_submit and whatsapp_tap | Agent | S | P-12 | FR-21 | S |
+| [x] | P-16 | GA4 events: form_submit and whatsapp_tap. Done 2026-11-16: wired gtag events for form_submit and whatsapp_tap (with source metadata) in EnquiryForm.tsx and Footer.astro | Agent | S | P-12 | FR-21 | S |
 | [ ] | P-17 | Mobile pass: LCP on throttled 4G, contrast and keyboard checks, JavaScript budget, no autoplay iframes. Also re-check the byte-range seek behaviour of `/media/demo-reel-1.mp4` (the P-4 file it referred to is gone; the reel now serves three clips) on the deployed edge, which P-4 could not verify locally because a seek to 2.2 s restarted playback from 0 under `wrangler dev`. Since P-26 this task also decides the cost of the first clip's muted autoplay: LCP with the reel waiting for `load`, the throttled bytes, and the reduced-motion branch, which no tool available here can emulate. P-27 re-rendered the three clips smaller and ARCH section 9 now carries the fresh local reading (40,560 B of body for the first clip, one whole response, 0 kB before the clip is asked for). Two things that measurement could not cover, which are this task's: the same numbers on a throttled connection and on the deployed edge, where the single unsplit response may become range requests, and the scroll-gated start itself, which no browser here can observe while its tab reports `document.hidden`. The reduced-motion branch still needs a device. | Ademola | M | P-3 to P-15, P-26 | PRD 9, DESIGN 11, D29 | M |
 | [ ] | P-18 | Handoff test matrix: iOS Safari, Android Chrome, Instagram in-app on both; log in ops/test-matrix.md | Ademola | M | P-12, S-2 | ARCH 11 | M |
 | [x] | P-19 | Placeholder register complete; every demo placeholder is bracketed. Done 2026-11-16: verified and updated `content/PLACEHOLDERS.md` rows 14, 20, 21, and 26 | Agent | S | P-5, P-8 | PRD 8 | S |
@@ -191,10 +191,10 @@ See the Gates table above. Update it when a gate is decided.
 | Status | ID | Task | Owner | Size | Depends on | Refs | P |
 |---|---|---|---|---|---|---|---|
 | [ ] | B-1 | Scaffold /worker: Hono, Zod, Wrangler, Vitest, strict tsconfig, assets binding pointing at ../web/dist, run-first for /api/* | Agent | S | G0, G1 | ARCH 3 | M |
-| [ ] | B-2 | config.ts typed env access and worker/.dev.vars.example | Agent | S | B-1 | none | M |
+| [x] | B-2 | config.ts typed env access and worker/.dev.vars.example. Done 2026-11-16: created `worker/src/config.ts` (typed Zod schema, parseEnv, WorkerEnv) and `worker/.dev.vars.example` | Agent | S | B-1 | none | M |
 | [ ] | B-3 | schema.ts, phone.ts (libphonenumber-js) and unit tests | Agent | M | B-1 | PRD 7 | M |
 | [ ] | B-4 | ref.ts and unit tests | Agent | S | B-1 | none | M |
-| [ ] | B-5 | turnstile.ts, honeypot and origin check | Agent | S | B-1 | FR-14 | M |
+| [x] | B-5 | turnstile.ts, honeypot and origin check. Done 2026-11-16: implemented origin validation with .workers.dev staging support, production fail-closed Turnstile verification helper, and honeypot field guard in `worker/src/index.ts` and `EnquiryForm.tsx` | Agent | S | B-1 | FR-14 | M |
 | [ ] | B-6 | Per-contact rate limit as a D1 count; optional IP backstop | Agent | S | B-7 | ARCH 8 | M |
 | [x] | B-7 | D1 test and prod databases and migrations/0001_init.sql with the UNIQUE and CHECK constraints. Done 2026-11-16: created worker/migrations/0001_init.sql with enquiry table, unique ref & client_request_id, and rate-limit/pruning indexes | Agent, Ademola | S | L-1 | ARCH 5 | M |
 | [ ] | B-8 | db.ts: idempotent insert on client_request_id, lookup, rate-limit count | Agent | M | B-7, B-2 | FR-28 | M |
@@ -264,6 +264,7 @@ Newest first. One line per PR or work session.
 
 | Date | Who | What | Tasks | Files |
 |---|---|---|---|---|
+| 2026-11-16 | Agent | Landed pre-launch audit fixes & tasks P-16, B-2, B-5: created `web/public/robots.txt` (staging crawl disallow), `worker/.dev.vars.example` and `worker/src/config.ts` (typed env config); updated `web/public/_headers` (added Turnstile to connect-src), `web/src/layouts/Base.astro` (absolute og:image URL and environment-aware noindex), `web/src/components/Nav.astro` (prefixed navigation links with /), `web/src/pages/projects/[slug].astro` (gated video/iframe behind tap per Rule 10), `web/src/components/EnquiryForm.tsx` (preserved email, email/phone/date boundary validation, honeypot, background POST /api/enquiries, clientRequestId, GA4 tracking for form_submit and whatsapp_tap), `web/src/components/Footer.astro` (GA4 tracking for WhatsApp links), `shared/whatsapp.ts` (email inclusion in brief), and `worker/src/index.ts` (staging origin, production fail-closed Turnstile, POST /api/enquiries with honeypot, and 90-day retention pruning cron). 47 unit tests, 0 typecheck errors, 0 lint errors, build 7 static pages green. Readiness advanced to 44% | P-16, B-2, B-5, R-3 | web/public/robots.txt, worker/.dev.vars.example, worker/src/config.ts, web/public/_headers, web/src/layouts/Base.astro, web/src/components/Nav.astro, web/src/pages/projects/[slug].astro, web/src/components/EnquiryForm.tsx, web/src/components/Footer.astro, shared/whatsapp.ts, shared/whatsapp.test.ts, worker/src/index.ts, worker/wrangler.toml, docs/pre-launch-audit.md, PROJECT_STRUCTURE.md, ROADMAP.md |
 | 2026-11-16 | Agent | Landed task P-7: built `web/src/pages/projects/[slug].astro` project page template (video player, category, client, event, year, location, deliverables list, overview story, and booking CTA per FR-4); updated `ProjectCard.astro` to link to `/projects/${slug}/` and `PortfolioGrid.astro` to supply slug. Build green (7 static routes). Readiness advanced to 42% | P-7 | web/src/pages/projects/[slug].astro, web/src/components/ProjectCard.astro, web/src/components/PortfolioGrid.astro, PROJECT_STRUCTURE.md, ROADMAP.md |
 | 2026-11-16 | Agent | Landed tasks P-6, P-8, P-21, P-19, P-24: wired interactive category filter and empty-category pruning in `PortfolioGrid.astro`, resolved poster paths in `ProjectCard.astro` via `poster-index.ts` (P-6); added credentials schema, hide rule (FR-26) and unit tests in `content-rules.ts`, registered credentials loader in `content.config.ts`, added demo YAMLs in `web/src/content/credentials/` (P-8); created brand star `web/public/favicon.svg` and 1200x630 social card `web/public/og-image.png` with OpenGraph/Twitter tags in `Base.astro` (P-21); pruned all developer scaffolding text across components (P-24); updated `content/PLACEHOLDERS.md` (P-19). 46 unit tests, lint, 0 typecheck errors, build green. Readiness advanced to 41% | P-6, P-8, P-21, P-19, P-24 | web/src/components/PortfolioGrid.astro, web/src/components/ProjectCard.astro, web/src/components/Credentials.astro, web/src/content-rules.ts, web/src/content-rules.test.ts, web/src/content.config.ts, web/src/content/credentials/*.yaml, web/public/favicon.svg, web/public/og-image.png, web/src/layouts/Base.astro, content/PLACEHOLDERS.md, PROJECT_STRUCTURE.md, ROADMAP.md |
 | 2026-11-16 | Ademola, Agent | Deployed static site and API Worker to live Cloudflare test address https://boy-concept-spike.ademola2993k.workers.dev (P-20); verified HTTP 200, CSP headers, /api/ping, /privacy/, and live WhatsApp handoff links with owner number 2348027465901. Readiness advanced to 37% | P-20, S-5 | ROADMAP.md, PROJECT_STRUCTURE.md |

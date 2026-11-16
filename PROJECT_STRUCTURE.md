@@ -103,7 +103,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │   │   ├── og-image.png               (exists, P-21) 1200 x 630 OpenGraph social preview image
 │   │   ├── media/                     (exists, P-4) video files, served as they are with no build step
 │   │   │   └── demo-reel-1.mp4, demo-reel-2.mp4, demo-reel-3.mp4 (exists, P-26) 7 s, 1280 x 720, 24 fps, 41 to 69 kB each, silent. The labelled stand-ins the carousel plays until C-2 delivers footage, one per reel item. They replace the single P-4 clip, deleted at P-26
-│   │   └── robots.txt                 (P-20) noindex on the test environment
+│   │   └── robots.txt                 (exists, P-20) noindex on the test environment
 │   └── src/
 │       ├── assets/brand/              (exists, P-1) web-ready logo and poster images
 │       │   └── alpha-movies-logo.webp (exists, P-1) 1600 x 760, moved here from assets/brand so Astro optimizes it
@@ -155,12 +155,12 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │   ├── tsconfig.json                  (exists, S-1)
 │   ├── wrangler.toml                  (exists, S-1) assets directory ../web/dist, binding ASSETS, run_worker_first ["/api/*"], not_found_handling "404-page" (P-2, D19)
 │   ├── vitest.config.ts               (B-1)
-│   ├── .dev.vars.example              (B-2) names of variables, no values
+│   ├── .dev.vars.example              (exists, B-2) names of variables, no values
 │   ├── migrations/
 │   │   └── 0001_init.sql              (exists, B-7) enquiry table migration
 │   ├── src/
-│   │   ├── index.ts                   (exists, S-1) Hono app: spike routes and a catch-all scoped per D19 at B-1
-│   │   ├── config.ts                  (B-2) typed env access
+│   │   ├── index.ts                   (exists, S-1) Hono app: spike routes, enquiry endpoint, bot defense, 90-day retention pruning
+│   │   ├── config.ts                  (exists, B-2) typed env access
 │   │   ├── schema.ts                  (B-3) Zod schema for POST /api/enquiries
 │   │   ├── routes/
 │   │   │   └── enquiries.ts           (B-10)
@@ -243,6 +243,9 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | web/src/content/credentials/*.yaml | Credentials collection items (demo-registration.yaml, demo-equipment.yaml) | exists (P-8) | Verified credentials added or demo entries replaced |
 | web/public/favicon.svg | SVG gold brand star mark favicon | exists (P-21) | Brand icon changes |
 | web/public/og-image.png | 1200 x 630 OpenGraph and Twitter card preview image | exists (P-21) | Social preview artwork changes |
+| web/public/robots.txt | Crawl disallow rule for test/staging environment | exists (P-20) | Crawl policy changes |
+| worker/.dev.vars.example | Template for local Worker secrets and environment variables | exists (B-2) | Worker environment variable requirements change |
+| worker/src/config.ts | Typed environment schema and fallback parser for Worker | exists (B-2) | Environment schema changes |
 | web/src/components/Services.astro | Four service cards with tag chips | exists (P-2) | P-9 and C-10 put real names, tags and copy in |
 | web/src/components/Process.astro | The five-step rail: a 44 px numeral, one divider per row, the heading in a left column from 1200 px | exists (P-2) | P-9 and C-10. Layout settled by the P-25 audit (DESIGN section 7) |
 | web/src/components/Faq.astro | Four details disclosures | exists (P-2) | P-9 and C-10 |
@@ -302,6 +305,7 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-11-16 | Agent | Landed pre-launch audit fixes & tasks P-16, B-2: created `web/public/robots.txt` (staging disallow), `worker/.dev.vars.example` and `worker/src/config.ts` (typed env schema); updated `web/public/_headers` (added Turnstile to connect-src), `web/src/layouts/Base.astro` (absolute og:image and environment-aware noindex), `web/src/components/Nav.astro` (prefixed navigation links with /), `web/src/pages/projects/[slug].astro` (gated video/iframe behind tap per Rule 10), `web/src/components/EnquiryForm.tsx` (preserved email, email/phone/date boundary validation, honeypot, background POST /api/enquiries, clientRequestId, GA4 tracking for form_submit and whatsapp_tap), `web/src/components/Footer.astro` (GA4 tracking for WhatsApp direct links), `shared/whatsapp.ts` (email inclusion in brief), and `worker/src/index.ts` (staging origin, production fail-closed Turnstile, POST /api/enquiries with honeypot, and 90-day retention pruning cron) | P-16, B-2, R-3 |
 | 2026-11-16 | Agent | Landed task P-7: built `web/src/pages/projects/[slug].astro` project page template (video player, category, client, event, year, location, deliverables list, and overview story per FR-4), and updated `ProjectCard.astro` to link to `/projects/${slug}/` | P-7 |
 | 2026-11-16 | Agent | Landed tasks P-6, P-8, P-21, P-19, P-24: wired interactive portfolio category filtering and empty-category pruning in `PortfolioGrid.astro`, resolved poster paths in `ProjectCard.astro` via `poster-index.ts` (P-6); added credentials schema, hide rule (FR-26) and unit tests in `content-rules.ts`, registered credentials loader in `content.config.ts`, added demo YAMLs in `web/src/content/credentials/` (P-8); created brand star `web/public/favicon.svg` and 1200x630 social card `web/public/og-image.png` with OpenGraph/Twitter tags in `Base.astro` (P-21); pruned all developer scaffolding text across components (P-24); updated `content/PLACEHOLDERS.md` (P-19) | P-6, P-8, P-21, P-19, P-24 |
 | 2026-11-16 | Ademola, Agent | Live test deployment to Cloudflare Worker assets address `https://boy-concept-spike.ademola2993k.workers.dev` (P-20) verified green on edge | P-20, S-5 |

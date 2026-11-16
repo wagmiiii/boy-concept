@@ -1,0 +1,3 @@
+# Default robots.txt for test/staging environment (P-20)
+User-agent: *
+Disallow: /

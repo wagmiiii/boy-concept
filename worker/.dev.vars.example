@@ -1,0 +1,7 @@
+# Example local environment secrets for Cloudflare Worker (Task B-2)
+# Copy this file to .dev.vars and provide local test values. Never commit .dev.vars.
+
+ALLOWED_ORIGIN="https://boyconcept.com"
+TURNSTILE_SECRET_KEY="1x0000000000000000000000000000000AA"
+RESEND_API_KEY="re_test_xxxxxxxxxxxxxxxxxxxxxxxx"
+ENVIRONMENT="development"

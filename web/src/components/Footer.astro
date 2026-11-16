@@ -32,7 +32,13 @@ const links = [
           <li class="flex flex-wrap items-baseline gap-2 text-body">
             <span class="font-semibold text-text">{link.label}</span>
             {link.href ? (
-              <a href={link.href} target="_blank" rel="noopener noreferrer" class="text-gold underline hover:text-gold-bright">
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-gold underline hover:text-gold-bright"
+                data-track-whatsapp={link.label === "WhatsApp" ? "true" : undefined}
+              >
                 {link.value}
               </a>
             ) : (
@@ -51,6 +57,7 @@ const links = [
         href={directWhatsAppUrl}
         target="_blank"
         rel="noopener noreferrer"
+        data-track-whatsapp="true"
         class="font-semibold text-gold underline underline-offset-4 hover:text-gold-bright"
       >
         Message directly on WhatsApp
@@ -63,3 +70,13 @@ const links = [
     </div>
   </div>
 </footer>
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>("[data-track-whatsapp]").forEach((el) => {
+    el.addEventListener("click", () => {
+      if (typeof window !== "undefined" && typeof (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag === "function") {
+        (window as unknown as { gtag: (...args: unknown[]) => void }).gtag("event", "whatsapp_tap", { source: "footer" });
+      }
+    });
+  });
+</script>

@@ -16,6 +16,8 @@ export interface BriefInput {
   referenceVideo?: string;
   name: string;
   company?: string;
+  email?: string;
+  whatsapp?: string;
   notes?: string;
 }
 
@@ -92,6 +94,11 @@ export function buildWhatsAppMessage(brief: BriefInput): string {
   const company = sanitize(brief.company, 100);
   if (company) {
     lines.push(`Company: ${company}`);
+  }
+
+  const email = sanitize(brief.email, 100);
+  if (email) {
+    lines.push(`Email: ${email}`);
   }
 
   const notes = sanitize(brief.notes, 1000);

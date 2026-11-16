@@ -81,6 +81,20 @@ describe("buildWhatsAppMessage", () => {
     expect(msg).toContain("Name: Tola");
   });
 
+  it("preserves client email address when provided (Audit Item 2)", () => {
+    const briefWithEmail: BriefInput = {
+      projectType: "Commercial",
+      date: "20 Nov 2026",
+      duration: "Half day",
+      deliverables: ["Highlight reel"],
+      name: "Tola",
+      email: "tola@example.com",
+    };
+    const msg = buildWhatsAppMessage(briefWithEmail);
+    expect(msg).toContain("Name: Tola");
+    expect(msg).toContain("Email: tola@example.com");
+  });
+
   it("sanitizes dangerous control characters to prevent injection (Audit Item 5)", () => {
     const injectedBrief: BriefInput = {
       projectType: "Wedding\x00\x08",
