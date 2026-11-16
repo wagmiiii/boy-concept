@@ -161,3 +161,70 @@ export function visibleProjects<T extends ProjectLike>(projects: T[]): T[] {
 export function reelItems<T extends ProjectLike>(projects: T[]): T[] {
   return visibleProjects(projects).filter((project) => project.data.hero_reel);
 }
+
+// P-8: Credentials schema and verification guard (FR-6, FR-7, FR-26).
+export const credentialTypes = ["Registration", "Equipment", "Collaboration", "Press"] as const;
+
+export const credentialSchema = z
+  .object({
+    type: z.enum(credentialTypes),
+    value: z.string().min(1),
+    source: z.string().min(1).optional(),
+    verified: z.boolean().default(false),
+    demo: z.boolean().default(false),
+    sort_order: z.number().int().min(0),
+  })
+  .superRefine((cred, ctx) => {
+    if (cred.demo && cred.verified) {
+      ctx.addIssue({
+        code: "custom",
+        message: "a demo credential is a designed placeholder, so it cannot carry verified: true",
+      });
+    }
+    if (cred.verified) {
+      const brackets = bracketedFieldsIn(cred);
+      if (brackets.length > 0) {
+        ctx.addIssue({
+          code: "custom",
+          message: `verified: true while these fields still hold a bracketed placeholder: ${brackets.join(", ")}`,
+        });
+      }
+      if (!cred.source) {
+        ctx.addIssue({
+          code: "custom",
+          message: "verified: true requires a source note (FR-6)",
+        });
+      }
+    }
+  });
+
+export type CredentialData = z.infer<typeof credentialSchema>;
+
+interface CredentialLike {
+  data: CredentialData;
+}
+
+export function verifiedCredentials<T extends CredentialLike>(items: T[]): T[] {
+  return [...items]
+    .filter((item) => item.data.verified)
+    .sort((a, b) => a.data.sort_order - b.data.sort_order);
+}
+
+export function demoCredentials<T extends CredentialLike>(items: T[]): T[] {
+  return [...items]
+    .filter((item) => item.data.demo)
+    .sort((a, b) => a.data.sort_order - b.data.sort_order);
+}
+
+/**
+ * FR-6 and FR-26: Credentials hide entirely while holding fewer than minCount verified items.
+ * In Phase 0 demo mode (when verified count is 0), demo: true cards render to showcase design (D23).
+ */
+export function visibleCredentials<T extends CredentialLike>(items: T[], minCount = 1): T[] {
+  const verified = verifiedCredentials(items);
+  if (verified.length > 0) {
+    return verified.length >= minCount ? verified : [];
+  }
+  return demoCredentials(items);
+}
+

@@ -9,7 +9,11 @@ interface Props {
   noindex?: boolean;
 }
 
-const { title, description = "", noindex = true } = Astro.props;
+const {
+  title,
+  description = "Booking and showcase site for Boy Concept (Alpha Movies Ltd). High-end cinematography and wedding films in Lagos and worldwide.",
+  noindex = true,
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -19,6 +23,18 @@ const { title, description = "", noindex = true } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- OpenGraph & Social Cards (P-21) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="/og-image.png" />
+
     <Font cssVariable="--font-marcellus" preload />
     <Font cssVariable="--font-inter" preload />
     <title>{title}</title>

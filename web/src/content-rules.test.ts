@@ -4,12 +4,16 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   bracketedFieldsIn,
+  credentialSchema,
+  demoCredentials,
   placeholderProjects,
   placeholderReelTitle,
   projectSchema,
   reelItems,
   reelTitle,
   shorableProjects,
+  verifiedCredentials,
+  visibleCredentials,
   visibleProjects,
   type ProjectData,
 } from "./content-rules";
@@ -286,5 +290,113 @@ describe("the demo content files", () => {
         expect(text).toMatch(/^poster: /m);
       }
     }
+  });
+
+  describe("credentials schema and hide rule (P-8, FR-6, FR-26)", () => {
+    const credDir = "web/src/content/credentials";
+
+    it("accepts a demo credential with brackets and verified: false", () => {
+      const parsed = credentialSchema.safeParse({
+        type: "Registration",
+        value: "[RC 123456]",
+        source: "[CAC]",
+        verified: false,
+        demo: true,
+        sort_order: 10,
+      });
+      expect(parsed.success).toBe(true);
+    });
+
+    it("refuses demo: true beside verified: true", () => {
+      const parsed = credentialSchema.safeParse({
+        type: "Registration",
+        value: "RC 123456",
+        source: "CAC public search",
+        verified: true,
+        demo: true,
+        sort_order: 10,
+      });
+      expect(parsed.success).toBe(false);
+      if (!parsed.success) {
+        expect(parsed.error.issues[0]?.message).toContain("a demo credential is a designed placeholder");
+      }
+    });
+
+    it("refuses verified: true when value contains brackets", () => {
+      const parsed = credentialSchema.safeParse({
+        type: "Registration",
+        value: "RC [123456]",
+        source: "CAC search",
+        verified: true,
+        demo: false,
+        sort_order: 10,
+      });
+      expect(parsed.success).toBe(false);
+      if (!parsed.success) {
+        expect(parsed.error.issues[0]?.message).toContain("still hold a bracketed placeholder");
+      }
+    });
+
+    it("refuses verified: true without a source note", () => {
+      const parsed = credentialSchema.safeParse({
+        type: "Registration",
+        value: "RC 123456",
+        verified: true,
+        demo: false,
+        sort_order: 10,
+      });
+      expect(parsed.success).toBe(false);
+      if (!parsed.success) {
+        expect(parsed.error.issues[0]?.message).toContain("verified: true requires a source note");
+      }
+    });
+
+    it("applies the hide rule when verified count is below minimum (FR-26)", () => {
+      const verifiedOne = [
+        {
+          data: credentialSchema.parse({
+            type: "Registration",
+            value: "RC 123456",
+            source: "CAC",
+            verified: true,
+            demo: false,
+            sort_order: 10,
+          }),
+        },
+      ];
+
+      expect(verifiedCredentials(verifiedOne)).toHaveLength(1);
+      // Below minCount (e.g. minCount = 2), section hides completely:
+      expect(visibleCredentials(verifiedOne, 2)).toHaveLength(0);
+      // At or above minCount, verified items return:
+      expect(visibleCredentials(verifiedOne, 1)).toHaveLength(1);
+    });
+
+    it("returns demo credentials in Phase 0 when 0 verified credentials exist", () => {
+      const demoItems = [
+        {
+          data: credentialSchema.parse({
+            type: "Equipment",
+            value: "[Cameras]",
+            source: "[Manifest]",
+            verified: false,
+            demo: true,
+            sort_order: 10,
+          }),
+        },
+      ];
+      expect(demoCredentials(demoItems)).toEqual(demoItems);
+      expect(visibleCredentials(demoItems, 2)).toEqual(demoItems);
+    });
+
+    it("parses every file in web/src/content/credentials", () => {
+      const files = readdirSync(join(repoRoot, credDir)).filter((f) => f.endsWith(".yaml"));
+      expect(files.length).toBeGreaterThanOrEqual(2);
+      for (const file of files) {
+        const text = readFileSync(join(repoRoot, credDir, file), "utf8");
+        expect(text).toContain("demo: true");
+        expect(text).toContain("verified: false");
+      }
+    });
   });
 });

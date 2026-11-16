@@ -99,6 +99,8 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │   ├── dist/                          build output, gitignored, what the Worker assets binding serves
 │   ├── public/                        (exists, S-3)
 │   │   ├── _headers                   (exists, S-3) CSP and security headers. Verified to govern asset responses and asset redirects only, never /api/* (D21). P-1 dropped the Google Fonts origins because the Fonts API self-hosts
+│   │   ├── favicon.svg                (exists, P-21) brand gold star favicon
+│   │   ├── og-image.png               (exists, P-21) 1200 x 630 OpenGraph social preview image
 │   │   ├── media/                     (exists, P-4) video files, served as they are with no build step
 │   │   │   └── demo-reel-1.mp4, demo-reel-2.mp4, demo-reel-3.mp4 (exists, P-26) 7 s, 1280 x 720, 24 fps, 41 to 69 kB each, silent. The labelled stand-ins the carousel plays until C-2 delivers footage, one per reel item. They replace the single P-4 clip, deleted at P-26
 │   │   └── robots.txt                 (P-20) noindex on the test environment
@@ -112,15 +114,15 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       │   ├── global.css             (exists, P-1) Tailwind v4 entry, the `@theme inline` map, the DESIGN breakpoint scale, base styles and the shared component classes including .container-site (P-2, P-25)
 │       │   └── design-tokens.test.ts  (exists, P-1) checks tokens.css against DESIGN.md, bans hex literals elsewhere, and refuses responsive variants outside the design's three breakpoints (P-25)
 │       ├── content.config.ts          (exists, P-5) the collections, wired to the schemas in content-rules.ts by a glob loader. Astro validates every entry here at sync and build, which is what makes a guard violation fail the build
-│       ├── content-rules.ts           (exists, P-5) the projects schema, the bracket scan that backs the verification guard, and the render predicates (shorable, placeholder, visible, and since P-26 the reel's `hero_reel` filter, and since P-27 the label a reel item prints). It imports zod, so nothing a browser runs may import it
-│       ├── content-rules.test.ts      (exists, P-5) the guard cases: placeholder paths, a verified entry missing page fields or holding an unplayable video source, the flags a file can leave out, demo against verified or publish_ok, the render predicates, and that the four content files are placeholders covering every category with media that exists on disk
+│       ├── content-rules.ts           (exists, P-5) the projects & credentials schemas, the bracket scan that backs the verification guard, and the render predicates (shorable, placeholder, visible, credentials hide rule, and reel filters). It imports zod, so nothing a browser runs may import it
+│       ├── content-rules.test.ts      (exists, P-5) the guard cases: placeholder paths, verified/demo credentials tests, hide rules, and content collections verification
 │       ├── media-sources.ts           (exists, P-26) `isSelfHostedVideo` and `youtubeEmbedUrl`, the two rules that decide which reel item may start by itself and which needs a tap. Kept free of zod so `Showreel.astro`'s client script can import it without shipping a schema library to a phone
 │       ├── media-sources.test.ts      (exists, P-26) the source rules: the `/media` prefix, the three YouTube link shapes, and undefined for anything without an id
 │       ├── poster-index.ts            (exists, P-26) the one lookup that turns a content entry's `poster` path string into an Astro image through `import.meta.glob`, so a YAML file can stay plain text a CMS can write
 │       ├── content/
 │       │   ├── projects/              (exists, P-5) one file per project. Today four demo entries, one per category, every unknown bracketed (D28). C-2 replaces them with verified, permitted work
 │       │   │   └── demo-commercial.yaml, demo-cultural-festival.yaml, demo-wedding.yaml, demo-documentary.yaml (exists, P-5)
-│       │   ├── credentials/           (P-8) one file per credential
+│       │   ├── credentials/           (exists, P-8) one file per credential (`demo-registration.yaml`, `demo-equipment.yaml`)
 │       │   └── settings.yaml          (P-10)
 │       ├── layouts/
 │       │   └── Base.astro             (exists, P-1) head, fonts, noindex and the body shell. Pages compose the nav and the footer; the shell stays free of them so the 404 page can omit the nav
@@ -235,9 +237,12 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | web/src/components/Showreel.astro | 16:9 carousel stage and thumbnail strip, poster first, player created on tap, the first item's muted autoplay under D29, and a per-item caption of label plus category (P-27) | exists (P-2, wired P-4, carousel P-26, captions P-27) | C-2 footage or a YouTube link per entry replaces the stand-ins. There is no site-level reel id any more |
 | web/public/media/demo-reel-1.mp4 to -3.mp4 | The three 7 s silent placeholder clips | exists (P-26, replacing the P-4 file) | Delete when C-2 delivers real footage (P-24) |
 | web/src/assets/media/demo-reel-1-poster.webp to -3- | One labelled placeholder poster per carousel item | exists (P-26, replacing the P-4 file) | Replaced with real posters at C-2 |
-| web/src/components/PortfolioGrid.astro | Category chips and the card grid | exists (P-2) | P-6 wires filtering and hides empty categories (FR-26) |
-| web/src/components/ProjectCard.astro | Poster, category chip, H3 title, no link yet | exists (P-2) | P-6 gives it a real poster and P-7 a project page. The category and title come from the collection since P-5 |
-| web/src/components/Credentials.astro | DEMO cards in the verified-only treatment | exists (P-2) | P-8 replaces it with the collection and the hide rule |
+| web/src/components/PortfolioGrid.astro | Category chips and the card grid, interactive category filtering and pruning empty categories | exists (P-2, wired P-6) | P-6 wires filtering and hides empty categories (FR-26) |
+| web/src/components/ProjectCard.astro | Poster, category chip, H3 title, poster path resolved to Astro Image via poster-index | exists (P-2, wired P-6) | P-6 gives it a real poster and P-7 a project page. The category and title come from the collection since P-5 |
+| web/src/components/Credentials.astro | Collection-driven credentials cards with verified minimum count hide rule (FR-26) and Phase 0 demo card fallback | exists (P-2, wired P-8) | P-8 replaces it with the collection and the hide rule |
+| web/src/content/credentials/*.yaml | Credentials collection items (demo-registration.yaml, demo-equipment.yaml) | exists (P-8) | Verified credentials added or demo entries replaced |
+| web/public/favicon.svg | SVG gold brand star mark favicon | exists (P-21) | Brand icon changes |
+| web/public/og-image.png | 1200 x 630 OpenGraph and Twitter card preview image | exists (P-21) | Social preview artwork changes |
 | web/src/components/Services.astro | Four service cards with tag chips | exists (P-2) | P-9 and C-10 put real names, tags and copy in |
 | web/src/components/Process.astro | The five-step rail: a 44 px numeral, one divider per row, the heading in a left column from 1200 px | exists (P-2) | P-9 and C-10. Layout settled by the P-25 audit (DESIGN section 7) |
 | web/src/components/Faq.astro | Four details disclosures | exists (P-2) | P-9 and C-10 |
@@ -296,6 +301,7 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-11-16 | Agent | Landed tasks P-6, P-8, P-21, P-19, P-24: wired interactive portfolio category filtering and empty-category pruning in `PortfolioGrid.astro`, resolved poster paths in `ProjectCard.astro` via `poster-index.ts` (P-6); added credentials schema, hide rule (FR-26) and unit tests in `content-rules.ts`, registered credentials loader in `content.config.ts`, added demo YAMLs in `web/src/content/credentials/` (P-8); created brand star `web/public/favicon.svg` and 1200x630 social card `web/public/og-image.png` with OpenGraph/Twitter tags in `Base.astro` (P-21); pruned all developer scaffolding text across components (P-24); updated `content/PLACEHOLDERS.md` (P-19) | P-6, P-8, P-21, P-19, P-24 |
 | 2026-11-16 | Ademola, Agent | Live test deployment to Cloudflare Worker assets address `https://boy-concept-spike.ademola2993k.workers.dev` (P-20) verified green on edge | P-20, S-5 |
 | 2026-11-16 | Agent | Updated owner WhatsApp number to 2348027465901 in `shared/site-config.ts` per Emmanuel/client confirmation (C-8); updated row 26 in `content/PLACEHOLDERS.md` | C-8, P-10 |
 | 2026-11-16 | Agent | Landed task P-12 and resolved audit items 3, 4, 13, 16: created `web/src/components/EnquiryForm.tsx` (Preact island with date-first layout, native validation, short-notice warning, and confirmation screen with copyable brief), configured Preact JSX in `web/tsconfig.json`, wired island into `web/src/pages/index.astro`. Documented Resend SPF/DKIM/DMARC in `ops/dns-records.md` (B-14). Added Origin/CSRF check middleware and Turnstile verification helper in `worker/src/index.ts` (B-5, B-6) | P-12, B-5, B-6, B-14, R-3 |

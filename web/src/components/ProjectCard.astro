@@ -1,20 +1,35 @@
 ---
-// DESIGN.md section 7 Portfolio card. No project is verified or permitted yet (FR-27), so the
-// card is not a link and carries no client name, and the poster frame stays a labelled placeholder.
-// The schema makes a poster a requirement for any verified entry, so the frame becomes a real
-// image when P-6 has the filter and the first shorable project exists.
+// DESIGN.md section 7 Portfolio card.
+// P-6: Resolves the poster path string to an optimized Astro image via poster-index.
+import { Image } from "astro:assets";
+import { posterFor } from "../poster-index";
+
 interface Props {
   category: string;
   title: string;
+  poster?: string;
 }
 
-const { category, title } = Astro.props;
+const { category, title, poster } = Astro.props;
+const posterImage = poster ? posterFor(poster) : undefined;
 ---
 
-<article class="card overflow-hidden">
+<article class="card overflow-hidden" data-category={category}>
   <div class="poster-frame flex items-center justify-center">
     <span class="chip z-10 absolute top-3 left-3">{category}</span>
-    <span class="z-10 text-small uppercase tracking-[0.12em] text-text-muted">DEMO poster</span>
+    {
+      posterImage ? (
+        <Image
+          src={posterImage}
+          widths={[360, 720]}
+          sizes="(max-width: 767px) 100vw, (max-width: 1199px) 50vw, 33vw"
+          alt={`${title} poster`}
+          class="h-full w-full object-cover"
+        />
+      ) : (
+        <span class="z-10 text-small uppercase tracking-[0.12em] text-text-muted">DEMO poster</span>
+      )
+    }
   </div>
   <div class="p-4">
     <h3 class="font-display text-h3">{title}</h3>
