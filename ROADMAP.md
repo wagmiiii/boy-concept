@@ -6,8 +6,8 @@ Single source of truth for project status and for the path to 100% readiness.
 |---|---|
 | Last updated | 2026-11-16 |
 | Stack | Astro 7 (static, pinned 7.4.1, see D20 and D22), one Cloudflare Worker (Hono) and D1. Changed from Framer on 2026-10-26 (decision D13) |
-| Current phase | Discovery (D), the stack spike (S) and the Phase 0 build (P). P-1, P-2, P-4, P-5, P-10, P-11, P-12, P-13, P-14, P-15, P-25, P-26, P-27 done; C-8 done; L-4, B-7, B-11, B-16 done; B-14 documented; P-3 built awaiting headline approval; S-2 and S-3 volume half remain |
-| Readiness | 36% (31 of 86 Must tasks done) |
+| Current phase | Discovery (D), the stack spike (S) and the Phase 0 build (P). P-1, P-2, P-4, P-5, P-10, P-11, P-12, P-13, P-14, P-15, P-20, P-25, P-26, P-27 done; C-8 done; L-4, B-7, B-11, B-16 done; B-14 documented; P-3 built awaiting headline approval; S-2 and S-3 volume half remain |
+| Readiness | 37% (32 of 86 Must tasks done) |
 | Gates passed | none. G1: the single-Worker routing is verified locally and on the edge; S-2 and S-3 still decide the gate |
 | CMS decision | Pending Q13. Section K (hosted CMS) is excluded from the score until Q13 is yes |
 
@@ -40,14 +40,14 @@ Recalculate on every update.
 | F Foundations | 10 of 10 | 0 of 0 | n/a |
 | D Discovery and pitch | 1 of 8 | 1 of 1 | n/a |
 | S Stack spike | 2 of 5 | 0 of 0 | n/a |
-| P Phase 0 | 13 of 22 | 0 of 5 | n/a |
+| P Phase 0 | 14 of 22 | 0 of 5 | n/a |
 | C Phase 1 | 1 of 11 | 0 of 0 | n/a |
 | K Hosted CMS (conditional) | n/a | n/a | 0 of 4 |
 | L Phase 1 | 1 of 4 | 1 of 2 | n/a |
 | B Phase 1 | 3 of 16 | 0 of 0 | n/a |
 | R Phase 1 | 0 of 10 | 0 of 0 | n/a |
 | X Post-launch | not counted | not counted | n/a |
-| **Total counted** | **31 of 86** | **2 of 8** | |
+| **Total counted** | **32 of 86** | **2 of 8** | |
 
 ## Gates
 
@@ -136,7 +136,7 @@ Priority: M is Must, S is Should, C is conditional. Refs point to requirement ID
 | [ ] | P-17 | Mobile pass: LCP on throttled 4G, contrast and keyboard checks, JavaScript budget, no autoplay iframes. Also re-check the byte-range seek behaviour of `/media/demo-reel-1.mp4` (the P-4 file it referred to is gone; the reel now serves three clips) on the deployed edge, which P-4 could not verify locally because a seek to 2.2 s restarted playback from 0 under `wrangler dev`. Since P-26 this task also decides the cost of the first clip's muted autoplay: LCP with the reel waiting for `load`, the throttled bytes, and the reduced-motion branch, which no tool available here can emulate. P-27 re-rendered the three clips smaller and ARCH section 9 now carries the fresh local reading (40,560 B of body for the first clip, one whole response, 0 kB before the clip is asked for). Two things that measurement could not cover, which are this task's: the same numbers on a throttled connection and on the deployed edge, where the single unsplit response may become range requests, and the scroll-gated start itself, which no browser here can observe while its tab reports `document.hidden`. The reduced-motion branch still needs a device. | Ademola | M | P-3 to P-15, P-26 | PRD 9, DESIGN 11, D29 | M |
 | [ ] | P-18 | Handoff test matrix: iOS Safari, Android Chrome, Instagram in-app on both; log in ops/test-matrix.md | Ademola | M | P-12, S-2 | ARCH 11 | M |
 | [ ] | P-19 | Placeholder register complete; every demo placeholder is bracketed | Agent | S | P-5, P-8 | PRD 8 | M |
-| [ ] | P-20 | Deploy the static site to the test Worker on a noindex workers.dev address | Ademola | S | P-17, P-18, P-19, S-1 | none | M |
+| [x] | P-20 | Deploy the static site to the test Worker on a noindex workers.dev address. Done 2026-11-16: deployed to https://boy-concept-spike.ademola2993k.workers.dev; verified HTTP 200, CSP, Hono API routes, and live WhatsApp handoff with owner line 2348027465901 | Ademola | S | P-17, P-18, P-19, S-1 | none | M |
 | [ ] | P-21 | Flat one-color wordmark, favicon mark and a 1200 x 630 social image for small sizes, tabs and link previews. Now also the thing that lets the nav carry a mark instead of text: at the 64 px nav height the 3D logo is 135 px wide, under the 220 px minimum in DESIGN section 2 (D24, DESIGN 13 item 6). Urgency raised by P-2 | Ademola, Agent | M | F-9, D-9 | DESIGN 2, 13 | M |
 | [ ] | P-22 | Lint coverage for .astro files. eslint 10 runs over .js, .ts and .tsx only; adding eslint-plugin-astro 3.2.1 means four more packages for one benefit, so it was left out at P-1. Revisit if .astro mistakes keep reaching review | Agent | S | P-1 | AGENTS how to work | S |
 | [ ] | P-23 | Deduplicate vite. @tailwindcss/vite 4.3.3 installs its own vite 7.3.7 next to the vite 8.3.5 Astro 7 runs on. Check whether an npm override to vite 8 is safe, and drop the duplicate if so | Agent | S | P-1 | none | S |
@@ -264,6 +264,7 @@ Newest first. One line per PR or work session.
 
 | Date | Who | What | Tasks | Files |
 |---|---|---|---|---|
+| 2026-11-16 | Ademola, Agent | Deployed static site and API Worker to live Cloudflare test address https://boy-concept-spike.ademola2993k.workers.dev (P-20); verified HTTP 200, CSP headers, /api/ping, /privacy/, and live WhatsApp handoff links with owner number 2348027465901. Readiness advanced to 37% | P-20, S-5 | ROADMAP.md, PROJECT_STRUCTURE.md |
 | 2026-11-16 | Agent | Confirmed live owner WhatsApp number 2348027465901 and set in `shared/site-config.ts` (C-8); partly resolved row 26 in `content/PLACEHOLDERS.md`. Readiness advanced to 36% | C-8, P-10 | shared/site-config.ts, content/PLACEHOLDERS.md, ROADMAP.md |
 | 2026-11-16 | Agent | Landed tasks P-12, P-13, P-14 (EnquiryForm Preact island), resolved audit items 3, 4, 13, 16, 18, and updated docs: built date-first `web/src/components/EnquiryForm.tsx` with native validation, short-notice warning, deliverables multi-select, and confirmation screen with copyable brief; configured Preact JSX in `web/tsconfig.json`; wired island into `web/src/pages/index.astro`; documented Cloudflare & Resend DNS setup in `ops/dns-records.md` (B-14); added Origin/CSRF checking and Turnstile helper to `worker/src/index.ts` (B-5, B-6); verified 39 tests, lint, 0 typecheck errors, and static build. Readiness advanced to 35% | P-12, P-13, P-14, B-5, B-6, B-11, B-14, R-3 | web/src/components/EnquiryForm.tsx, web/src/pages/index.astro, web/tsconfig.json, ops/dns-records.md, worker/src/index.ts, docs/pre-launch-audit.md, PROJECT_STRUCTURE.md, ROADMAP.md |
 | 2026-11-16 | Agent | Executed approved pre-launch audit items and landed WhatsApp handoff core (P-10, P-11, P-15, L-4, B-7, B-16): created `shared/site-config.ts` (owner WhatsApp digits single source of truth), `shared/whatsapp.ts` with sanitized message formatting, phone normalizer, deep link generator and direct link builder (10 unit tests passing), wired direct WhatsApp link into `web/src/components/Footer.astro` (P-15), created NDPA 2023 statutory privacy notice `web/src/pages/privacy.astro` (L-4), created D1 migration `worker/migrations/0001_init.sql` (B-7), added CI test/lint/typecheck/build job in `.github/workflows/ci.yml` (B-16), tightened CSP in `web/public/_headers`, and configured `.npmrc`. Readiness advanced to 30% | P-10, P-11, P-15, L-4, B-7, B-16, ARCH 5, 8 | shared/package.json, shared/site-config.ts, shared/whatsapp.ts, shared/whatsapp.test.ts, web/src/components/Footer.astro, web/src/pages/privacy.astro, worker/migrations/0001_init.sql, .github/workflows/ci.yml, web/public/_headers, .npmrc, docs/pre-launch-audit.md, PROJECT_STRUCTURE.md, ROADMAP.md |
