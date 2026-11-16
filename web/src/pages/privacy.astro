@@ -1,0 +1,64 @@
+---
+// NDPA 2023 Statutory Privacy Notice (Audit Item 20, ROADMAP Task L-4).
+// Discloses data controller identity, lawful basis, data retention period,
+// and user rights to deletion/erasure under the Nigeria Data Protection Act 2023.
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Base title="Privacy Notice | Boy Concept" description="How Boy Concept (Alpha Movies Ltd) handles client personal data and booking enquiries.">
+  <Nav />
+
+  <main class="container-site flex flex-col gap-10 py-18 md:py-30 max-w-3xl">
+    <div class="flex flex-col gap-2">
+      <p class="eyebrow">Legal & Compliance</p>
+      <h1 class="font-display text-display">Privacy Notice</h1>
+      <p class="text-body-large text-text-2">
+        How Boy Concept (Alpha Movies Ltd) collects, protects, and retains your data under the Nigeria Data Protection Act (NDPA) 2023.
+      </p>
+    </div>
+
+    <section class="card flex flex-col gap-4 p-6 md:p-8">
+      <h2 class="font-display text-h3 text-gold">1. Data Controller</h2>
+      <p class="text-body text-text-2">
+        Boy Concept is a video production brand operated by <strong class="text-text">Alpha Movies Ltd</strong> in Nigeria.
+        For all inquiries regarding personal data processing or to request erasure, contact us directly at our registered business channels.
+      </p>
+    </section>
+
+    <section class="card flex flex-col gap-4 p-6 md:p-8">
+      <h2 class="font-display text-h3 text-gold">2. Information We Collect</h2>
+      <p class="text-body text-text-2">
+        When you submit an event booking brief or contact us, we collect:
+      </p>
+      <ul class="list-disc pl-5 flex flex-col gap-2 text-body text-text-2">
+        <li><strong class="text-text">Contact Information:</strong> Your name, WhatsApp phone number, and email address.</li>
+        <li><strong class="text-text">Event & Project Details:</strong> Event date(s), venue, city, country, deliverables required, and optional reference video links.</li>
+        <li><strong class="text-text">Commercial Context:</strong> Company or agency name and project notes.</li>
+      </ul>
+    </section>
+
+    <section class="card flex flex-col gap-4 p-6 md:p-8">
+      <h2 class="font-display text-h3 text-gold">3. Lawful Basis & Purpose</h2>
+      <p class="text-body text-text-2">
+        We process your data solely on the basis of your explicit consent and legitimate business interest in responding to your booking enquiry, preparing quotes, and coordinating video production services.
+        We do not sell, rent, or monetize personal data to third parties.
+      </p>
+    </section>
+
+    <section class="card flex flex-col gap-4 p-6 md:p-8">
+      <h2 class="font-display text-h3 text-gold">4. Data Retention & Erasure</h2>
+      <p class="text-body text-text-2">
+        Inbound enquiries that do not proceed to a signed contract are retained for a maximum of <strong class="text-text">90 days</strong>, after which they are automatically pruned.
+        Under the NDPA 2023, you have the right to request access, rectification, or complete erasure of your contact details from our records at any time.
+      </p>
+    </section>
+
+    <div class="pt-4">
+      <a href="/" class="btn-primary">Back to Home</a>
+    </div>
+  </main>
+
+  <Footer />
+</Base>

@@ -23,4 +23,4 @@ Rows added at P-2 cover the page skeleton, where every unverified string is brac
 | [Step n name] and step copy | `web/src/components/Process.astro`, five DEMO steps | Copy at C-10 | Q7 | open |
 | [Question n] and [Answer...] | `web/src/components/Faq.astro`, four DEMO disclosures | Copy at C-10 | Q7, Q9 | open |
 | [Response-time line, FR-15: only a time someone keeps] | `web/src/pages/index.astro`, enquiry section | Emmanuel | Q10 | open |
-| Instagram [handle], YouTube [channel], WhatsApp [number, P-10] | `web/src/components/Footer.astro`. The number is defined only in `shared/site-config.ts` (P-10) and the link is built at P-15, so nothing in the footer links out yet | Emmanuel | Q3, Q14 | open |
+| Instagram [handle], YouTube [channel], WhatsApp number | `web/src/components/Footer.astro`. WhatsApp number confirmed as 2348027465901 in `shared/site-config.ts`; Instagram and YouTube handles remain open | Emmanuel | Q3, Q14, C-8 | partly resolved (WhatsApp confirmed) |

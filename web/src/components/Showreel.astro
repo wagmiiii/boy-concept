@@ -234,7 +234,16 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
             if (frame.dataset.muted !== "true") return;
             setPaused(frame, frame.dataset.paused !== "true");
           });
-          media.play().then(() => (frame.dataset.paused = "false")).catch(() => stop(frame));
+          media
+            .play()
+            .then(() => {
+              frame.dataset.paused = "false";
+            })
+            .catch(() => {
+              // If browser policy blocks autoplay (e.g. low-power mode or iOS restriction),
+              // pause gracefully instead of destroying the video DOM element.
+              setPaused(frame, true);
+            });
         } else {
           media.play().catch(() => undefined);
         }

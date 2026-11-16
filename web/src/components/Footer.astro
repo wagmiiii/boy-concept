@@ -1,15 +1,18 @@
 ---
-// FR-20 and DESIGN.md section 7 Footer. Handles, the base city and the owner WhatsApp number are
-// not supplied yet, so nothing here links out: the number exists only in shared/site-config.ts
-// (P-10) and the wa.me link is built at P-15 (FR-24).
+// FR-20, FR-24 and DESIGN.md section 7 Footer.
+// Direct WhatsApp link built from shared/site-config.ts (P-10, P-15).
 import { Image } from "astro:assets";
 import logo from "../assets/brand/alpha-movies-logo.webp";
+import { siteConfig } from "../../../shared/site-config";
+import { buildWhatsAppDirectLink } from "../../../shared/whatsapp";
 
 const year = new Date().getFullYear();
+const directWhatsAppUrl = buildWhatsAppDirectLink(siteConfig.ownerWhatsAppDigits);
+
 const links = [
-  { label: "Instagram", value: "[handle]" },
-  { label: "YouTube", value: "[channel]" },
-  { label: "WhatsApp", value: "[number, P-10]" },
+  { label: "Instagram", value: "[handle]", href: undefined },
+  { label: "YouTube", value: "[channel]", href: undefined },
+  { label: "WhatsApp", value: siteConfig.ownerWhatsAppDigits, href: directWhatsAppUrl },
 ];
 ---
 
@@ -28,7 +31,13 @@ const links = [
         links.map((link) => (
           <li class="flex flex-wrap items-baseline gap-2 text-body">
             <span class="font-semibold text-text">{link.label}</span>
-            <span class="text-text-muted">{link.value}</span>
+            {link.href ? (
+              <a href={link.href} target="_blank" rel="noopener noreferrer" class="text-gold underline hover:text-gold-bright">
+                {link.value}
+              </a>
+            ) : (
+              <span class="text-text-muted">{link.value}</span>
+            )}
           </li>
         ))
       }
@@ -37,12 +46,20 @@ const links = [
     <p class="text-body text-text-2">Base city: [confirm, Q3]</p>
 
     <p class="text-small text-text-muted">
-      Already booked with us? Message directly on WhatsApp. The link goes live at P-15 and works
-      without JavaScript.
+      Already booked with us?{" "}
+      <a
+        href={directWhatsAppUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="font-semibold text-gold underline underline-offset-4 hover:text-gold-bright"
+      >
+        Message directly on WhatsApp
+      </a>. Works without JavaScript.
     </p>
 
-    <p class="text-small text-text-muted">
-      © {year} Boy Concept (Alpha Movies Ltd). RC [confirm on CAC public search]
-    </p>
+    <div class="flex flex-wrap items-center justify-between gap-4 text-small text-text-muted">
+      <p>© {year} Boy Concept (Alpha Movies Ltd). RC [confirm on CAC public search]</p>
+      <a href="/privacy" class="hover:text-text-2 underline underline-offset-2">Privacy Notice</a>
+    </div>
   </div>
 </footer>

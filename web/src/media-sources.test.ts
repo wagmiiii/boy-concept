@@ -22,8 +22,10 @@ describe("the YouTube embed", () => {
     }
   });
 
-  it("comes back undefined for anything without an id", () => {
+  it("comes back undefined for anything without an id or from untrusted hostnames", () => {
     expect(youtubeEmbedUrl("https://example.invalid/clip.mp4")).toBeUndefined();
+    expect(youtubeEmbedUrl("https://attacker.example/watch?v=FIXTUREvid1")).toBeUndefined();
+    expect(youtubeEmbedUrl("https://attacker.example/youtu.be/FIXTUREvid1")).toBeUndefined();
     expect(youtubeEmbedUrl("/media/demo-reel-1.mp4")).toBeUndefined();
     expect(youtubeEmbedUrl("")).toBeUndefined();
   });

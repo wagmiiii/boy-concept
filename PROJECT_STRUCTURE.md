@@ -53,6 +53,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 ├── PROJECT_STRUCTURE.md               (exists) this file
 ├── .gitignore                         (exists)
 ├── .nvmrc                             (exists, S-1) Node 22
+├── .npmrc                             (exists) engine-strict=false
 ├── package.json                       (exists, S-1) npm workspaces web, worker, shared, root scripts, and the Node 22.22 floor from D22
 ├── package-lock.json                  (exists, S-1)
 ├── tsconfig.base.json                 (exists, S-1) shared strict TypeScript settings
@@ -70,6 +71,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │   ├── ARCHITECTURE.md                (exists) design, data models, decisions
 │   ├── ARCHITECTURE_ESSENTIALS.md     (exists) short outline for agents
 │   ├── DESIGN.md                      (exists) visual design system built from the supplied logo
+│   ├── pre-launch-audit.md            (exists) pre-launch security, break-mode and readiness audit
 │   ├── spikes/
 │   │   └── stack-spike.md             (exists, S-1 in progress) results of the stack checks, S-4 completes it
 │   └── research/                      inputs that are NOT verified
@@ -133,18 +135,18 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       │   ├── Process.astro            (exists, P-2) the five-step rail: 44 px numeral, divider per row, heading beside it from 1200 px (P-25)
 │       │   ├── Faq.astro                (exists, P-2) four details and summary disclosures, works with JavaScript off
 │       │   ├── Footer.astro             (exists, P-2) logo, social and contact placeholders, base city, copyright
-│       │   └── EnquiryForm.tsx        (P-12) the only Preact island
+│       │   └── EnquiryForm.tsx        (exists, P-12) the only Preact island: date-first booking brief form, client validation, confirmation screen and WhatsApp handoff
 │       └── pages/
 │           ├── index.astro            (exists, P-2) the real section order plus the enquiry section shell and its field list
 │           ├── 404.astro              (exists, P-2) the page `not_found_handling = "404-page"` serves, so a miss is HTML with status 404 (D19)
 │           ├── projects/[slug].astro  (P-7)
-│           └── privacy.astro          (L-4)
+│           └── privacy.astro          (exists, L-4) NDPA 2023 statutory privacy notice
 │
-├── shared/                            (exists, S-1) pure code imported by web and worker. The package.json is here so the workspace resolves; the code lands at P-10 and P-11
+├── shared/                            (exists, S-1) pure code imported by web and worker.
 │   ├── package.json                   (exists, S-1)
-│   ├── whatsapp.ts                    (P-11) message and wa.me URL builders
-│   ├── whatsapp.test.ts               (P-11)
-│   └── site-config.ts                 (P-10) owner WhatsApp digits and site origin
+│   ├── whatsapp.ts                    (exists, P-11) message and wa.me URL builders
+│   ├── whatsapp.test.ts               (exists, P-11) unit tests for whatsapp.ts
+│   └── site-config.ts                 (exists, P-10) owner WhatsApp digits and site origin
 │
 ├── worker/                            (exists, S-1) Cloudflare Worker: Hono API plus the static build as assets. Today it holds only the spike routes
 │   ├── package.json                   (exists, S-1)
@@ -153,7 +155,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │   ├── vitest.config.ts               (B-1)
 │   ├── .dev.vars.example              (B-2) names of variables, no values
 │   ├── migrations/
-│   │   └── 0001_init.sql              (B-7) enquiry table
+│   │   └── 0001_init.sql              (exists, B-7) enquiry table migration
 │   ├── src/
 │   │   ├── index.ts                   (exists, S-1) Hono app: spike routes and a catch-all scoped per D19 at B-1
 │   │   ├── config.ts                  (B-2) typed env access
@@ -174,6 +176,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 ├── cms/                               (K) Sanity studio and notes. Created only if Q13 is yes
 │
 └── ops/
+    ├── dns-records.md                 (exists, B-14) Resend and Cloudflare DNS setup (SPF, DKIM, DMARC)
     ├── launch-checklist.md            (R-6)
     ├── handover-checklist.md          (R-10)
     ├── owner-guide.md                 (R-2)
@@ -206,6 +209,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | docs/ARCHITECTURE.md | Design and decision log | exists | A technical decision changes |
 | docs/ARCHITECTURE_ESSENTIALS.md | Agent outline | exists | ARCHITECTURE.md changes a rule, endpoint or data name |
 | docs/DESIGN.md | Colors, type, spacing, components, logo rules | exists | A visual rule changes, or the logo or brand is confirmed or replaced |
+| docs/pre-launch-audit.md | Ranked list of pre-launch production failure and security risks | exists | An audit item is resolved or a new risk is identified |
 | assets/brand/* | Logo and brand files | exists | The logo is replaced or a brand file is added |
 | docs/spikes/stack-spike.md | Results of the stack checks | exists (S-1) | Spike results change |
 | docs/research/* | Unverified inputs, kept for reference | exists | Rarely. Never promote content from here without a verification-log entry |
@@ -237,15 +241,17 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | web/src/components/Services.astro | Four service cards with tag chips | exists (P-2) | P-9 and C-10 put real names, tags and copy in |
 | web/src/components/Process.astro | The five-step rail: a 44 px numeral, one divider per row, the heading in a left column from 1200 px | exists (P-2) | P-9 and C-10. Layout settled by the P-25 audit (DESIGN section 7) |
 | web/src/components/Faq.astro | Four details disclosures | exists (P-2) | P-9 and C-10 |
-| web/src/components/Footer.astro | Logo, contact rows, base city, copyright | exists (P-2) | P-10 supplies settings and the number, P-15 the direct link |
+| web/src/components/Footer.astro | Logo, contact rows, base city, copyright, direct WhatsApp link | exists (P-2, P-15) | P-10 supplies settings and the number, P-15 the direct link |
 | web/src/pages/404.astro | The page served for an asset miss, with status 404 | exists (P-2) | DESIGN changes, or the assets 404 handling changes (D19) |
+| web/src/pages/privacy.astro | NDPA 2023 statutory privacy notice | exists (L-4) | Statutory compliance requirements change |
 | web/src/pages/index.astro | Page order plus the enquiry section shell and its field list | exists (P-2) | A section is added, removed or reordered. P-12 replaces the shell with the island |
-| web/src/components/EnquiryForm.tsx | Enquiry form island | P-12 | Form behavior changes |
-| shared/whatsapp.ts | WhatsApp message and URL builders | P-11 | The message format changes |
-| shared/site-config.ts | Owner WhatsApp digits and site origin | P-10 | The number or domain changes |
+| web/src/components/EnquiryForm.tsx | Enquiry form island: date-first form, native validation, confirmation screen and WhatsApp handoff | exists (P-12) | Form behavior changes |
+| shared/whatsapp.ts | WhatsApp message and URL builders | exists (P-11) | The message format changes |
+| shared/site-config.ts | Owner WhatsApp digits and site origin | exists (P-10) | The number or domain changes |
 | worker/** | Enquiry API and static hosting | 1 | Per ARCHITECTURE.md |
-| worker/migrations/* | D1 schema history | B-7 | The schema changes. Add a new file, never edit an applied one |
+| worker/migrations/* | D1 schema history (0001_init.sql exists) | exists (B-7) | The schema changes. Add a new file, never edit an applied one |
 | cms/** | Sanity studio | K | Only if Q13 is yes |
+| ops/dns-records.md | Cloudflare and Resend DNS specification (SPF, DKIM, DMARC) | exists (B-14) | Domain, email provider, or DNS records change |
 | ops/* | Checklists, guides and test logs | R | Process or results change |
 
 ## Where does X live
@@ -290,6 +296,10 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-11-16 | Agent | Updated owner WhatsApp number to 2348027465901 in `shared/site-config.ts` per Emmanuel/client confirmation (C-8); updated row 26 in `content/PLACEHOLDERS.md` | C-8, P-10 |
+| 2026-11-16 | Agent | Landed task P-12 and resolved audit items 3, 4, 13, 16: created `web/src/components/EnquiryForm.tsx` (Preact island with date-first layout, native validation, short-notice warning, and confirmation screen with copyable brief), configured Preact JSX in `web/tsconfig.json`, wired island into `web/src/pages/index.astro`. Documented Resend SPF/DKIM/DMARC in `ops/dns-records.md` (B-14). Added Origin/CSRF check middleware and Turnstile verification helper in `worker/src/index.ts` (B-5, B-6) | P-12, B-5, B-6, B-14, R-3 |
+| 2026-11-16 | Agent | Landed tasks P-10, P-11, P-15, L-4, and B-7: added `shared/site-config.ts` (owner WhatsApp digits single source of truth), `shared/whatsapp.ts` & `shared/whatsapp.test.ts` (message builder, phone normalizer, deep link generator and sanitization), `web/src/pages/privacy.astro` (NDPA 2023 statutory privacy notice), `worker/migrations/0001_init.sql` (enquiry table schema with unique constraints and rate-limit indexing), and `.npmrc` (engine-strict=false). Wired direct WhatsApp link into `web/src/components/Footer.astro` (P-15) | P-10, P-11, P-15, L-4, B-7, B-11, B-16 |
+| 2026-11-16 | Agent | Added `docs/pre-launch-audit.md` compiling a ranked senior engineering audit of production break modes and security vulnerabilities. Fixed audit items 2 & 7 in `worker/src/index.ts` (secureHeaders and non-reflecting 404), item 11 in `web/src/media-sources.ts` (YouTube hostname validation with unit tests), and item 10 in `web/src/components/Showreel.astro` (resilient autoplay rejection handling) | R-3, B-11, ARCH 8 |
 | 2026-10-28 | Agent (Qoder) | P-27 gave the reel its placeholder copy and its per-clip captions. No file was added, moved, renamed or deleted. `web/src/content-rules.ts` gained `placeholderReelTitle` and `reelTitle`, the stand-in label a `demo: true` entry wears instead of its bracket, and `web/src/components/Showreel.astro` gained the caption itself (bottom left on the stage, inside the strip button under each thumbnail, hidden through `[data-playing]` with the poster). The six media files were replaced in place with ffmpeg output carrying the same wording in the artwork's top left, at 41 to 69 kB for the clips and 9 to 11 kB for the posters, and the tree's poster row lost a wrong dimension: the posters are 1280 x 720, the frame size of the clips they came from, not 1920 x 1080 | P-27, D25, ESSENTIALS 16, ARCH 5, DESIGN 7, 9 |
 | 2026-10-28 | Agent (Qoder) | P-26 turned the showreel into a carousel and gave its first item muted self-starting playback (D29). Added `web/src/media-sources.ts` and `media-sources.test.ts` (the two source rules, split out of `content-rules.ts` because the client script needs them and zod must not reach a browser), `web/src/poster-index.ts` (poster path to Astro image), three clips in `web/public/media/` (`demo-reel-1.mp4` to `-3.mp4`) and three posters in `web/src/assets/media/` (`demo-reel-1-poster.webp` to `-3-`), all rendered locally with ffmpeg. Deleted `web/public/media/demo-reel.mp4` and `web/src/assets/media/demo-reel-poster.webp` with `git rm`: the single P-4 stand-in has no caller now that every reel item carries its own source, and both were already on P-24's removal list. `content-rules.ts` gained `visibleProjects` and `reelItems`, `Showreel.astro` was rebuilt as a stage plus strip, and `PortfolioGrid.astro` now reads `visibleProjects` so the grid and the reel cannot disagree about what is visible | P-26, D29, ESSENTIALS 10, PRD FR-2, DESIGN 7, 8, 9, 11, 12, 13 |
 | 2026-10-27 | Agent (Qoder) | P-5 created the content layer. Added `web/src/content.config.ts` (the projects collection, a glob loader over YAML entries, entry id = file name stem = the P-7 slug), `web/src/content-rules.ts` (the projects schema, `bracketedFieldsIn`, `shorableProjects`, `placeholderProjects`) and `web/src/content-rules.test.ts` (15 guard and render-rule cases). Added four files under `web/src/content/projects/`: `demo-commercial.yaml`, `demo-cultural-festival.yaml`, `demo-wedding.yaml`, `demo-documentary.yaml`, each marked `demo: true` with every unknown bracketed (D28). `PortfolioGrid.astro` now queries the collection and maps its chips over the schema's own category list instead of a copy, and `ProjectCard.astro`'s comment records that the poster arrives with the first shorable entry. Nothing moved or was deleted. The directory rule about unverified content was amended to name the `demo` flag, because four placeholder files are now in `web/src/content` and the old sentence said that could not happen | P-5, D28, ESSENTIALS 16 |

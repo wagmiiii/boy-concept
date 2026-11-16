@@ -12,15 +12,23 @@ export function isSelfHostedVideo(url: string): boolean {
   return url.startsWith("/media/");
 }
 
+const YOUTUBE_HOSTS = new Set(["youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"]);
 const YOUTUBE_ID = /(?:v=|youtu\.be\/|embed\/)([\w-]{11})/;
 
 /**
  * The embed URL for a YouTube source, on the consent-free host, or undefined when the link carries
- * no video id. The reel builds the iframe inside the tap listener, so this is the only place a
- * YouTube URL becomes an embed, and the autoplay parameters live here rather than at each call site.
+ * no video id or does not originate from a verified YouTube hostname. The reel builds the iframe
+ * inside the tap listener, so this is the only place a YouTube URL becomes an embed, and the
+ * autoplay parameters live here rather than at each call site.
  * @param url a project's video_url
  */
 export function youtubeEmbedUrl(url: string): string | undefined {
+  try {
+    const parsed = new URL(url);
+    if (!YOUTUBE_HOSTS.has(parsed.hostname)) return undefined;
+  } catch {
+    return undefined;
+  }
   const id = YOUTUBE_ID.exec(url)?.[1];
   return id === undefined ? undefined : `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
 }

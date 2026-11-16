@@ -2,5 +2,9 @@
   "name": "@boy-concept/shared",
   "private": true,
   "version": "0.0.0",
-  "type": "module"
+  "type": "module",
+  "exports": {
+    "./site-config": "./site-config.ts",
+    "./whatsapp": "./whatsapp.ts"
+  }
 }
