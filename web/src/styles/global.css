@@ -20,6 +20,8 @@
   --color-gold-deep: var(--gold-deep);
   --color-gold-shadow: var(--gold-shadow);
   --color-bronze: var(--bronze);
+  --color-surface-cinema: var(--surface-cinema);
+  --color-line-cinema: var(--line-cinema);
 
   --color-flare-core: var(--flare-core);
   --color-flare-glow: var(--flare-glow);
@@ -57,6 +59,10 @@
   --container-site: 1200px;
 
   --ease-standard: var(--motion-ease);
+  --ease-out-quint: var(--ease-out-quint);
+  --ease-in-out-cubic: var(--ease-in-out-cubic);
+  --ease-out-cubic: var(--ease-out-cubic);
+  --ease-out-back: var(--ease-out-back);
 }
 
 /*
@@ -134,7 +140,8 @@
       background-color var(--motion-fast) var(--motion-ease),
       border-color var(--motion-fast) var(--motion-ease),
       color var(--motion-fast) var(--motion-ease),
-      box-shadow var(--motion-fast) var(--motion-ease);
+      box-shadow var(--motion-fast) var(--motion-ease),
+      transform 100ms var(--ease-out-cubic);
   }
 
   @media (min-width: 768px) {
@@ -156,11 +163,13 @@
   .btn-primary:active {
     background-color: var(--gold-deep);
     background-image: none;
+    transform: scale(0.97);
   }
 
   .btn-primary:disabled {
     background-color: var(--line);
     color: var(--text-muted);
+    transform: none;
   }
 
   .btn-secondary {
@@ -177,12 +186,14 @@
   .btn-secondary:active {
     background-color: transparent;
     background-color: color-mix(in srgb, var(--gold) 20%, transparent);
+    transform: scale(0.97);
   }
 
   .btn-secondary:disabled {
     border-color: var(--line);
     color: var(--text-muted);
     background-color: transparent;
+    transform: none;
   }
 
   /* Section 5: one container rule, so the gutters live once and no section drifts. */
@@ -203,6 +214,11 @@
     color: var(--gold);
     min-height: 32px;
     padding: 4px 14px;
+    transition:
+      background-color var(--motion-fast) var(--motion-ease),
+      border-color var(--motion-fast) var(--motion-ease),
+      color var(--motion-fast) var(--motion-ease),
+      transform 100ms var(--ease-out-cubic);
   }
 
   .chip[data-active="true"],
@@ -229,19 +245,173 @@
     padding-block: 10px;
   }
 
-  /* Section 6: depth from lightness and borders, never from shadows. */
+  button.chip:active,
+  a.chip:active {
+    transform: scale(0.96);
+  }
+
+  /* Section 6: depth from lightness and borders, enhanced with Kowalski hover lift. */
   .card {
     @apply rounded-card border border-line bg-surface-2;
     transition:
-      border-color var(--motion-fast) var(--motion-ease),
-      transform var(--motion-fast) var(--motion-ease);
+      border-color var(--motion-base) var(--ease-out-quint),
+      box-shadow var(--motion-base) var(--ease-out-quint),
+      transform var(--motion-base) var(--ease-out-quint);
   }
 
   @media (prefers-reduced-motion: no-preference) {
     .card:hover {
-      border-color: var(--gold);
-      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--gold) 60%, var(--line));
+      box-shadow: 0 12px 32px color-mix(in srgb, var(--bg) 80%, transparent), 0 0 24px color-mix(in srgb, var(--gold) 10%, transparent);
+      transform: translateY(-4px);
     }
+  }
+
+  /* Dark cinema plate for preserving 3D logo & video contrast in light mode */
+  .cinema-plate {
+    background-color: var(--surface-cinema);
+    border: 1px solid var(--line-cinema);
+    border-radius: var(--radius-card);
+    transition:
+      background-color var(--motion-base) var(--motion-ease),
+      border-color var(--motion-base) var(--motion-ease),
+      box-shadow var(--motion-base) var(--motion-ease);
+  }
+
+  /* Cinematic status badge with backdrop blur */
+  .cinematic-badge {
+    @apply inline-flex items-center gap-2 rounded-full border border-line bg-surface-2/90 px-3.5 py-1.5 text-eyebrow font-medium text-text-2 backdrop-blur-md;
+    letter-spacing: 0.12em;
+  }
+
+  /* Luxury subtle ambient glow backdrop */
+  .glow-gold-ambient {
+    background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--gold) 14%, transparent) 0%, color-mix(in srgb, var(--bronze) 8%, transparent) 45%, transparent 75%);
+  }
+
+  /* Smooth cinematic keyframes */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulseSubtle {
+    0%, 100% {
+      opacity: 0.45;
+      transform: scale(0.97);
+    }
+    50% {
+      opacity: 0.85;
+      transform: scale(1.03);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Emil Kowalski GPU-accelerated entrance reveal utilities */
+  @keyframes revealIn {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-reveal {
+    animation: revealIn 350ms var(--ease-out-quint) backwards;
+  }
+
+  .delay-1 {
+    animation-delay: 80ms;
+  }
+
+  .delay-2 {
+    animation-delay: 160ms;
+  }
+
+  .delay-3 {
+    animation-delay: 240ms;
+  }
+
+  .delay-4 {
+    animation-delay: 320ms;
+  }
+
+  .delay-5 {
+    animation-delay: 400ms;
+  }
+
+  /* Scroll Reveal Animation System (Emil Kowalski curve) */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal]:not(.is-revealed) {
+      opacity: 0;
+      transform: translateY(28px);
+      pointer-events: none;
+    }
+
+    [data-reveal] {
+      transition:
+        opacity 650ms var(--ease-out-quint),
+        transform 650ms var(--ease-out-quint);
+      will-change: opacity, transform;
+    }
+
+    [data-reveal].is-revealed {
+      opacity: 1;
+      transform: translateY(0);
+      will-change: auto;
+    }
+
+    /* Stagger delays for sibling / grid items */
+    [data-reveal-delay="1"] { transition-delay: 80ms; }
+    [data-reveal-delay="2"] { transition-delay: 160ms; }
+    [data-reveal-delay="3"] { transition-delay: 240ms; }
+    [data-reveal-delay="4"] { transition-delay: 320ms; }
+    [data-reveal-delay="5"] { transition-delay: 400ms; }
+
+    /* Preserve hover lift on revealed cards */
+    .card[data-reveal].is-revealed:hover {
+      transform: translateY(-4px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+
+  /* Accordion expansion micro-animation */
+  details[open] summary ~ * {
+    animation: revealIn 220ms var(--ease-out-quint);
+  }
+
+  /* Card filtering pop animation */
+  @keyframes filterPopIn {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .animate-filter-in {
+    animation: filterPopIn 260ms var(--ease-out-quint) forwards;
   }
 
   /* A 16:9 poster stand-in. The bottom gradient keeps overlaid text readable. */

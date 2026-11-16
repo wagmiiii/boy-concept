@@ -6,21 +6,36 @@ const links = [
   { href: "/#showreel", label: "Showreel" },
   { href: "/#work", label: "Work" },
   { href: "/#services", label: "Services" },
+  { href: "/#process", label: "Process" },
   { href: "/#faq", label: "FAQ" },
 ];
 ---
 
-<header class="sticky top-0 z-50 border-b border-line bg-bg/60 backdrop-blur-[12px]">
-  <nav class="container-site flex h-16 items-center gap-4 md:h-18" aria-label="Main">
-    <a href="/" class="inline-flex min-h-11 items-center font-display text-h3 text-text">Boy Concept</a>
+<header id="site-header" class="sticky top-0 z-50 border-b border-line/60 bg-bg/80 backdrop-blur-xl transition-all duration-300">
+  {/* Thin luxury gold scroll progress indicator (GPU-accelerated) */}
+  <div
+    id="scroll-progress-bar"
+    class="pointer-events-none absolute bottom-0 left-0 h-[2px] w-full origin-left bg-gradient-to-r from-gold-bright via-gold to-gold-deep opacity-0 transition-opacity duration-300 scale-x-0"
+    aria-hidden="true"
+  ></div>
 
-    <ul class="mx-auto hidden items-center gap-6 md:flex">
+  <nav class="container-site flex h-16 items-center justify-between gap-4 md:h-18" aria-label="Main">
+    <a href="/" class="group inline-flex min-h-11 items-center gap-2.5 font-display text-h3 tracking-wide text-text transition-colors">
+      <span class="flex size-7 items-center justify-center rounded-full border border-gold/40 bg-surface-2 text-gold transition-transform duration-300 group-hover:scale-115 group-hover:rotate-12 group-hover:border-gold">
+        <svg class="size-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2L12 0Z" />
+        </svg>
+      </span>
+      <span>Boy Concept<span class="text-gold">.</span></span>
+    </a>
+
+    <ul class="hidden items-center gap-1 rounded-full border border-line/50 bg-surface-1/70 px-4 py-1.5 backdrop-blur-md md:flex">
       {
         links.map((link) => (
           <li>
             <a
               href={link.href}
-              class="inline-flex min-h-11 items-center text-small font-semibold text-text-2 transition-colors hover:text-gold"
+              class="inline-flex min-h-9 items-center rounded-full px-3.5 text-small font-medium text-text-2 transition-all duration-200 hover:bg-surface-2 hover:text-gold hover:-translate-y-0.5 active:scale-95"
             >
               {link.label}
             </a>
@@ -29,22 +44,41 @@ const links = [
       }
     </ul>
 
-    <div class="ml-auto flex items-center gap-2 md:ml-0">
+    <div class="flex items-center gap-3">
+      {/* Theme toggle button */}
+      <button
+        type="button"
+        id="theme-toggle"
+        class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-button border border-line bg-surface-2 p-2.5 text-text-2 transition-all duration-200 hover:border-gold hover:text-gold active:scale-90 active:rotate-12 cursor-pointer focus-visible:outline-2 focus-visible:outline-gold-bright"
+        aria-label="Toggle light or dark theme"
+        title="Toggle color theme"
+      >
+        {/* Sun icon (visible in dark mode: click for light) */}
+        <svg class="size-5 hidden [html:not([data-theme='light'])_&]:block fill-none stroke-current transition-transform duration-300" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+        </svg>
+        {/* Moon icon (visible in light mode: click for dark) */}
+        <svg class="size-5 hidden [html[data-theme='light']_&]:block fill-none stroke-current transition-transform duration-300" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+        </svg>
+      </button>
+
       <details class="relative md:hidden">
         <summary
-          class="flex min-h-11 cursor-pointer list-none items-center rounded-button px-3 text-small font-semibold text-text-2 [&::-webkit-details-marker]:hidden hover:text-gold"
+          class="flex min-h-11 cursor-pointer list-none items-center rounded-button border border-line bg-surface-2 px-3 text-small font-semibold text-text-2 transition-transform duration-150 active:scale-95 [&::-webkit-details-marker]:hidden hover:text-gold"
         >
           Menu
         </summary>
         <ul
-          class="absolute right-0 top-full z-50 mt-1 flex w-44 flex-col gap-1 rounded-card border border-line bg-surface-2 p-3"
+          class="absolute right-0 top-full z-50 mt-2 flex w-48 flex-col gap-1 rounded-card border border-line bg-surface-2/95 p-3 shadow-xl backdrop-blur-xl"
         >
           {
             links.map((link) => (
               <li>
                 <a
                   href={link.href}
-                  class="flex min-h-11 items-center text-small font-semibold text-text-2 hover:text-gold"
+                  class="flex min-h-11 items-center rounded-md px-3 text-small font-medium text-text-2 transition-colors hover:bg-surface-3 hover:text-gold active:scale-95"
                 >
                   {link.label}
                 </a>
@@ -54,7 +88,10 @@ const links = [
         </ul>
       </details>
 
-      <a href="/#enquiry" class="btn-primary">Check a date</a>
+      <a href="/commission/" class="btn-primary shadow-sm hover:shadow-glow-gold group">
+        <span>Check a date</span>
+        <span class="text-bg font-bold transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
+      </a>
     </div>
   </nav>
 </header>
@@ -67,3 +104,45 @@ const links = [
     }
   }
 </style>
+
+<script>
+  const toggleBtn = document.getElementById("theme-toggle");
+  toggleBtn?.addEventListener("click", () => {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    const nextTheme = isLight ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", nextTheme);
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("theme", nextTheme);
+    }
+  });
+
+  // Scroll progress and header elevation
+  const header = document.getElementById("site-header");
+  const progressBar = document.getElementById("scroll-progress-bar");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (!reducedMotion) {
+    let ticking = false;
+    const onScroll = () => {
+      const scrollY = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (progressBar && maxScroll > 0) {
+        const progress = Math.min(Math.max(scrollY / maxScroll, 0), 1);
+        progressBar.style.transform = `scaleX(${progress})`;
+        progressBar.style.opacity = scrollY > 20 ? "1" : "0";
+      }
+      if (header) {
+        header.classList.toggle("shadow-md", scrollY > 40);
+      }
+      ticking = false;
+    };
+
+    window.addEventListener("scroll", () => {
+      if (!ticking) {
+        window.requestAnimationFrame(onScroll);
+        ticking = true;
+      }
+    }, { passive: true });
+    onScroll();
+  }
+</script>

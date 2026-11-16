@@ -17,56 +17,66 @@ const links = [
 ---
 
 <footer class="border-t border-line bg-surface-1">
-  <div class="container-site flex flex-col gap-8 py-18">
-    <Image
-      src={logo}
-      widths={[440, 880]}
-      sizes="(max-width: 767px) 350px, 440px"
-      alt="Alpha Movies"
-      class="w-full max-w-110"
-    />
+  <div class="container-site flex flex-col gap-12 py-18 md:py-24">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-2 md:items-start md:justify-between">
+      <div class="flex flex-col gap-4" data-reveal>
+        <Image
+          src={logo}
+          widths={[440, 880]}
+          sizes="(max-width: 767px) 300px, 380px"
+          alt="Alpha Movies Ltd"
+          class="w-full max-w-95 brightness-95"
+        />
+        <p class="max-w-[42ch] text-small text-text-muted">
+          Master-grade cinematography, high-framerate multi-cam coverage, and bespoke post-production for milestone occasions worldwide.
+        </p>
+      </div>
 
-    <ul class="flex flex-col gap-2">
-      {
-        links.map((link) => (
-          <li class="flex flex-wrap items-baseline gap-2 text-body">
-            <span class="font-semibold text-text">{link.label}</span>
-            {link.href ? (
-              <a
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-gold underline hover:text-gold-bright"
-                data-track-whatsapp={link.label === "WhatsApp" ? "true" : undefined}
-              >
-                {link.value}
-              </a>
-            ) : (
-              <span class="text-text-muted">{link.value}</span>
-            )}
-          </li>
-        ))
-      }
-    </ul>
+      <div class="flex flex-col gap-6 md:items-end" data-reveal data-reveal-delay="1">
+        <ul class="flex flex-col gap-3 md:items-end">
+          {
+            links.map((link) => (
+              <li class="flex flex-wrap items-baseline gap-2 text-body">
+                <span class="text-small font-semibold tracking-wider uppercase text-text-muted">{link.label}:</span>
+                {link.href ? (
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="font-medium text-gold underline underline-offset-4 hover:text-gold-bright transition-colors"
+                    data-track-whatsapp={link.label === "WhatsApp" ? "true" : undefined}
+                  >
+                    {link.value}
+                  </a>
+                ) : (
+                  <span class="text-text-muted">{link.value}</span>
+                )}
+              </li>
+            ))
+          }
+        </ul>
 
-    <p class="text-body text-text-2">Base city: [confirm, Q3]</p>
+        <div class="flex flex-col gap-1 md:text-right">
+          <p class="text-body text-text-2">Studio base: <span class="text-text">[confirm, Q3]</span></p>
+          <p class="text-small text-text-muted">
+            Existing clients:{" "}
+            <a
+              href={directWhatsAppUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-track-whatsapp="true"
+              class="font-semibold text-gold underline underline-offset-4 hover:text-gold-bright"
+            >
+              Direct WhatsApp channel
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
 
-    <p class="text-small text-text-muted">
-      Already booked with us?{" "}
-      <a
-        href={directWhatsAppUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        data-track-whatsapp="true"
-        class="font-semibold text-gold underline underline-offset-4 hover:text-gold-bright"
-      >
-        Message directly on WhatsApp
-      </a>. Works without JavaScript.
-    </p>
-
-    <div class="flex flex-wrap items-center justify-between gap-4 text-small text-text-muted">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-t border-line/60 pt-6 text-small text-text-muted" data-reveal data-reveal-delay="2">
       <p>© {year} Boy Concept (Alpha Movies Ltd). RC [confirm on CAC public search]</p>
-      <a href="/privacy" class="hover:text-text-2 underline underline-offset-2">Privacy Notice</a>
+      <a href="/privacy" class="hover:text-text-2 underline underline-offset-4 transition-colors">Privacy Notice</a>
     </div>
   </div>
 </footer>

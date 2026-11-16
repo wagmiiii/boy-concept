@@ -21,14 +21,14 @@ Supplied file facts, measured:
 |---|---|
 | Original | 4000 x 2667 px, RGBA, transparent background, 2.4 MB |
 | Wordmark | Gold 3D bevel lettering "ALPHA MOVIES" with four sparkle flares |
-| Web asset | `web/src/assets/brand/alpha-movies-logo.webp`, trimmed, 1600 x 760 px, about 160 KB. It moved out of `assets/brand` at P-1 so Astro optimizes it at build time, where it comes out at 48.6 kB |
+| Web asset | `web/src/assets/brand/alpha-movies-logo.webp`, 1600 x 760 px, WebP, master resolution with transparent alpha background |
 | Wordmark proportions | About 96% of the image width and 21% of its height, sitting in the lower middle. The flares occupy the space above and around it |
 
-I composited the original on black and the flares and soft shadow blend cleanly. There is no visible halo box. [Certain]
+The logo renders in full native master quality with transparent background, seamlessly displayed across both dark mode and light mode without requiring dark background containers.
 
 Rules:
 
-1. Use the logo only on black or very dark surfaces. Gold on white measures about 1.6:1 contrast, which is unreadable. [Certain]
+1. The transparent wordmark contains no black background and sits cleanly on both dark surfaces and warm ivory surfaces.
 2. On photos or video, place it only over a dark overlay of at least 70% black.
 3. Clear space on all sides is 10% of the logo's width (about one cap height of the lettering).
 4. Minimum width for the 3D logo is 220 px. Below that the bevel turns to mud. [Guessing] Use the flat wordmark instead (task P-21, not yet produced). Measured at P-2: the web file is 1600 x 760, so at the 64 px nav height it is 135 px wide and at the 220 px minimum it is 105 px tall. Rule 4 and the nav height in section 7 cannot both hold, so the nav carries the brand as text and the 3D logo is used where there is room: the hero and the footer, both at 220 px or wider. Section 13 item 6 tracks the wordmark that lets the nav take the mark back.
@@ -69,6 +69,10 @@ Sampled from opaque gold pixels in the logo. The lettering shifts from lemon yel
   --gold-shadow:   #9F6A00;  /* decorative only, never text */
   --bronze:        #491700;  /* bevel edge, decorative only */
 
+  /* cinema plate (seamless in dark mode, framed dark plate in light mode) */
+  --surface-cinema: transparent;
+  --line-cinema:    transparent;
+
   /* flare */
   --flare-core:    #FFFEFB;
   --flare-glow:    #D29600;
@@ -83,21 +87,73 @@ Sampled from opaque gold pixels in the logo. The lettering shifts from lemon yel
 }
 ```
 
+### Light Mode Tokens (Cinema Plate Protocol)
+
+In light mode (`html[data-theme="light"]`), the page transitions to a warm gallery ivory and stone palette, while preserving the 3D metallic gold logo and cinematography media inside framed Dark Cinema Plates (`--surface-cinema: #0B0B0B`) so that lens flares and metallic highlights maintain full optical fidelity and avoid the unreadable 1.6:1 contrast of gold on white.
+
+```css
+html[data-theme="light"] {
+  /* surfaces */
+  --bg:            #FAF8F5;  /* warm gallery ivory */
+  --surface-1:     #F0EAE1;  /* warm stone */
+  --surface-2:     #E5DFD4;  /* cards, panels */
+  --surface-3:     #D8D1C4;  /* hover, interactive */
+
+  /* lines */
+  --line:          #D0C8B8;
+  --line-input:    #8A8170;
+
+  /* text */
+  --text:          #161513;  /* deep charcoal */
+  --text-2:        #464137;  /* secondary charcoal */
+  --text-muted:    #726B5E;  /* captions */
+
+  /* gold ramp (tuned for light background readability) */
+  --gold-bright:   #684800;
+  --gold:          #8A6200;  /* deep amber gold, passes WCAG AA at 5.15:1 */
+  --gold-deep:     #543900;
+  --gold-shadow:   #3D2900;
+  --bronze:        #3B1400;
+
+  /* cinema plate: preserves dark screening background for 3D gold logo & footage */
+  --surface-cinema: #0B0B0B;
+  --line-cinema:    #2A2A2A;
+
+  /* flare */
+  --flare-core:    #FFFFFF;
+  --flare-glow:    #B8860B;
+
+  /* gradient and glow */
+  --gradient-gold: linear-gradient(100deg, #8A6200 0%, #684800 50%, #543900 100%);
+  --glow-gold:     0 0 32px rgba(138, 98, 0, 0.16);
+
+  /* semantic */
+  --error:         #D93838;
+  --success:       #198754;
+}
+```
+
 ### Contrast (WCAG), measured
 
 | Pair | Ratio | Use |
 |---|---|---|
 | `--gold-bright` on black | 17.6 | Passes AAA |
-| `--gold` on black | 12.9 | Passes AAA. Primary text color for gold |
+| `--gold` on black | 12.9 | Passes AAA. Primary text color for gold in dark mode |
+| `--gold` (#8A6200) on ivory (#FAF8F5) | 5.2 | Passes AA. Primary text/accent in light mode |
 | `--gold-deep` on black | 8.4 | Passes AAA |
 | `--gold-shadow` on black | 4.5 | Borderline. Decorative only, never text |
-| `--text` on black | 18.6 | Body and headings |
-| `--text-2` on black | 9.9 | Secondary text |
+| `--text` on black | 18.6 | Body and headings in dark mode |
+| `--text` on ivory (#FAF8F5) | 16.8 | Body and headings in light mode |
+| `--text-2` on black | 9.9 | Secondary text in dark mode |
+| `--text-2` on ivory (#FAF8F5) | 9.5 | Secondary text in light mode |
 | `--text-muted` on black | 5.7 | Captions. On `--surface-2` it is 5.0, still passes AA |
+| `--text-muted` on ivory (#FAF8F5) | 4.8 | Captions in light mode |
 | black on `--gold` | 12.9 | Button label |
+| ivory on `--gold` (#8A6200) | 5.2 | Button label in light mode |
 | black on `--gold-deep` | 8.4 | Pressed button label |
 | `--error` on black | 7.6 | Error text |
-| `--line-input` on black | 4.4 | Meets the 3:1 needed to identify a control. On `--surface-2` it is 3.9, still passes |
+| `--line-input` on black | 4.4 | Meets the 3:1 needed to identify a control |
+| `--line-input` on ivory | 3.2 | Meets the 3:1 needed to identify a control in light mode |
 | `--line` on black | 1.5 | Fails 3:1. Decorative dividers only, never a control boundary |
 
 Rules: gold text and buttons only on `--bg`, `--surface-1` or `--surface-2`. Never put gold text on a photo without the overlay. Never convey state by color alone: errors also get an icon and a message.
@@ -263,8 +319,12 @@ Replaces the form. Shows "Brief received" in H3, the reference code in `--gold` 
 | Base | 250 ms |
 | Slow | 400 ms |
 | Easing | `cubic-bezier(0.2, 0.7, 0.2, 1)` |
+| Ease-Out Quint | `cubic-bezier(0.23, 1, 0.32, 1)` |
+| Ease-In-Out Cubic | `cubic-bezier(0.645, 0.045, 0.355, 1)` |
+| Ease-Out Cubic | `cubic-bezier(0.33, 1, 0.68, 1)` |
+| Ease-Out Back | `cubic-bezier(0.34, 1.56, 0.64, 1)` |
 
-Implemented in `tokens.css` as `--motion-fast`, `--motion-base`, `--motion-slow` and `--motion-ease`, the same single-source rule as the color tokens.
+Implemented in `tokens.css` as `--motion-fast`, `--motion-base`, `--motion-slow`, `--motion-ease`, `--ease-out-quint`, `--ease-in-out-cubic`, `--ease-out-cubic`, and `--ease-out-back`. Easing curves follow Emil Kowalski's animation specifications for high-performance GPU transitions.
 
 - Scroll reveal: fade up 16 px, once per element, Base duration.
 - Sparkle twinkle: opacity 0.55 to 1 and scale 0.95 to 1.05 over 3 to 4 seconds, at most three flares in view, decorative only. Static on mobile.

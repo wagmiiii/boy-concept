@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 // astro check covers their types.
 export default tseslint.config(
   {
-    ignores: ["**/node_modules/**", "**/dist/**", "**/.astro/**", "**/.wrangler/**"],
+    ignores: ["**/node_modules/**", "**/dist/**", "**/.astro/**", "**/.wrangler/**", "**/.agents/**"],
   },
   ...tseslint.configs.recommended,
   {

@@ -59,6 +59,10 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 ├── tsconfig.base.json                 (exists, S-1) shared strict TypeScript settings
 ├── eslint.config.js                   (exists, P-1) flat config, typescript-eslint recommended over .js, .ts and .tsx. .astro files are not linted, see P-22
 ├── vitest.config.ts                   (exists, P-1) one root config picking up tests in web, shared and worker. Node environment, no jsdom
+├── skills-lock.json                   (exists) installed skills manifest
+│
+├── .agents/                           (exists) local agent skills installed via skills CLI
+│   └── skills/animate/                (exists) animation patterns, easing curves and motion reference
 │
 ├── .github/
 │   ├── CODEOWNERS                     (exists) review ownership
@@ -85,6 +89,7 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 ├── assets/
 │   └── brand/
 │       ├── alpha-movies-logo-original.png (exists) supplied logo, 4000 x 2667, archive only, never loaded on the site
+│       ├── alpha-movies-logo-transparent.png (exists) logo with black background removed by owner
 │       └── wordmark-flat.*, favicon.*, og-image.png   (P-21) small-size and social versions. The web-ready WebP moved to web/src/assets/brand at P-1
 │
 ├── content/                           single place for words and proof (not rendered directly)
@@ -139,7 +144,8 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       │   ├── Footer.astro             (exists, P-2) logo, social and contact placeholders, base city, copyright
 │       │   └── EnquiryForm.tsx        (exists, P-12) the only Preact island: date-first booking brief form, client validation, confirmation screen and WhatsApp handoff
 │       └── pages/
-│           ├── index.astro            (exists, P-2) the real section order plus the enquiry section shell and its field list
+│           ├── index.astro            (exists, P-2) the real section order with direct commission CTA section linking to /commission/
+│           ├── commission.astro       (exists, P-12) dedicated direct commission booking page with EnquiryForm Preact island
 │           ├── 404.astro              (exists, P-2) the page `not_found_handling = "404-page"` serves, so a miss is HTML with status 404 (D19)
 │           ├── projects/[slug].astro  (exists, P-7) dynamic project page template (FR-4)
 │           └── privacy.astro          (exists, L-4) NDPA 2023 statutory privacy notice
@@ -199,6 +205,8 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | .github/CODEOWNERS | Review ownership | exists | Reviewers change |
 | .github/pull_request_template.md | PR checklist, including the living-docs updates | exists | The checklist or a hard rule changes |
 | .github/workflows/ci.yml | Enforces ROADMAP and PROJECT_STRUCTURE updates, later lint, typecheck, tests and build | exists | A check is added or changed |
+| .agents/** | Local agent skills definitions (e.g. animate skill) | exists | Skills installed or updated |
+| skills-lock.json | Lockfile for installed agent skills | exists | Skills installed or updated |
 | package.json, package-lock.json | npm workspaces (web, worker, shared) and root scripts | exists (S-1) | A workspace or root script is added |
 | tsconfig.base.json | The strict TypeScript settings every workspace extends | exists (S-1) | A strictness rule changes |
 | .nvmrc | The Node version the project expects | exists (S-1) | The Node floor changes |
@@ -253,7 +261,8 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | web/src/pages/404.astro | The page served for an asset miss, with status 404 | exists (P-2) | DESIGN changes, or the assets 404 handling changes (D19) |
 | web/src/pages/projects/[slug].astro | Project page template: video, client, event, year, location, deliverables, story (FR-4) | exists (P-7) | Project page requirements change |
 | web/src/pages/privacy.astro | NDPA 2023 statutory privacy notice | exists (L-4) | Statutory compliance requirements change |
-| web/src/pages/index.astro | Page order plus the enquiry section shell and its field list | exists (P-2) | A section is added, removed or reordered. P-12 replaces the shell with the island |
+| web/src/pages/commission.astro | Dedicated direct commission booking page with EnquiryForm Preact island | exists (P-12) | Direct commission flow changes |
+| web/src/pages/index.astro | Landing page with direct commission CTA section linking to /commission/ | exists (P-2) | A section is added, removed or reordered |
 | web/src/components/EnquiryForm.tsx | Enquiry form island: date-first form, native validation, confirmation screen and WhatsApp handoff | exists (P-12) | Form behavior changes |
 | shared/whatsapp.ts | WhatsApp message and URL builders | exists (P-11) | The message format changes |
 | shared/site-config.ts | Owner WhatsApp digits and site origin | exists (P-10) | The number or domain changes |
@@ -305,6 +314,9 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-11-16 | Ademola, Agent | Added `.agents/` and `skills-lock.json` for installed `animate` skill motion library | DESIGN 8, P-26 |
+| 2026-11-16 | Ademola, Agent | Moved EnquiryForm Preact island to dedicated page `web/src/pages/commission.astro`; replaced inline form on landing page `web/src/pages/index.astro` with high-converting Direct Commission CTA block linking to `/commission/` | P-12, FR-1 |
+| 2026-11-16 | Ademola, Agent | Integrated owner's transparent logo asset: added `assets/brand/alpha-movies-logo-transparent.png` and regenerated `web/src/assets/brand/alpha-movies-logo.webp` without black background, removing `.cinema-plate` wrapper across `Hero.astro`, `Footer.astro`, and `404.astro` | P-21, DESIGN 2 |
 | 2026-11-16 | Agent | Landed pre-launch audit fixes & tasks P-16, B-2: created `web/public/robots.txt` (staging disallow), `worker/.dev.vars.example` and `worker/src/config.ts` (typed env schema); updated `web/public/_headers` (added Turnstile to connect-src), `web/src/layouts/Base.astro` (absolute og:image and environment-aware noindex), `web/src/components/Nav.astro` (prefixed navigation links with /), `web/src/pages/projects/[slug].astro` (gated video/iframe behind tap per Rule 10), `web/src/components/EnquiryForm.tsx` (preserved email, email/phone/date boundary validation, honeypot, background POST /api/enquiries, clientRequestId, GA4 tracking for form_submit and whatsapp_tap), `web/src/components/Footer.astro` (GA4 tracking for WhatsApp direct links), `shared/whatsapp.ts` (email inclusion in brief), and `worker/src/index.ts` (staging origin, production fail-closed Turnstile, POST /api/enquiries with honeypot, and 90-day retention pruning cron) | P-16, B-2, R-3 |
 | 2026-11-16 | Agent | Landed task P-7: built `web/src/pages/projects/[slug].astro` project page template (video player, category, client, event, year, location, deliverables list, and overview story per FR-4), and updated `ProjectCard.astro` to link to `/projects/${slug}/` | P-7 |
 | 2026-11-16 | Agent | Landed tasks P-6, P-8, P-21, P-19, P-24: wired interactive portfolio category filtering and empty-category pruning in `PortfolioGrid.astro`, resolved poster paths in `ProjectCard.astro` via `poster-index.ts` (P-6); added credentials schema, hide rule (FR-26) and unit tests in `content-rules.ts`, registered credentials loader in `content.config.ts`, added demo YAMLs in `web/src/content/credentials/` (P-8); created brand star `web/public/favicon.svg` and 1200x630 social card `web/public/og-image.png` with OpenGraph/Twitter tags in `Base.astro` (P-21); pruned all developer scaffolding text across components (P-24); updated `content/PLACEHOLDERS.md` (P-19) | P-6, P-8, P-21, P-19, P-24 |

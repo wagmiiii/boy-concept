@@ -1,0 +1,78 @@
+---
+// Dedicated Direct Commission Brief Page (P-12, FR-1).
+// Hosts the EnquiryForm Preact island with date-first validation, honeypot protection,
+// background D1 persistence, and WhatsApp handoff.
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import EnquiryForm from "../components/EnquiryForm";
+import { siteConfig } from "../../../shared/site-config";
+import { buildWhatsAppDirectLink } from "../../../shared/whatsapp";
+
+const directWhatsAppUrl = buildWhatsAppDirectLink(siteConfig.ownerWhatsAppDigits);
+---
+
+<Base
+  title="Commission Your Production | Boy Concept"
+  description="Reserve your event date with Boy Concept (Alpha Movies Ltd). High-end cinematography for luxury weddings, commercial films, cultural festivals, and documentaries."
+>
+  <Nav />
+
+  <main class="relative overflow-hidden py-12 md:py-20">
+    {/* Ambient atmospheric glow */}
+    <div class="pointer-events-none absolute inset-0 glow-gold-ambient opacity-45" aria-hidden="true"></div>
+
+    <div class="container-site relative flex flex-col gap-8 max-w-4xl">
+      {/* Breadcrumb Navigation */}
+      <nav aria-label="Breadcrumb" class="flex items-center">
+        <a
+          href="/"
+          class="group inline-flex min-h-11 items-center gap-2 text-small font-semibold text-text-muted transition-colors hover:text-gold"
+        >
+          <span class="transition-transform duration-200 group-hover:-translate-x-1" aria-hidden="true">&larr;</span> Back to Home
+        </a>
+      </nav>
+
+      {/* Page Header */}
+      <header class="flex flex-col gap-3" data-reveal>
+        <div class="flex items-center justify-between">
+          <p class="eyebrow">Direct Commission Desk</p>
+          <div class="cinematic-badge">
+            <span>CALENDAR OPEN • 2026/27</span>
+          </div>
+        </div>
+
+        <h1 class="font-display text-display text-text">Commission Your Production</h1>
+
+        <p class="max-w-[65ch] text-body-large text-text-2 leading-relaxed">
+          Select your event date, deliverables, and creative scope below. Once complete, your production brief is formatted for direct transmission to Emmanuel (Boy Concept) on WhatsApp to confirm date availability and pricing with zero commitment.
+        </p>
+      </header>
+
+      {/* Form Island Section */}
+      <section id="enquiry-form-section" data-reveal data-reveal-delay="1">
+        <EnquiryForm client:load />
+      </section>
+
+      {/* Support / Direct Contact Notice */}
+      <div class="flex flex-col gap-2 rounded-card border border-line bg-surface-1 p-6 text-small text-text-muted text-center items-center" data-reveal data-reveal-delay="2">
+        <p class="text-body text-text-2">
+          Prefer to talk first?{" "}
+          <a
+            href={directWhatsAppUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="font-semibold text-gold underline underline-offset-4 hover:text-gold-bright transition-colors"
+          >
+            Message Emmanuel directly on WhatsApp
+          </a>
+        </p>
+        <p>
+          We review every brief and inquiry directly with no automated decline.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Base>

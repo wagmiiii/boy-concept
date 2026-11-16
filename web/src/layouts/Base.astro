@@ -41,8 +41,50 @@ const ogImageUrl = new URL("/og-image.png", siteConfig.siteOrigin).toString();
     <Font cssVariable="--font-marcellus" preload />
     <Font cssVariable="--font-inter" preload />
     <title>{title}</title>
+
+    <script>
+      const storedTheme = typeof localStorage !== "undefined" ? localStorage.getItem("theme") : null;
+      const theme = storedTheme || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      document.documentElement.setAttribute("data-theme", theme);
+    </script>
   </head>
   <body class="bg-bg text-text font-sans">
     <slot />
+
+    <script>
+      // Scroll reveal observer (Emil Kowalski pattern)
+      const initScrollReveal = () => {
+        const elements = document.querySelectorAll<HTMLElement>("[data-reveal]");
+        if (elements.length === 0) return;
+
+        if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          elements.forEach((el) => el.classList.add("is-revealed"));
+          return;
+        }
+
+        const observer = new IntersectionObserver(
+          (entries, obs) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-revealed");
+                obs.unobserve(entry.target);
+              }
+            });
+          },
+          {
+            rootMargin: "0px 0px -40px 0px",
+            threshold: 0.1,
+          }
+        );
+
+        elements.forEach((el) => observer.observe(el));
+      };
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initScrollReveal);
+      } else {
+        initScrollReveal();
+      }
+    </script>
   </body>
 </html>

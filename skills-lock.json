@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "skills": {
+    "animate": {
+      "source": "delphi-ai/animate-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "0c7b6b236797e43a0b185dc4913484612efa4f8d22ce05812f7467761120837d"
+    }
+  }
+}

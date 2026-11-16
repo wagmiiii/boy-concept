@@ -1,29 +1,58 @@
 ---
-// FR-19: the five-step process. Step names and copy come from the client answers at C-10.
-//
-// The P-25 audit replaced five cards in a row with this rail, for two reasons. With the container
-// capped at 1200 px, five columns leave 211 px each and 163 px of text after the card padding, so
-// a step paragraph was about ten characters a line at every width the site offers. And a process
-// IS a sequence, which is the one case where numbered markers carry information rather than
-// decorate it, so the number leads each row instead of sitting in a chip above it.
-const steps = [1, 2, 3, 4, 5];
+// FR-19: The five-step production rail from date reservation to master delivery.
+const steps = [
+  {
+    number: "01",
+    title: "Date & Brief Consultation",
+    summary: "Check event date availability on WhatsApp with your location, schedule, and deliverable requirements. We confirm availability directly.",
+  },
+  {
+    number: "02",
+    title: "Creative Treatment & Logistics",
+    summary: "We align on your visual style, emotional tone, music pacing, and itinerary. Technical reconnaissance ensures seamless execution on filming day.",
+  },
+  {
+    number: "03",
+    title: "Principal Cinematography",
+    summary: "Dual-camera coverage with cinema prime lenses, professional wireless audio, and licensed drone aerial cinematography.",
+  },
+  {
+    number: "04",
+    title: "Color Grade & Sound Design",
+    summary: "Meticulous scene assembly, dialogue mastering, custom cinematic color grading, and licensed music scoring.",
+  },
+  {
+    number: "05",
+    title: "Master 4K Delivery & Archive",
+    summary: "Private digital 4K download link, quick social teasers within 10 days, and complete uncompressed raw footage archiving.",
+  },
+];
 ---
 
-<section id="process" class="bg-surface-1">
+<section id="process" class="bg-surface-1 border-y border-line/60">
   <div class="container-site grid gap-8 py-18 md:py-30 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-16">
-    <div class="flex flex-col gap-2">
-      <p class="eyebrow">Process</p>
-      <h2 class="font-display text-h2">[Process heading, written at C-10]</h2>
+    <div class="flex flex-col gap-3" data-reveal>
+      <p class="eyebrow">Production Workflow</p>
+      <h2 class="font-display text-h2 text-text">From first consultation to final master</h2>
+      <p class="text-body-large text-text-2 max-w-[45ch]">
+        A structured, reliable process guarantees that your day runs without interruption and your films arrive on time.
+      </p>
     </div>
 
     <ol class="steps">
       {
-        steps.map((n) => (
-          <li class="step">
-            <span class="step-number" aria-hidden="true">{n}</span>
+        steps.map((step, index) => (
+          <li class="step group" data-reveal data-reveal-delay={String(index + 1)}>
+            <span class="step-number font-mono text-gold" aria-hidden="true">
+              {step.number}
+            </span>
             <div class="flex flex-col gap-2">
-              <h3 class="font-display text-h3">[Step {n} name]</h3>
-              <p class="max-w-[60ch] text-body text-text-2">[Step copy, written at C-10]</p>
+              <h3 class="font-display text-h3 text-text group-hover:text-gold transition-colors duration-200">
+                {step.title}
+              </h3>
+              <p class="max-w-[60ch] text-body text-text-2 leading-relaxed">
+                {step.summary}
+              </p>
             </div>
           </li>
         ))
@@ -71,5 +100,15 @@ const steps = [1, 2, 3, 4, 5];
     font-size: 0.8125rem;
     font-weight: 600;
     letter-spacing: 0.18em;
+    transition:
+      transform var(--motion-base) var(--ease-out-back),
+      border-color var(--motion-base) var(--motion-ease),
+      background-color var(--motion-base) var(--motion-ease);
+  }
+
+  .step:hover .step-number {
+    border-color: var(--gold);
+    background-color: color-mix(in srgb, var(--gold) 10%, transparent);
+    transform: scale(1.12);
   }
 </style>

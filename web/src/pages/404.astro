@@ -9,7 +9,7 @@ import logo from "../assets/brand/alpha-movies-logo.webp";
 ---
 
 <Base title="Page not found">
-  <main class="container-site flex flex-col items-center justify-center gap-6 py-18 text-center md:py-30">
+  <main class="container-site flex flex-col items-center justify-center gap-6 py-18 text-center md:py-30 animate-reveal">
     <Image src={logo} widths={[440, 880]} sizes="(max-width: 767px) 350px, 440px" alt="Alpha Movies" class="w-full max-w-110" />
     <p class="eyebrow">404</p>
     <h1 class="font-display text-display">Page not found</h1>
@@ -17,7 +17,10 @@ import logo from "../assets/brand/alpha-movies-logo.webp";
       That page is not here. The work, the credentials and the booking form are all on the home
       page.
     </p>
-    <a href="/" class="btn-primary">Back to the site</a>
+    <a href="/" class="btn-primary group">
+      <span>Back to the site</span>
+      <span class="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
+    </a>
   </main>
 
   <Footer />

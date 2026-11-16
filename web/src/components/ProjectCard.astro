@@ -10,15 +10,33 @@ interface Props {
   title: string;
   poster?: string;
   slug?: string;
+  revealDelay?: string;
 }
 
-const { category, title, poster, slug } = Astro.props;
+const { category, title, poster, slug, revealDelay } = Astro.props;
 const posterImage = poster ? posterFor(poster) : undefined;
 ---
 
-<article class="card overflow-hidden" data-category={category}>
-  <div class="poster-frame flex items-center justify-center relative">
-    <span class="chip z-10 absolute top-3 left-3">{category}</span>
+<article
+  class="group card overflow-hidden flex flex-col justify-between transition-all duration-300 hover:border-gold/60"
+  data-category={category}
+  data-reveal
+  data-reveal-delay={revealDelay}
+>
+  <div class="poster-frame relative flex items-center justify-center overflow-hidden">
+    {/* Corner viewfinder markers */}
+    <span class="pointer-events-none absolute top-2.5 left-2.5 z-20 font-mono text-xs text-gold/50 select-none transition-colors duration-300 group-hover:text-gold" aria-hidden="true">&ulcorner;</span>
+    <span class="pointer-events-none absolute top-2.5 right-2.5 z-20 font-mono text-xs text-gold/50 select-none transition-colors duration-300 group-hover:text-gold" aria-hidden="true">&urcorner;</span>
+
+    <div class="absolute top-3 left-3 right-3 z-20 flex items-center justify-between">
+      <span class="chip backdrop-blur-md bg-surface-2/80 shadow-sm">{category}</span>
+      <span class="flex size-8 items-center justify-center rounded-full border border-line/60 bg-surface-2/80 text-text-2 backdrop-blur-md transition-all duration-300 group-hover:bg-gold group-hover:text-bg group-hover:border-gold group-hover:scale-115 group-active:scale-95">
+        <svg class="size-3.5 fill-current transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 19L19 5M19 5H9M19 5V15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+        </svg>
+      </span>
+    </div>
+
     {
       posterImage ? (
         <Image
@@ -26,27 +44,32 @@ const posterImage = poster ? posterFor(poster) : undefined;
           widths={[360, 720]}
           sizes="(max-width: 767px) 100vw, (max-width: 1199px) 50vw, 33vw"
           alt={`${title} poster`}
-          class="h-full w-full object-cover"
+          class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
         />
       ) : (
         <span class="z-10 text-small uppercase tracking-[0.12em] text-text-muted">DEMO poster</span>
       )
     }
   </div>
-  <div class="p-4">
+
+  <div class="p-5 flex flex-col gap-2">
     {
       slug ? (
         <h3 class="font-display text-h3">
           <a
             href={`/projects/${slug}/`}
-            class="inline-flex min-h-11 items-center text-text transition-colors hover:text-gold"
+            class="inline-flex min-h-11 items-center text-text transition-colors group-hover:text-gold"
           >
             {title}
           </a>
         </h3>
       ) : (
-        <h3 class="font-display text-h3">{title}</h3>
+        <h3 class="font-display text-h3 text-text group-hover:text-gold transition-colors">{title}</h3>
       )
     }
+    <p class="text-small text-text-muted flex items-center gap-1.5 transition-colors group-hover:text-text-2">
+      <span>Explore project deliverables</span>
+      <span class="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
+    </p>
   </div>
 </article>

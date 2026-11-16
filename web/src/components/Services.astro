@@ -1,24 +1,72 @@
 ---
-// FR-19 and DESIGN.md section 7. Four services with tag chips; the names and tags are written
-// from the client answers at C-10 and stay bracketed until then.
-const services = [1, 2, 3, 4];
+// FR-19 and DESIGN.md section 7: Four core cinematography services with specialized deliverable tags.
+const services = [
+  {
+    number: "01",
+    name: "Weddings & Luxury Celebrations",
+    description: "Comprehensive multi-camera coverage for traditional engagements, white wedding ceremonies, and grand receptions, captured with emotional depth and cinematic color.",
+    tags: ["4K Highlight Film", "Full Ceremony Documentary", "Drone Cinematography", "Teaser Cut"],
+  },
+  {
+    number: "02",
+    name: "Commercial & Brand Campaigns",
+    description: "Visual storytelling for luxury brands, corporate milestones, fashion showcases, and product films engineered for digital dominance and broadcast fidelity.",
+    tags: ["Brand Narrative", "Master Color Grade", "Social Cutdowns", "Directorial Treatment"],
+  },
+  {
+    number: "03",
+    name: "Cultural Festivals & Galas",
+    description: "High-fidelity documentation of heritage festivals, traditional masquerades, state galas, and live ceremonies with multi-channel audio mastering.",
+    tags: ["Live Multi-Cam", "Audio Mastering", "Cultural Archiving", "Festival Highlights"],
+  },
+  {
+    number: "04",
+    name: "Documentary & Executive Retrospectives",
+    description: "In-depth biographical profiles, personal retrospectives, and long-form narrative documentaries produced with patient directorial precision.",
+    tags: ["Directorial Vision", "In-Depth Interviews", "4K Archive", "Sound Design"],
+  },
+];
 ---
 
-<section id="services" class="container-site flex flex-col gap-6 py-18 md:py-30">
-  <div class="flex flex-col gap-2">
-    <p class="eyebrow">Services</p>
-    <h2 class="font-display text-h2">[Services heading, written at C-10]</h2>
+<section id="services" class="container-site flex flex-col gap-8 py-18 md:py-30">
+  <div class="flex flex-col gap-2 max-w-2xl" data-reveal>
+    <p class="eyebrow">Services & Capabilities</p>
+    <h2 class="font-display text-h2 text-text">Cinematography for milestones that matter</h2>
+    <p class="text-body-large text-text-2">
+      Every production is approached with cinema lenses, multi-angle coverage, and dedicated color grading.
+    </p>
   </div>
 
-  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
     {
-      services.map((n) => (
-        <div class="card flex flex-col gap-3 p-6">
-          <h3 class="font-display text-h3">[Service {n} name]</h3>
-          <p class="text-body text-text-2">[What the client gets, written at C-10]</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="chip">[tag]</span>
-            <span class="chip">[tag]</span>
+      services.map((service, index) => (
+        <div class="card group flex flex-col justify-between gap-6 p-6 md:p-8 transition-all duration-300 hover:border-gold/60" data-reveal data-reveal-delay={String((index % 2) + 1)}>
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-small text-gold tracking-widest transition-transform duration-200 group-hover:translate-x-1">{service.number}</span>
+              <span class="size-2 rounded-full bg-gold/40 transition-all duration-300 group-hover:scale-175 group-hover:bg-gold" />
+            </div>
+            <h3 class="font-display text-h3 text-text group-hover:text-gold transition-colors duration-200">
+              {service.name}
+            </h3>
+            <p class="text-body text-text-2 leading-relaxed">{service.description}</p>
+          </div>
+
+          <div class="flex flex-col gap-4 border-t border-line/50 pt-5">
+            <div class="flex flex-wrap gap-2">
+              {service.tags.map((tag) => (
+                <span class="chip text-xs py-1 px-3 border-line/80 bg-surface-1/60 text-text-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/60 hover:text-gold hover:bg-surface-2">
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <a
+              href="/commission/"
+              class="group/link inline-flex items-center gap-1.5 text-small font-semibold text-gold transition-colors hover:text-gold-bright"
+            >
+              <span>Inquire for date availability</span>
+              <span class="transition-transform duration-200 group-hover/link:translate-x-1" aria-hidden="true">&rarr;</span>
+            </a>
           </div>
         </div>
       ))

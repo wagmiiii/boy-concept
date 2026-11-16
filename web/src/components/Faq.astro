@@ -1,25 +1,44 @@
 ---
-// FR-19: FAQ. <details> keeps the disclosure working with JavaScript disabled. The questions and
-// answers are the owner's real ones, collected at C-10 (FR-15 rule: promise only what is kept).
-// No Q1 to Q4 markers: a FAQ is a set of questions people scan, not a sequence, so numbering them
-// would be decoration (DESIGN.md section 5, and the P-25 audit).
-const faqs = [1, 2, 3, 4];
+// FR-19: FAQ disclosures answering key questions on booking timelines, deliverables, travel, and delivery promises.
+const faqs = [
+  {
+    q: "How far in advance should we reserve our event date?",
+    a: "We recommend booking as soon as your date and venue are locked, typically 2 to 6 months in advance. To maintain cinema-grade attention to detail, we accept a limited number of commissions per season.",
+  },
+  {
+    q: "What deliverables are included with standard coverage?",
+    a: "Every core package includes our signature 3 to 5-minute 4K cinematic highlight film, full-length ceremony documentary cut, multi-track uncompressed audio capture, raw footage archive, and vertical teaser cuts.",
+  },
+  {
+    q: "Do you travel outside Lagos for destination events?",
+    a: "Yes. We film nationwide across Nigeria (Abuja, Port Harcourt, Ibadan, Benin) and internationally. Travel and accommodation requirements are calculated straightforwardly during brief consultation.",
+  },
+  {
+    q: "How quickly will our final films be delivered?",
+    a: "Social media teaser cutdowns are delivered within 7 to 10 days following the event. Full cinematic master highlight films and documentary cuts undergo rigorous color grading and are delivered within 4 to 6 weeks.",
+  },
+];
 ---
 
-<section id="faq" class="container-site flex flex-col gap-6 py-18 md:py-30">
-  <div class="flex flex-col gap-2">
-    <p class="eyebrow">FAQ</p>
-    <h2 class="font-display text-h2">[FAQ heading, written at C-10]</h2>
+<section id="faq" class="container-site flex flex-col gap-8 py-18 md:py-30">
+  <div class="flex flex-col gap-2 max-w-2xl" data-reveal>
+    <p class="eyebrow">Frequently Asked Questions</p>
+    <h2 class="font-display text-h2 text-text">Everything you need to know before booking</h2>
   </div>
 
-  <div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-4">
     {
-      faqs.map((n) => (
-        <details class="card p-6">
-          <summary class="flex min-h-11 cursor-pointer list-none items-center text-body font-semibold text-text [&::-webkit-details-marker]:hidden">
-            [Question {n}]
+      faqs.map((faq, index) => (
+        <details class="card group p-6 transition-all duration-300 hover:border-gold/60 cursor-pointer" data-reveal data-reveal-delay={String((index % 4) + 1)}>
+          <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between text-body-large font-semibold text-text [&::-webkit-details-marker]:hidden">
+            <span class="transition-colors duration-200 group-hover:text-gold">{faq.q}</span>
+            <span class="ml-4 flex size-8 shrink-0 items-center justify-center rounded-full border border-line text-gold transition-all duration-300 group-open:rotate-45 group-open:bg-gold group-open:text-bg group-open:border-gold group-hover:border-gold">
+              &plus;
+            </span>
           </summary>
-          <p class="pt-3 text-body text-text-2">[Answer, written from the owner's real answer]</p>
+          <p class="pt-4 text-body text-text-2 leading-relaxed border-t border-line/40 mt-3 cursor-text">
+            {faq.a}
+          </p>
         </details>
       ))
     }

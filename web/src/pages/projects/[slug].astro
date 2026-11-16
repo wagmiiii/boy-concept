@@ -41,9 +41,9 @@ const isSelfHosted = data.video_url ? isSelfHostedVideo(data.video_url) : false;
     <nav aria-label="Breadcrumb" class="flex items-center">
       <a
         href="/#work"
-        class="inline-flex min-h-11 items-center gap-2 text-small font-semibold text-text-muted transition-colors hover:text-gold"
+        class="group inline-flex min-h-11 items-center gap-2 text-small font-semibold text-text-muted transition-colors hover:text-gold"
       >
-        <span aria-hidden="true">&larr;</span> Back to Work
+        <span class="transition-transform duration-200 group-hover:-translate-x-1" aria-hidden="true">&larr;</span> Back to Work
       </a>
     </nav>
 
@@ -70,7 +70,7 @@ const isSelfHosted = data.video_url ? isSelfHostedVideo(data.video_url) : false;
               widths={[640, 1280]}
               sizes="(max-width: 767px) 100vw, 896px"
               alt={`${data.title} poster`}
-              class="h-full w-full object-cover"
+              class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
             />
           ) : (
             <div class="flex h-full w-full items-center justify-center bg-surface-2">
@@ -83,7 +83,7 @@ const isSelfHosted = data.video_url ? isSelfHostedVideo(data.video_url) : false;
             <button
               type="button"
               id="project-play-btn"
-              class="btn-primary absolute flex h-14 w-14 items-center justify-center rounded-full p-0 shadow-lg cursor-pointer transition-transform hover:scale-105"
+              class="btn-primary absolute flex h-14 w-14 items-center justify-center rounded-full p-0 shadow-lg cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"
               aria-label={`Play ${data.title}`}
             >
               <svg class="h-6 w-6 fill-current ml-1" viewBox="0 0 24 24" aria-hidden="true">
@@ -156,7 +156,10 @@ const isSelfHosted = data.video_url ? isSelfHostedVideo(data.video_url) : false;
       <p class="max-w-[50ch] text-body text-text-2">
         Let us know your event date and required deliverables. We confirm availability and pricing directly on WhatsApp.
       </p>
-      <a href="/#enquiry" class="btn-primary">Check a date</a>
+      <a href="/commission/" class="btn-primary group">
+        <span>Check a date</span>
+        <span class="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
+      </a>
     </section>
   </main>
 

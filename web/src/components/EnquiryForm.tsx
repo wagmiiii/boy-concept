@@ -237,7 +237,8 @@ export default function EnquiryForm() {
       // Backend failure is logged in network and never blocks WhatsApp handoff
     });
 
-    window.scrollTo({ top: (document.getElementById("enquiry")?.offsetTop || 0) - 70, behavior: "smooth" });
+    const target = document.getElementById("enquiry-form-section") || document.getElementById("enquiry");
+    window.scrollTo({ top: (target?.offsetTop || 0) - 70, behavior: "smooth" });
   };
 
   const handleCopy = async () => {
@@ -258,13 +259,18 @@ export default function EnquiryForm() {
     const deepLinkUrl = buildWhatsAppDeepLink(siteConfig.ownerWhatsAppDigits, submittedBrief);
 
     return (
-      <div class="card flex flex-col gap-6 p-6 md:p-8">
-        <div class="flex flex-col gap-2">
-          <p class="eyebrow">Handoff ready</p>
-          <h3 class="font-display text-h3 text-text">Brief received</h3>
+      <div class="card relative flex flex-col gap-6 p-6 md:p-10 overflow-hidden">
+        {/* Viewfinder corner brackets */}
+        <span class="absolute top-3 left-3 text-xs text-gold/30 select-none font-mono" aria-hidden="true">⌜</span>
+        <span class="absolute top-3 right-3 text-xs text-gold/30 select-none font-mono" aria-hidden="true">⌝</span>
+        <span class="absolute bottom-3 left-3 text-xs text-gold/30 select-none font-mono" aria-hidden="true">⌞</span>
+        <span class="absolute bottom-3 right-3 text-xs text-gold/30 select-none font-mono" aria-hidden="true">⌟</span>
+
+        <div class="flex flex-col gap-2 border-b border-line pb-6">
+          <p class="eyebrow">Call Sheet Ready</p>
+          <h3 class="font-display text-h3 text-text">Commission Brief Formatted</h3>
           <p class="text-body text-text-2">
-            Your brief is formatted and ready. Click below to open WhatsApp with your pre-filled brief
-            and message Emmanuel directly.
+            Your production brief is formatted and ready. Tap below to launch WhatsApp with Emmanuel (Boy Concept) and transmit your project specifications.
           </p>
         </div>
 
@@ -274,34 +280,36 @@ export default function EnquiryForm() {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackEvent("whatsapp_tap", { source: "confirmation_web" })}
-            class="btn-primary w-full md:w-auto md:self-start"
+            class="btn-primary group w-full md:w-auto md:self-start text-base shadow-[0_0_25px_rgba(251,195,0,0.25)] hover:shadow-[0_0_35px_rgba(251,195,0,0.4)]"
           >
-            Open WhatsApp
+            <span>Open WhatsApp & Send Brief</span>
+            <span class="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
           </a>
 
           <a
             href={deepLinkUrl}
             onClick={() => trackEvent("whatsapp_tap", { source: "confirmation_deeplink" })}
-            class="text-small text-gold underline underline-offset-4 hover:text-gold-bright"
+            class="group/link text-small text-gold underline underline-offset-4 hover:text-gold-bright inline-flex items-center gap-1.5 pt-1"
           >
-            Opening inside Instagram or TikTok? Tap here for native app handoff
+            <span>Inside Instagram or TikTok in-app browser? Tap for direct app handoff</span>
+            <span class="transition-transform duration-200 group-hover/link:translate-x-1" aria-hidden="true">&rarr;</span>
           </a>
         </div>
 
-        <div class="flex flex-col gap-3">
+        <div class="flex flex-col gap-3 pt-2">
           <div class="flex items-center justify-between">
-            <span class="text-small font-semibold text-text-2">Copyable brief text</span>
+            <span class="text-small font-semibold tracking-wider uppercase text-text-muted">Brief Dispatch Preview</span>
             <button
               type="button"
               onClick={handleCopy}
-              class="btn-secondary h-11 px-4 text-small"
+              class="btn-secondary h-10 px-4 text-small"
             >
-              {copied ? "Copied to clipboard!" : "Copy brief message"}
+              {copied ? "✓ Copied to clipboard" : "Copy brief text"}
             </button>
           </div>
 
-          <div class="rounded-card border border-line bg-surface-1 p-4">
-            <pre class="font-sans text-small whitespace-pre-wrap text-text-2">
+          <div class="rounded-card border border-line bg-surface-1 p-5 font-mono text-small text-text-2 leading-relaxed">
+            <pre class="font-sans whitespace-pre-wrap">
               {submittedBrief}
             </pre>
           </div>
@@ -339,225 +347,277 @@ export default function EnquiryForm() {
   const showShortNotice = isWithin7Days(form.eventDate);
 
   return (
-    <form onSubmit={handleSubmit} noValidate class="card flex flex-col gap-6 p-6 md:p-8">
+    <form onSubmit={handleSubmit} noValidate class="card relative flex flex-col gap-8 p-6 md:p-10 overflow-hidden">
+      {/* Viewfinder corner brackets */}
+      <span class="absolute top-3 left-3 text-xs text-gold/25 select-none font-mono" aria-hidden="true">⌜</span>
+      <span class="absolute top-3 right-3 text-xs text-gold/25 select-none font-mono" aria-hidden="true">⌝</span>
+      <span class="absolute bottom-3 left-3 text-xs text-gold/25 select-none font-mono" aria-hidden="true">⌞</span>
+      <span class="absolute bottom-3 right-3 text-xs text-gold/25 select-none font-mono" aria-hidden="true">⌟</span>
+
       {/* Starting price notice (FR-10) */}
-      <div class="flex flex-col gap-1 border-b border-line pb-4">
-        <p class="text-body text-text-2">
-          Packages start from <span class="font-semibold text-gold">₦[amount]</span>
-        </p>
-        <p class="text-small text-text-muted">
-          Fill in your details below. You will be able to review the brief and send it on WhatsApp with one click.
-        </p>
-      </div>
-
-      {/* Field 1: Event date (First field per ESSENTIALS rule 2) */}
-      <div class="flex flex-col gap-2">
-        <label htmlFor={`${idPrefix}-eventDate`} class="text-small font-semibold text-text-2">
-          Event date <span class="text-gold">*</span>
-        </label>
-        <div class="flex flex-col gap-3 md:flex-row md:items-center">
-          <input
-            id={`${idPrefix}-eventDate`}
-            type="date"
-            min={today}
-            max={maxDate}
-            value={form.eventDate}
-            onInput={(e) => {
-              const val = (e.target as HTMLInputElement).value;
-              setForm((p) => ({ ...p, eventDate: val }));
-              if (errors.eventDate) {
-                setErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.eventDate;
-                  return next;
-                });
-              }
-            }}
-            class={`h-13 rounded-input border bg-surface-2 px-4 text-base text-text focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
-              errors.eventDate ? "border-error" : "border-line-input"
-            }`}
-          />
-
-          <label class="flex items-center gap-2 text-small text-text-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.flexibleDate}
-              onChange={(e) => setForm((p) => ({ ...p, flexibleDate: (e.target as HTMLInputElement).checked }))}
-              class="h-5 w-5 rounded border-line-input accent-gold"
-            />
-            Dates are flexible
-          </label>
-        </div>
-
-        {errors.eventDate && (
-          <p class="text-small text-error">{errors.eventDate}</p>
-        )}
-
-        {showShortNotice && (
-          <p class="text-small text-text-2 flex items-center gap-1.5">
-            <span class="inline-block h-2 w-2 rounded-full bg-gold" aria-hidden="true" />
-            Short notice, we will confirm availability.
+      <div class="flex flex-col gap-3 rounded-card border border-line bg-surface-1 p-5 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-col gap-1">
+          <span class="eyebrow">Direct Commission Desk</span>
+          <p class="text-body text-text-2">
+            Packages start from <span class="font-semibold text-gold">₦[amount]</span>
           </p>
-        )}
+          <p class="text-small text-text-muted">
+            Check availability and receive a custom proposal with zero commitment.
+          </p>
+        </div>
+        <div class="cinematic-badge shrink-0 self-start md:self-auto">
+          <span>CALENDAR OPEN • 2026/27</span>
+        </div>
       </div>
 
-      {/* Field 2: Second date or end date (optional) */}
-      <div class="flex flex-col gap-2">
-        <label htmlFor={`${idPrefix}-secondDate`} class="text-small font-semibold text-text-2">
-          Second date or end date <span class="text-text-muted font-normal">(optional — for multi-day shoots or traditional/white wedding pairs)</span>
-        </label>
-        <input
-          id={`${idPrefix}-secondDate`}
-          type="date"
-          min={form.eventDate || today}
-          max={maxDate}
-          value={form.secondDate}
-          onInput={(e) => setForm((p) => ({ ...p, secondDate: (e.target as HTMLInputElement).value }))}
-          class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
-        />
-      </div>
+      {/* Section 01: Dates & Location */}
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-3 border-b border-line pb-2">
+          <span class="text-eyebrow font-semibold tracking-wider text-gold">01</span>
+          <h3 class="font-display text-small tracking-wider uppercase text-text">Dates & Location</h3>
+        </div>
 
-      {/* Field 3: Project type */}
-      <div class="flex flex-col gap-2">
-        <label htmlFor={`${idPrefix}-projectType`} class="text-small font-semibold text-text-2">
-          Project type <span class="text-gold">*</span>
-        </label>
-        <select
-          id={`${idPrefix}-projectType`}
-          value={form.projectType}
-          onChange={(e) => setForm((p) => ({ ...p, projectType: (e.target as HTMLSelectElement).value }))}
-          class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
-        >
-          {PROJECT_TYPES.map((type) => (
-            <option key={type} value={type} class="bg-surface-2 text-text">
-              {type}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Field 4: Venue, city, country */}
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* Field 1: Event date (First field per ESSENTIALS rule 2) */}
         <div class="flex flex-col gap-2">
-          <label htmlFor={`${idPrefix}-venue`} class="text-small font-semibold text-text-2">
-            Venue <span class="text-text-muted font-normal">(optional)</span>
+          <label htmlFor={`${idPrefix}-eventDate`} class="text-small font-semibold text-text-2">
+            Event date <span class="text-gold">*</span>
           </label>
-          <input
-            id={`${idPrefix}-venue`}
-            type="text"
-            placeholder="e.g. Landmark Centre"
-            value={form.venue}
-            onInput={(e) => setForm((p) => ({ ...p, venue: (e.target as HTMLInputElement).value }))}
-            class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
-          />
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <label htmlFor={`${idPrefix}-city`} class="text-small font-semibold text-text-2">
-            City <span class="text-gold">*</span>
-          </label>
-          <input
-            id={`${idPrefix}-city`}
-            type="text"
-            placeholder="e.g. Lagos"
-            value={form.city}
-            onInput={(e) => {
-              const val = (e.target as HTMLInputElement).value;
-              setForm((p) => ({ ...p, city: val }));
-              if (errors.city) {
-                setErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.city;
-                  return next;
-                });
-              }
-            }}
-            class={`h-13 rounded-input border bg-surface-2 px-4 text-base text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
-              errors.city ? "border-error" : "border-line-input"
-            }`}
-          />
-          {errors.city && <p class="text-small text-error">{errors.city}</p>}
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <label htmlFor={`${idPrefix}-country`} class="text-small font-semibold text-text-2">
-            Country <span class="text-gold">*</span>
-          </label>
-          <input
-            id={`${idPrefix}-country`}
-            type="text"
-            placeholder="e.g. Nigeria"
-            value={form.country}
-            onInput={(e) => setForm((p) => ({ ...p, country: (e.target as HTMLInputElement).value }))}
-            class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
-          />
-        </div>
-      </div>
-
-      {/* Field 5: Duration */}
-      <div class="flex flex-col gap-2">
-        <label htmlFor={`${idPrefix}-duration`} class="text-small font-semibold text-text-2">
-          Duration <span class="text-gold">*</span>
-        </label>
-        <select
-          id={`${idPrefix}-duration`}
-          value={form.duration}
-          onChange={(e) => setForm((p) => ({ ...p, duration: (e.target as HTMLSelectElement).value }))}
-          class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
-        >
-          {DURATIONS.map((dur) => (
-            <option key={dur} value={dur} class="bg-surface-2 text-text">
-              {dur}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Field 6: Deliverables (multi-select checkboxes) */}
-      <div class="flex flex-col gap-2">
-        <span class="text-small font-semibold text-text-2">
-          Deliverables <span class="text-gold">* (select at least one)</span>
-        </span>
-        <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
-          {DELIVERABLES.map((item) => {
-            const isChecked = form.deliverables.includes(item);
-            return (
-              <label
-                key={item}
-                class={`flex min-h-[44px] cursor-pointer items-center gap-2 rounded-input border p-3 text-small transition-colors ${
-                  isChecked
-                    ? "border-gold bg-surface-3 text-text"
-                    : "border-line-input bg-surface-2 text-text-2 hover:border-gold"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={isChecked}
-                  onChange={() => toggleDeliverable(item)}
-                  class="h-5 w-5 rounded border-line-input accent-gold"
-                />
-                {item}
-              </label>
-            );
-          })}
-        </div>
-        {errors.deliverables && <p class="text-small text-error">{errors.deliverables}</p>}
-      </div>
-
-      {/* Field 7: Reference video */}
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between">
-          <label htmlFor={`${idPrefix}-refVideo`} class="text-small font-semibold text-text-2">
-            Reference video {!form.describeInstead && <span class="text-gold">*</span>}
-          </label>
-          <label class="flex items-center gap-2 text-small text-text-muted cursor-pointer">
+          <div class="flex flex-col gap-3 md:flex-row md:items-center">
             <input
-              type="checkbox"
-              checked={form.describeInstead}
-              onChange={(e) => {
-                const checked = (e.target as HTMLInputElement).checked;
-                setForm((p) => ({ ...p, describeInstead: checked }));
-                if (checked && errors.referenceVideo) {
+              id={`${idPrefix}-eventDate`}
+              type="date"
+              min={today}
+              max={maxDate}
+              value={form.eventDate}
+              onInput={(e) => {
+                const val = (e.target as HTMLInputElement).value;
+                setForm((p) => ({ ...p, eventDate: val }));
+                if (errors.eventDate) {
+                  setErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.eventDate;
+                    return next;
+                  });
+                }
+              }}
+              class={`h-13 rounded-input border bg-surface-2 px-4 text-base text-text transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
+                errors.eventDate ? "border-error" : "border-line-input hover:border-text-muted"
+              }`}
+            />
+
+            <label class="flex items-center gap-2 text-small text-text-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={form.flexibleDate}
+                onChange={(e) => setForm((p) => ({ ...p, flexibleDate: (e.target as HTMLInputElement).checked }))}
+                class="h-5 w-5 rounded border-line-input accent-gold"
+              />
+              Dates are flexible
+            </label>
+          </div>
+
+          {errors.eventDate && (
+            <p class="text-small text-error">{errors.eventDate}</p>
+          )}
+
+          {showShortNotice && (
+            <p class="text-small text-text-2 flex items-center gap-1.5">
+              <span class="inline-block h-2 w-2 rounded-full bg-gold" aria-hidden="true" />
+              Short notice, we will confirm availability promptly.
+            </p>
+          )}
+        </div>
+
+        {/* Field 2: Second date or end date (optional) */}
+        <div class="flex flex-col gap-2">
+          <label htmlFor={`${idPrefix}-secondDate`} class="text-small font-semibold text-text-2">
+            Second date or end date <span class="text-text-muted font-normal">(optional: for multi-day shoots or traditional/white wedding pairs)</span>
+          </label>
+          <input
+            id={`${idPrefix}-secondDate`}
+            type="date"
+            min={form.eventDate || today}
+            max={maxDate}
+            value={form.secondDate}
+            onInput={(e) => setForm((p) => ({ ...p, secondDate: (e.target as HTMLInputElement).value }))}
+            class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+          />
+        </div>
+
+        {/* Venue, city, country */}
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div class="flex flex-col gap-2">
+            <label htmlFor={`${idPrefix}-venue`} class="text-small font-semibold text-text-2">
+              Venue <span class="text-text-muted font-normal">(optional)</span>
+            </label>
+            <input
+              id={`${idPrefix}-venue`}
+              type="text"
+              placeholder="e.g. Landmark Centre"
+              value={form.venue}
+              onInput={(e) => setForm((p) => ({ ...p, venue: (e.target as HTMLInputElement).value }))}
+              class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label htmlFor={`${idPrefix}-city`} class="text-small font-semibold text-text-2">
+              City <span class="text-gold">*</span>
+            </label>
+            <input
+              id={`${idPrefix}-city`}
+              type="text"
+              placeholder="e.g. Lagos"
+              value={form.city}
+              onInput={(e) => {
+                const val = (e.target as HTMLInputElement).value;
+                setForm((p) => ({ ...p, city: val }));
+                if (errors.city) {
+                  setErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.city;
+                    return next;
+                  });
+                }
+              }}
+              class={`h-13 rounded-input border bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
+                errors.city ? "border-error" : "border-line-input hover:border-text-muted"
+              }`}
+            />
+            {errors.city && <p class="text-small text-error">{errors.city}</p>}
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label htmlFor={`${idPrefix}-country`} class="text-small font-semibold text-text-2">
+              Country <span class="text-gold">*</span>
+            </label>
+            <input
+              id={`${idPrefix}-country`}
+              type="text"
+              placeholder="e.g. Nigeria"
+              value={form.country}
+              onInput={(e) => setForm((p) => ({ ...p, country: (e.target as HTMLInputElement).value }))}
+              class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Section 02: Creative Scope & Deliverables */}
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-3 border-b border-line pb-2">
+          <span class="text-eyebrow font-semibold tracking-wider text-gold">02</span>
+          <h3 class="font-display text-small tracking-wider uppercase text-text">Creative Scope & Deliverables</h3>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Field 3: Project type */}
+          <div class="flex flex-col gap-2">
+            <label htmlFor={`${idPrefix}-projectType`} class="text-small font-semibold text-text-2">
+              Project type <span class="text-gold">*</span>
+            </label>
+            <select
+              id={`${idPrefix}-projectType`}
+              value={form.projectType}
+              onChange={(e) => setForm((p) => ({ ...p, projectType: (e.target as HTMLSelectElement).value }))}
+              class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+            >
+              {PROJECT_TYPES.map((type) => (
+                <option key={type} value={type} class="bg-surface-2 text-text">
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Field 5: Duration */}
+          <div class="flex flex-col gap-2">
+            <label htmlFor={`${idPrefix}-duration`} class="text-small font-semibold text-text-2">
+              Duration <span class="text-gold">*</span>
+            </label>
+            <select
+              id={`${idPrefix}-duration`}
+              value={form.duration}
+              onChange={(e) => setForm((p) => ({ ...p, duration: (e.target as HTMLSelectElement).value }))}
+              class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+            >
+              {DURATIONS.map((dur) => (
+                <option key={dur} value={dur} class="bg-surface-2 text-text">
+                  {dur}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Field 6: Deliverables (multi-select cards) */}
+        <div class="flex flex-col gap-2">
+          <span class="text-small font-semibold text-text-2">
+            Deliverables <span class="text-gold">* (select at least one)</span>
+          </span>
+          <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
+            {DELIVERABLES.map((item) => {
+              const isChecked = form.deliverables.includes(item);
+              return (
+                <label
+                  key={item}
+                  class={`flex min-h-[48px] cursor-pointer items-center justify-between gap-2 rounded-input border p-3.5 text-small transition-all duration-200 active:scale-95 hover:-translate-y-0.5 select-none ${
+                    isChecked
+                      ? "border-gold bg-surface-3 text-text shadow-[0_0_15px_rgba(251,195,0,0.12)]"
+                      : "border-line-input bg-surface-2 text-text-2 hover:border-gold hover:text-text"
+                  }`}
+                >
+                  <span class="font-medium">{item}</span>
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => toggleDeliverable(item)}
+                    class="h-4 w-4 rounded border-line-input accent-gold"
+                  />
+                </label>
+              );
+            })}
+          </div>
+          {errors.deliverables && <p class="text-small text-error">{errors.deliverables}</p>}
+        </div>
+
+        {/* Field 7: Reference video */}
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <label htmlFor={`${idPrefix}-refVideo`} class="text-small font-semibold text-text-2">
+              Reference video {!form.describeInstead && <span class="text-gold">*</span>}
+            </label>
+            <label class="flex items-center gap-2 text-small text-text-muted cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={form.describeInstead}
+                onChange={(e) => {
+                  const checked = (e.target as HTMLInputElement).checked;
+                  setForm((p) => ({ ...p, describeInstead: checked }));
+                  if (checked && errors.referenceVideo) {
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.referenceVideo;
+                      return next;
+                    });
+                  }
+                }}
+                class="h-4 w-4 rounded border-line-input accent-gold"
+              />
+              I will describe it instead
+            </label>
+          </div>
+
+          {!form.describeInstead && (
+            <input
+              id={`${idPrefix}-refVideo`}
+              type="url"
+              placeholder="Link to a video you like (YouTube, Vimeo, Instagram)"
+              value={form.referenceVideo}
+              onInput={(e) => {
+                const val = (e.target as HTMLInputElement).value;
+                setForm((p) => ({ ...p, referenceVideo: val }));
+                if (errors.referenceVideo) {
                   setErrors((prev) => {
                     const next = { ...prev };
                     delete next.referenceVideo;
@@ -565,203 +625,191 @@ export default function EnquiryForm() {
                   });
                 }
               }}
-              class="h-4 w-4 rounded border-line-input accent-gold"
+              class={`h-13 rounded-input border bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
+                errors.referenceVideo ? "border-error" : "border-line-input hover:border-text-muted"
+              }`}
             />
-            I will describe it instead
-          </label>
+          )}
+          {errors.referenceVideo && <p class="text-small text-error">{errors.referenceVideo}</p>}
         </div>
-
-        {!form.describeInstead && (
-          <input
-            id={`${idPrefix}-refVideo`}
-            type="url"
-            placeholder="Link to a video you like (YouTube, Vimeo, Instagram)"
-            value={form.referenceVideo}
-            onInput={(e) => {
-              const val = (e.target as HTMLInputElement).value;
-              setForm((p) => ({ ...p, referenceVideo: val }));
-              if (errors.referenceVideo) {
-                setErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.referenceVideo;
-                  return next;
-                });
-              }
-            }}
-            class={`h-13 rounded-input border bg-surface-2 px-4 text-base text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
-              errors.referenceVideo ? "border-error" : "border-line-input"
-            }`}
-          />
-        )}
-        {errors.referenceVideo && <p class="text-small text-error">{errors.referenceVideo}</p>}
       </div>
 
-      {/* Field 8: Name */}
-      <div class="flex flex-col gap-2">
-        <label htmlFor={`${idPrefix}-name`} class="text-small font-semibold text-text-2">
-          Your name <span class="text-gold">*</span>
-        </label>
-        <input
-          id={`${idPrefix}-name`}
-          type="text"
-          placeholder="e.g. Ada and Tunde / Folake Adeyemi"
-          value={form.name}
-          onInput={(e) => {
-            const val = (e.target as HTMLInputElement).value;
-            setForm((p) => ({ ...p, name: val }));
-            if (errors.name) {
-              setErrors((prev) => {
-                const next = { ...prev };
-                delete next.name;
-                return next;
-              });
-            }
-          }}
-          class={`h-13 rounded-input border bg-surface-2 px-4 text-base text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
-            errors.name ? "border-error" : "border-line-input"
-          }`}
-        />
-        {errors.name && <p class="text-small text-error">{errors.name}</p>}
-      </div>
-
-      {/* Field 9: Company or agency */}
-      <div class="flex flex-col gap-2">
-        <label htmlFor={`${idPrefix}-company`} class="text-small font-semibold text-text-2">
-          Company or agency <span class="text-text-muted font-normal">(optional — for brand shoots & agencies)</span>
-        </label>
-        <input
-          id={`${idPrefix}-company`}
-          type="text"
-          placeholder="e.g. Studio Red / Brand Name"
-          value={form.company}
-          onInput={(e) => setForm((p) => ({ ...p, company: (e.target as HTMLInputElement).value }))}
-          class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
-        />
-      </div>
-
-      {/* Contact info: WhatsApp number OR Email (Fields 10 & 11) */}
-      <div class="flex flex-col gap-3 rounded-card border border-line bg-surface-1 p-4">
-        <div>
-          <span class="text-small font-semibold text-text-2">
-            Contact information <span class="text-gold">* (provide at least one)</span>
-          </span>
-          <p class="text-small text-text-muted">
-            We use this only to follow up on your enquiry. When you send the brief on WhatsApp, we will reply to that number.
-          </p>
+      {/* Section 03: Client Details & Dispatch */}
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-3 border-b border-line pb-2">
+          <span class="text-eyebrow font-semibold tracking-wider text-gold">03</span>
+          <h3 class="font-display text-small tracking-wider uppercase text-text">Contact Details</h3>
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Field 8: Name */}
           <div class="flex flex-col gap-2">
-            <label htmlFor={`${idPrefix}-whatsapp`} class="text-small font-semibold text-text-2">
-              WhatsApp number
+            <label htmlFor={`${idPrefix}-name`} class="text-small font-semibold text-text-2">
+              Your name <span class="text-gold">*</span>
             </label>
             <input
-              id={`${idPrefix}-whatsapp`}
-              type="tel"
-              placeholder="e.g. 08012345678 or +234..."
-              value={form.whatsapp}
+              id={`${idPrefix}-name`}
+              type="text"
+              placeholder="e.g. Ada and Tunde / Folake Adeyemi"
+              value={form.name}
               onInput={(e) => {
                 const val = (e.target as HTMLInputElement).value;
-                setForm((p) => ({ ...p, whatsapp: val }));
-                if (errors.contact) {
+                setForm((p) => ({ ...p, name: val }));
+                if (errors.name) {
                   setErrors((prev) => {
                     const next = { ...prev };
-                    delete next.contact;
-                    delete next.whatsapp;
+                    delete next.name;
                     return next;
                   });
                 }
               }}
-              class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+              class={`h-13 rounded-input border bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
+                errors.name ? "border-error" : "border-line-input hover:border-text-muted"
+              }`}
             />
-            {errors.whatsapp && <p class="text-small text-error">{errors.whatsapp}</p>}
+            {errors.name && <p class="text-small text-error">{errors.name}</p>}
           </div>
 
+          {/* Field 9: Company or agency */}
           <div class="flex flex-col gap-2">
-            <label htmlFor={`${idPrefix}-email`} class="text-small font-semibold text-text-2">
-              Email address
+            <label htmlFor={`${idPrefix}-company`} class="text-small font-semibold text-text-2">
+              Company or agency <span class="text-text-muted font-normal">(optional, for brand shoots and agencies)</span>
             </label>
             <input
-              id={`${idPrefix}-email`}
-              type="email"
-              placeholder="e.g. you@example.com"
-              value={form.email}
-              onInput={(e) => {
-                const val = (e.target as HTMLInputElement).value;
-                setForm((p) => ({ ...p, email: val }));
-                if (errors.contact || errors.email) {
-                  setErrors((prev) => {
-                    const next = { ...prev };
-                    delete next.contact;
-                    delete next.email;
-                    return next;
-                  });
-                }
-              }}
-              class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+              id={`${idPrefix}-company`}
+              type="text"
+              placeholder="e.g. Studio Red / Brand Name"
+              value={form.company}
+              onInput={(e) => setForm((p) => ({ ...p, company: (e.target as HTMLInputElement).value }))}
+              class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
             />
-            {errors.email && <p class="text-small text-error">{errors.email}</p>}
           </div>
         </div>
-        {errors.contact && <p class="text-small text-error">{errors.contact}</p>}
-      </div>
 
-      {/* Field 12: Notes */}
-      <div class="flex flex-col gap-2">
-        <label htmlFor={`${idPrefix}-notes`} class="text-small font-semibold text-text-2">
-          Notes {form.describeInstead ? <span class="text-gold">*</span> : <span class="text-text-muted font-normal">(optional, max 1000 characters)</span>}
-        </label>
-        <textarea
-          id={`${idPrefix}-notes`}
-          rows={4}
-          maxLength={1000}
-          placeholder={form.describeInstead ? "Describe your creative vision, references, or specific moments to capture..." : "Any additional details or schedule notes..."}
-          value={form.notes}
-          onInput={(e) => {
-            const val = (e.target as HTMLTextAreaElement).value;
-            setForm((p) => ({ ...p, notes: val }));
-            if (errors.notes) {
-              setErrors((prev) => {
-                const next = { ...prev };
-                delete next.notes;
-                return next;
-              });
-            }
-          }}
-          class={`rounded-input border bg-surface-2 p-4 text-base text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
-            errors.notes ? "border-error" : "border-line-input"
-          }`}
-        />
-        {errors.notes && <p class="text-small text-error">{errors.notes}</p>}
-      </div>
+        {/* Contact info: WhatsApp number OR Email */}
+        <div class="flex flex-col gap-3 rounded-card border border-line bg-surface-1 p-5">
+          <div>
+            <span class="text-small font-semibold text-text-2">
+              Contact information <span class="text-gold">* (provide at least one)</span>
+            </span>
+            <p class="text-small text-text-muted">
+              We use this exclusively to follow up on your enquiry. When you send the brief on WhatsApp, we reply to that number.
+            </p>
+          </div>
 
-      {/* Field 13: Consent checkbox */}
-      <div class="flex flex-col gap-1">
-        <label class="flex items-start gap-3 cursor-pointer text-small text-text-2">
-          <input
-            type="checkbox"
-            checked={form.consent}
-            onChange={(e) => {
-              const checked = (e.target as HTMLInputElement).checked;
-              setForm((p) => ({ ...p, consent: checked }));
-              if (checked && errors.consent) {
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="flex flex-col gap-2">
+              <label htmlFor={`${idPrefix}-whatsapp`} class="text-small font-semibold text-text-2">
+                WhatsApp number
+              </label>
+              <input
+                id={`${idPrefix}-whatsapp`}
+                type="tel"
+                placeholder="e.g. 08012345678 or +234..."
+                value={form.whatsapp}
+                onInput={(e) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  setForm((p) => ({ ...p, whatsapp: val }));
+                  if (errors.contact) {
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.contact;
+                      delete next.whatsapp;
+                      return next;
+                    });
+                  }
+                }}
+                class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+              />
+              {errors.whatsapp && <p class="text-small text-error">{errors.whatsapp}</p>}
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label htmlFor={`${idPrefix}-email`} class="text-small font-semibold text-text-2">
+                Email address
+              </label>
+              <input
+                id={`${idPrefix}-email`}
+                type="email"
+                placeholder="e.g. you@example.com"
+                value={form.email}
+                onInput={(e) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  setForm((p) => ({ ...p, email: val }));
+                  if (errors.contact || errors.email) {
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.contact;
+                      delete next.email;
+                      return next;
+                    });
+                  }
+                }}
+                class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+              />
+              {errors.email && <p class="text-small text-error">{errors.email}</p>}
+            </div>
+          </div>
+          {errors.contact && <p class="text-small text-error">{errors.contact}</p>}
+        </div>
+
+        {/* Field 12: Notes */}
+        <div class="flex flex-col gap-2">
+          <label htmlFor={`${idPrefix}-notes`} class="text-small font-semibold text-text-2">
+            Notes {form.describeInstead ? <span class="text-gold">*</span> : <span class="text-text-muted font-normal">(optional, max 1000 characters)</span>}
+          </label>
+          <textarea
+            id={`${idPrefix}-notes`}
+            rows={4}
+            maxLength={1000}
+            placeholder={form.describeInstead ? "Describe your creative vision, references, or specific moments to capture..." : "Any additional details or schedule notes..."}
+            value={form.notes}
+            onInput={(e) => {
+              const val = (e.target as HTMLTextAreaElement).value;
+              setForm((p) => ({ ...p, notes: val }));
+              if (errors.notes) {
                 setErrors((prev) => {
                   const next = { ...prev };
-                  delete next.consent;
+                  delete next.notes;
                   return next;
                 });
               }
             }}
-            class="mt-1 h-5 w-5 rounded border-line-input accent-gold"
+            class={`rounded-input border bg-surface-2 p-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
+              errors.notes ? "border-error" : "border-line-input hover:border-text-muted"
+            }`}
           />
-          <span>
-            I agree to be contacted about this enquiry in accordance with the{" "}
-            <a href="/privacy" target="_blank" class="text-gold underline underline-offset-2 hover:text-gold-bright">
-              Privacy Notice
-            </a>.
-          </span>
-        </label>
-        {errors.consent && <p class="text-small text-error">{errors.consent}</p>}
+          {errors.notes && <p class="text-small text-error">{errors.notes}</p>}
+        </div>
+
+        {/* Field 13: Consent checkbox */}
+        <div class="flex flex-col gap-1">
+          <label class="flex items-start gap-3 cursor-pointer text-small text-text-2 select-none">
+            <input
+              type="checkbox"
+              checked={form.consent}
+              onChange={(e) => {
+                const checked = (e.target as HTMLInputElement).checked;
+                setForm((p) => ({ ...p, consent: checked }));
+                if (checked && errors.consent) {
+                  setErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.consent;
+                    return next;
+                  });
+                }
+              }}
+              class="mt-1 h-5 w-5 rounded border-line-input accent-gold"
+            />
+            <span>
+              I agree to be contacted about this enquiry in accordance with the{" "}
+              <a href="/privacy" target="_blank" class="text-gold underline underline-offset-2 hover:text-gold-bright">
+                Privacy Notice
+              </a>.
+            </span>
+          </label>
+          {errors.consent && <p class="text-small text-error">{errors.consent}</p>}
+        </div>
       </div>
 
       {/* Honeypot field (Audit Item 5): Hidden from users, traps automated form-scraping bots */}
@@ -779,9 +827,13 @@ export default function EnquiryForm() {
       </div>
 
       {/* Submit row & Response-time promise (FR-15) */}
-      <div class="flex flex-col gap-3 pt-2">
-        <button type="submit" class="btn-primary w-full md:w-auto md:self-start">
-          Send brief
+      <div class="flex flex-col gap-4 border-t border-line pt-6">
+        <button
+          type="submit"
+          class="btn-primary group w-full md:w-auto md:self-start text-base shadow-[0_0_20px_rgba(251,195,0,0.2)] hover:shadow-[0_0_30px_rgba(251,195,0,0.35)]"
+        >
+          <span>Generate WhatsApp Brief</span>
+          <span class="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
         </button>
 
         <p class="text-small text-text-2">
