@@ -1,74 +1,86 @@
 ---
-// FR-19 and DESIGN.md section 7: Four core cinematography services with specialized deliverable tags.
+// FR-19. Four offers, matching the four categories the work is filed under. The copy is a builder
+// draft under D25 and promises no equipment, turnaround or price the client has not confirmed.
 const services = [
   {
     number: "01",
-    name: "Weddings & Luxury Celebrations",
-    description: "Comprehensive multi-camera coverage for traditional engagements, white wedding ceremonies, and grand receptions, captured with emotional depth and cinematic color.",
-    tags: ["4K Highlight Film", "Full Ceremony Documentary", "Drone Cinematography", "Teaser Cut"],
+    name: "Weddings and celebrations",
+    description:
+      "Traditional and white weddings, engagements and receptions. We follow the day as it happens and cut it into a film you will want to watch again.",
+    tags: ["Highlight film", "Full ceremony", "Teaser cut"],
   },
   {
     number: "02",
-    name: "Commercial & Brand Campaigns",
-    description: "Visual storytelling for luxury brands, corporate milestones, fashion showcases, and product films engineered for digital dominance and broadcast fidelity.",
-    tags: ["Brand Narrative", "Master Color Grade", "Social Cutdowns", "Directorial Treatment"],
+    name: "Commercial and brand",
+    description:
+      "Campaign films, product stories and fashion pieces. One clear idea, shot with intent and finished for the places people actually watch.",
+    tags: ["Brand film", "Social cuts", "Product"],
   },
   {
     number: "03",
-    name: "Cultural Festivals & Galas",
-    description: "High-fidelity documentation of heritage festivals, traditional masquerades, state galas, and live ceremonies with multi-channel audio mastering.",
-    tags: ["Live Multi-Cam", "Audio Mastering", "Cultural Archiving", "Festival Highlights"],
+    name: "Cultural events and galas",
+    description:
+      "Festivals, ceremonies and live gatherings. The crowd, the colour and the sound, documented with a cinema eye and a documentarian's patience.",
+    tags: ["Event coverage", "Multi-cam", "Highlights"],
   },
   {
     number: "04",
-    name: "Documentary & Executive Retrospectives",
-    description: "In-depth biographical profiles, personal retrospectives, and long-form narrative documentaries produced with patient directorial precision.",
-    tags: ["Directorial Vision", "In-Depth Interviews", "4K Archive", "Sound Design"],
+    name: "Documentary and portraits",
+    description:
+      "Long-form profiles, retrospectives and interviews. Quiet, patient storytelling for people and institutions with something worth recording.",
+    tags: ["Interviews", "Long form", "Archive"],
   },
 ];
 ---
 
-<section id="services" class="container-site flex flex-col gap-8 py-18 md:py-30">
-  <div class="flex flex-col gap-2 max-w-2xl" data-reveal>
-    <p class="eyebrow">Services & Capabilities</p>
-    <h2 class="font-display text-h2 text-text">Cinematography for milestones that matter</h2>
-    <p class="text-body-large text-text-2">
-      Every production is approached with cinema lenses, multi-angle coverage, and dedicated color grading.
+<section id="services" class="container-site py-20 md:py-32">
+  <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between" data-reveal>
+    <div class="flex flex-col gap-4">
+      <p class="eyebrow">What we shoot</p>
+      <h2 class="max-w-[18ch] text-h2 font-semibold text-text">
+        One crew, four <span class="display-italic text-gold">instincts.</span>
+      </h2>
+    </div>
+    <p class="max-w-[34ch] text-small text-text-muted md:text-right">
+      Every commission starts with the date and the story. The format follows.
     </p>
   </div>
 
-  <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+  <div class="mt-10 grid grid-cols-1 gap-4 md:mt-14 md:grid-cols-2">
     {
       services.map((service, index) => (
-        <div class="card group flex flex-col justify-between gap-6 p-6 md:p-8 transition-all duration-300 hover:border-gold/60" data-reveal data-reveal-delay={String((index % 2) + 1)}>
-          <div class="flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <span class="font-mono text-small text-gold tracking-widest transition-transform duration-200 group-hover:translate-x-1">{service.number}</span>
-              <span class="size-2 rounded-full bg-gold/40 transition-all duration-300 group-hover:scale-175 group-hover:bg-gold" />
+        <article
+          class="group panel relative flex flex-col justify-between gap-8 overflow-hidden p-6 transition-colors duration-500 hover:border-gold/50 md:p-8"
+          data-reveal
+          data-reveal-delay={String((index % 2) + 1)}
+        >
+          <div class="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full border border-line/60 transition-transform duration-700 group-hover:scale-110" aria-hidden="true" />
+
+          <div class="relative flex flex-col gap-4">
+            <div class="flex items-start justify-between">
+              <span class="font-mono text-small tracking-[0.2em] text-gold">{service.number}</span>
+              <span class="size-1.5 rounded-full bg-line-strong transition-colors duration-300 group-hover:bg-gold" aria-hidden="true"></span>
             </div>
-            <h3 class="font-display text-h3 text-text group-hover:text-gold transition-colors duration-200">
-              {service.name}
-            </h3>
-            <p class="text-body text-text-2 leading-relaxed">{service.description}</p>
+            <h3 class="max-w-[18ch] text-h3 font-semibold text-text">{service.name}</h3>
+            <p class="max-w-[46ch] text-body text-text-2">{service.description}</p>
           </div>
 
-          <div class="flex flex-col gap-4 border-t border-line/50 pt-5">
-            <div class="flex flex-wrap gap-2">
+          <div class="relative flex flex-col gap-5">
+            <ul class="flex flex-wrap gap-2">
               {service.tags.map((tag) => (
-                <span class="chip text-xs py-1 px-3 border-line/80 bg-surface-1/60 text-text-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/60 hover:text-gold hover:bg-surface-2">
+                <li class="rounded-full border border-line px-3 py-1.5 text-small text-text-muted">
                   {tag}
-                </span>
+                </li>
               ))}
-            </div>
-            <a
-              href="/commission/"
-              class="group/link inline-flex items-center gap-1.5 text-small font-semibold text-gold transition-colors hover:text-gold-bright"
-            >
-              <span>Inquire for date availability</span>
-              <span class="transition-transform duration-200 group-hover/link:translate-x-1" aria-hidden="true">&rarr;</span>
+            </ul>
+            <a href="/commission/" class="inline-flex min-h-11 w-fit items-center gap-2 text-small font-semibold text-text transition-colors hover:text-gold">
+              Start a brief
+              <svg class="size-3.5 fill-none stroke-current transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
             </a>
           </div>
-        </div>
+        </article>
       ))
     }
   </div>

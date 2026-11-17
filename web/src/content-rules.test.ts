@@ -7,10 +7,9 @@ import {
   credentialSchema,
   demoCredentials,
   placeholderProjects,
-  placeholderReelTitle,
   projectSchema,
   reelItems,
-  reelTitle,
+  sampleFootageLabel,
   shorableProjects,
   verifiedCredentials,
   visibleCredentials,
@@ -167,14 +166,12 @@ describe("the demo flag", () => {
     expect(messagesFor({ ...realProject, demo: true })).toContain("designed placeholder");
   });
 
-  it("names the stand-in the reel prints for a title that does not exist yet", () => {
-    // D23 keeps the bracket in the content file and in the grid. D25 asks the reel, the surface
-    // someone judges the quality of, to wear a finished-looking label instead.
-    expect(reelTitle(entry(demoDraft))).toBe(placeholderReelTitle);
-    expect(reelTitle(entry(realProject))).toBe(realProject.title);
-    // The stand-in claims nothing: no bracket, no client, no superlative, no count.
-    expect(placeholderReelTitle).not.toMatch(/\[[^\]]*\]/);
-    expect(placeholderReelTitle).toBe("Placeholder reel");
+  it("labels the sample cuts without claiming they are case studies", () => {
+    // D30: the shipped clips are real footage with no permission and no verified brief, so every
+    // surface that shows one badges it. The label names no client, no number and no superlative.
+    expect(sampleFootageLabel).toBe("Sample footage");
+    expect(sampleFootageLabel).not.toMatch(/\[[^\]]*\]/);
+    expect(sampleFootageLabel).not.toMatch(/\d/);
   });
 });
 
@@ -241,13 +238,18 @@ describe("the demo content files", () => {
       .filter((name) => name.endsWith(".yaml"))
       .map((name) => readFileSync(join(repoRoot, projectsDir, name), "utf8"));
 
-  it("are all placeholders while C-2 has delivered nothing", () => {
+  it("are all sample footage while C-2 has delivered nothing", () => {
     const texts = projectTexts();
-    expect(texts).toHaveLength(4);
+    expect(texts).toHaveLength(9);
     for (const text of texts) {
       expect(text).toContain("demo: true");
       expect(text).toContain("verified: false");
       expect(text).toContain("publish_ok: false");
+      // A sample carries no client, no event and no year: those are case-study fields, and every
+      // one of them would be invented here.
+      expect(text).not.toMatch(/^client_name: /m);
+      expect(text).not.toMatch(/^event_name: /m);
+      expect(text).not.toMatch(/^year: /m);
     }
   });
 
@@ -255,7 +257,7 @@ describe("the demo content files", () => {
     const categories = readdirSync(join(repoRoot, projectsDir))
       .filter((name) => name.endsWith(".yaml"))
       .map((name) => /^category: (.+)$/m.exec(readFileSync(join(repoRoot, projectsDir, name), "utf8"))?.[1]);
-    expect([...categories].sort()).toEqual(
+    expect([...new Set(categories)].sort()).toEqual(
       ["Commercial", "Cultural Festivals", "Documentaries", "Weddings"],
     );
   });
@@ -276,19 +278,30 @@ describe("the demo content files", () => {
     }
   });
 
-  it("puts every clip that plays in the reel under a placeholder label", () => {
-    // Every /media source has to have a poster saying it is a stand-in, and the Weddings entry,
-    // which is the private category, stays out of the reel entirely (D23, D29).
+  it("gives every entry a poster and a vertical cut", () => {
+    // The wall is 9:16 and every tile is a still, so a poster is not optional, and the clip it
+    // links to has to exist as a file we serve.
+    for (const text of projectTexts()) {
+      expect(text).toMatch(/^poster: media\/work\/poster-\d{2}\.jpg$/m);
+      expect(text).toMatch(/^video_url: \/media\/(work|reel)\//m);
+    }
+  });
+
+  it("keeps weddings out of the autoplaying reel", () => {
+    // FR-2 and the private-category rule: the reel starts on its own, so a wedding only ever
+    // appears as a tile the visitor chooses. Sample status does not change that.
     const texts = projectTexts();
-    expect(texts.filter((text) => /^video_url: \/media\//m.test(text))).toHaveLength(3);
-    for (const text of texts) {
-      if (/^category: Weddings$/m.test(text)) {
-        expect(text).toContain("hero_reel: false");
-        expect(text).not.toMatch(/^poster: /m);
-      } else {
-        expect(text).toContain("hero_reel: true");
-        expect(text).toMatch(/^poster: /m);
-      }
+    for (const text of texts.filter((item) => /^category: Weddings$/m.test(item))) {
+      expect(text).toContain("hero_reel: false");
+    }
+    expect(texts.filter((text) => /^hero_reel: true$/m.test(text))).toHaveLength(5);
+  });
+
+  it("serves every autoplaying item from the small reel cuts", () => {
+    // D29 caps what may start unprompted. The page loads these before a tap, so they have to be
+    // the 6 second, sub-400 kB files, not the 8 second work cuts.
+    for (const text of projectTexts().filter((item) => /^hero_reel: true$/m.test(item))) {
+      expect(text).toMatch(/^video_url: \/media\/reel\/reel-\d{2}\.mp4$/m);
     }
   });
 

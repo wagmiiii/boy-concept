@@ -1,138 +1,194 @@
 ---
-// DESIGN.md section 7 Hero, and FR-1: brand statement, primary CTA that scrolls to the form,
-// secondary CTA to the showreel. The headline is one of three drafts the builder wrote, listed in
-// content/copy.md, and none of them is approved. It stays an open placeholder in
-// content/PLACEHOLDERS.md until Q1 and C-10, and it makes no claim a verification-log row would
-// have to back: no superlative, no stat, no client name.
+// Hero. The headline is a builder draft under D25, registered in content/PLACEHOLDERS.md, and it
+// makes no factual claim. The media card is poster first: the clip is created inside the tap, so
+// nothing points at a video byte until the visitor asks (ESSENTIALS rule 10).
 import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import { sampleFootageLabel, visibleProjects } from "../content-rules";
+import { posterFor } from "../poster-index";
 import logo from "../assets/brand/alpha-movies-logo.webp";
 
-// DESIGN.md section 8: at most three flares in view, decorative only, static on mobile.
-const sparkles = ["sparkle-a size-4 -left-2 top-1", "sparkle-b size-3 -right-3 top-8", "sparkle-c size-3 -bottom-1 left-[18%]"];
+const projects = visibleProjects(await getCollection("projects"));
+const portraitProject =
+  projects.find((project) => project.data.poster?.includes("poster-09")) ?? projects[0];
+const wideProject =
+  projects.find((project) => project.data.poster?.includes("poster-04")) ?? projects[1];
+
+const portraitPoster = portraitProject?.data.poster ? posterFor(portraitProject.data.poster) : undefined;
+const widePoster = wideProject?.data.poster ? posterFor(wideProject.data.poster) : undefined;
+
+const marquee = ["Weddings", "Cultural events", "Commercial", "Documentary", "Music films", "Same-day edits"];
 ---
 
-<section
-  id="hero"
-  class="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32"
->
-  {/* Atmospheric ambient lighting glow */}
-  <div class="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[min(900px,96vw)] h-[500px] glow-gold-ambient blur-3xl opacity-80" aria-hidden="true" />
+<section id="top" class="relative overflow-hidden pb-14 pt-32 md:pb-20 md:pt-40">
+  <div class="ambient-gold pointer-events-none absolute inset-x-0 -top-40 h-[560px]" aria-hidden="true"></div>
 
-  <div class="container-site relative z-10 flex flex-col items-center gap-7 text-center">
-    {/* Brand Logo & Sparkles */}
-    <div class="relative w-full max-w-140 my-2 animate-reveal">
-      <Image
-        src={logo}
-        widths={[560, 1120]}
-        sizes="(max-width: 767px) 340px, 560px"
-        alt="Alpha Movies"
-        loading="eager"
-        fetchpriority="high"
-        class="w-full drop-shadow-[0_12px_24px_rgba(0,0,0,0.8)]"
-      />
+  <div class="container-site relative">
+    <div class="grid items-end gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+      <div class="flex flex-col items-start">
+        <p class="eyebrow" data-reveal>
+          Alpha Movies presents
+        </p>
 
-      {
-        sparkles.map((cls) => (
-          <svg
-            class={`pointer-events-none absolute ${cls}`}
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            aria-hidden="true"
+        <h1
+          class="mt-6 text-display font-semibold text-text"
+          data-reveal
+          data-reveal-delay="1"
+        >
+          Films with<br />
+          <span class="display-italic text-gold">feeling.</span>
+        </h1>
+
+        <p
+          class="mt-7 max-w-[46ch] text-body-large text-text-2"
+          data-reveal
+          data-reveal-delay="2"
+        >
+          Weddings, cultural events, campaigns and documentaries, shot with a cinema eye in Lagos and
+          wherever the story is. Tell us the date and we will tell you what is possible.
+        </p>
+
+        <div class="mt-9 flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center" data-reveal data-reveal-delay="3">
+          <a href="/commission/" class="btn-primary">
+            Check a date
+            <svg class="size-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </a>
+          <a href="#reel" class="btn-secondary">
+            <svg class="size-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5.5v13l11-6.5z" />
+            </svg>
+            Watch the reel
+          </a>
+        </div>
+
+        <div class="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-line pt-7" data-reveal data-reveal-delay="4">
+          <Image
+            src={logo}
+            widths={[280, 560]}
+            sizes="220px"
+            alt="Alpha Movies"
+            loading="eager"
+            fetchpriority="high"
+            class="logo-plate h-auto w-[200px] opacity-90 md:w-[240px]"
+          />
+          <p class="max-w-[22ch] text-small text-text-muted">
+            The film and video studio behind Boy Concept.
+          </p>
+        </div>
+      </div>
+
+      {/* Media composition: two vertical frames, the smaller one offset behind. Every clip on the
+          site is 9:16 now, so the composition stays portrait instead of letterboxing the footage. */}
+      <div class="relative mx-auto w-full max-w-[480px] lg:max-w-none" data-reveal data-reveal-delay="2">
+        {
+          wideProject && widePoster ? (
+            <div class="absolute -top-8 -right-2 hidden w-[52%] rotate-2 md:block" aria-hidden="true">
+              <div class="tile-frame aspect-[9/16] border border-line shadow-2xl">
+                <Image
+                  src={widePoster}
+                  widths={[420, 840]}
+                  sizes="(max-width: 1199px) 320px, 380px"
+                  alt=""
+                  class="absolute inset-0 size-full object-cover"
+                />
+              </div>
+            </div>
+          ) : null
+        }
+
+        <div class="relative ml-auto w-[78%] max-w-[360px] pt-12 md:pt-20">
+          <div
+            class="tile-frame aspect-[9/16] border border-line-strong shadow-[0_40px_90px_-30px_var(--bg)]"
+            data-feature
+            data-src={portraitProject?.data.video_url ?? ""}
+            data-kind="file"
           >
-            <path d="M12 0c1 6.5 5.5 11 12 12-6.5 1-11 5.5-12 12-1-6.5-5.5-11-12-12C6.5 11 11 6.5 12 0Z" />
-          </svg>
+            {
+              portraitPoster ? (
+                <Image
+                  src={portraitPoster}
+                  widths={[420, 840]}
+                  sizes="(max-width: 767px) 78vw, 360px"
+                  alt={portraitProject ? `${portraitProject.data.title} still` : "Film still"}
+                  loading="eager"
+                  class="absolute inset-0 size-full object-cover"
+                />
+              ) : null
+            }
+
+            <div class="media-chrome absolute inset-0 flex flex-col justify-between p-4">
+              <div class="flex items-center justify-between">
+                <span class="tag">Now screening</span>
+                <span class="font-mono text-[0.7rem] tracking-[0.18em] text-media-text/80">
+                  {portraitProject?.data.category ?? ""}
+                </span>
+              </div>
+
+              <div class="flex items-end justify-between gap-3">
+                <div>
+                  <p class="text-small font-medium text-media-text">
+                    {portraitProject?.data.title ?? "Selected work"}
+                  </p>
+                  <p class="text-eyebrow uppercase tracking-[0.18em] text-media-text/65">{sampleFootageLabel}</p>
+                </div>
+
+                <button type="button" class="btn-icon border-media-text/30 text-media-text" data-feature-play>
+                  <span class="sr-only">Play the featured clip</span>
+                  <svg class="ml-0.5 size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 5.5v13l11-6.5z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass absolute -left-6 bottom-8 hidden items-center gap-3 rounded-full px-4 py-3 md:flex">
+            <span class="flex size-2 items-center justify-center">
+              <span class="size-2 rounded-full bg-gold"></span>
+            </span>
+            <span class="text-small text-text-2">Reel 2026</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="marquee mt-16 border-y border-line py-4 md:mt-24">
+    <div class="marquee-track" aria-hidden="true">
+      {
+        [...marquee, ...marquee].map((item) => (
+          <span class="flex items-center gap-6 pr-6 text-small font-medium uppercase tracking-[0.24em] text-text-muted">
+            {item}
+            <svg class="size-2.5 fill-gold" viewBox="0 0 24 24">
+              <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2L12 0Z" />
+            </svg>
+          </span>
         ))
       }
-    </div>
-
-    {/* Headline & Subheadline */}
-    <div class="flex flex-col items-center gap-4 max-w-3xl animate-reveal delay-1">
-      <h1 class="text-balance font-display text-display tracking-tight text-text">
-        Shot for the <span class="bg-gradient-to-r from-gold-bright via-gold to-gold-deep bg-clip-text text-transparent">occasion</span>
-      </h1>
-
-      <p class="max-w-[55ch] text-body-large text-text-2 leading-relaxed">
-        Commercial films, cultural festival coverage, wedding and documentary work. Tell us the date
-        and we will tell you what is possible.
-      </p>
-    </div>
-
-    {/* CTA Row */}
-    <div class="flex flex-col gap-3.5 pt-2 w-full md:w-auto md:flex-row md:justify-center animate-reveal delay-2">
-      <a href="/commission/" class="btn-primary shadow-glow-gold hover:scale-[1.02] transition-transform group">
-        <span>Check a date</span>
-        <span class="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
-      </a>
-      <a href="/#showreel" class="btn-secondary hover:scale-[1.02] transition-transform group">
-        <svg class="size-4 fill-current mr-0.5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" aria-hidden="true">
-          <polygon points="5 3 19 12 5 21 5 3" />
-        </svg>
-        <span>View showreel</span>
-      </a>
-    </div>
-
-    {/* Cinema specs banner */}
-    <div class="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-line/40 pt-6 text-eyebrow uppercase tracking-[0.2em] text-text-muted animate-reveal delay-3">
-      <span class="flex items-center gap-2 hover:text-text-2 transition-colors duration-200">
-        <span class="text-gold font-bold">&bull;</span> 4K DCI Cinema
-      </span>
-      <span class="hidden md:inline text-line/80">&bull;</span>
-      <span class="flex items-center gap-2 hover:text-text-2 transition-colors duration-200">
-        <span class="text-gold font-bold">&bull;</span> Multi-Cam & Drone
-      </span>
-      <span class="hidden md:inline text-line/80">&bull;</span>
-      <span class="flex items-center gap-2 hover:text-text-2 transition-colors duration-200">
-        <span class="text-gold font-bold">&bull;</span> Master Color Grade
-      </span>
-      <span class="hidden md:inline text-line/80">&bull;</span>
-      <span class="flex items-center gap-2 hover:text-text-2 transition-colors duration-200">
-        <span class="text-gold font-bold">&bull;</span> Raw Footage Archive
-      </span>
     </div>
   </div>
 </section>
 
-<style>
-  .sparkle-a,
-  .sparkle-b,
-  .sparkle-c {
-    color: var(--gold);
-    opacity: 0.55;
-  }
+<script>
+  // Poster first. The video element exists only after the visitor presses play.
+  const feature = document.querySelector<HTMLElement>("[data-feature]");
+  const playButton = feature?.querySelector<HTMLButtonElement>("[data-feature-play]");
 
-  @media (min-width: 768px) {
-    .sparkle-a {
-      animation: twinkle 3.4s var(--motion-ease) infinite;
-    }
+  playButton?.addEventListener("click", () => {
+    if (!feature) return;
+    const src = feature.dataset.src ?? "";
+    if (!src) return;
 
-    .sparkle-b {
-      animation: twinkle 4s var(--motion-ease) 1.2s infinite;
-    }
-
-    .sparkle-c {
-      animation: twinkle 3.4s var(--motion-ease) 2.3s infinite;
-    }
-  }
-
-  @keyframes twinkle {
-    0%,
-    100% {
-      opacity: 0.55;
-      transform: scale(0.95);
-    }
-
-    50% {
-      opacity: 1;
-      transform: scale(1.05);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .sparkle-a,
-    .sparkle-b,
-    .sparkle-c {
-      animation: none;
-      opacity: 0.8;
-    }
-  }
-</style>
+    const video = document.createElement("video");
+    video.src = src;
+    video.controls = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.className = "absolute inset-0 z-0 size-full bg-surface-cinema object-cover";
+    feature.append(video);
+    feature.dataset.playing = "true";
+    void video.play().catch(() => undefined);
+  });
+</script>

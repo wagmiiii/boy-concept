@@ -1,0 +1,12 @@
+# Sample footage (D28, D30), not a case study. See crowned.yaml for the rule.
+title: "In Conversation"
+category: Documentaries
+video_url: /media/reel/reel-02.mp4
+poster: media/work/poster-07.jpg
+hero_reel: true
+deliverables: []
+summary: "A seated interview, lit for skin, cut for the smile between answers."
+publish_ok: false
+verified: false
+demo: true
+sort_order: 20

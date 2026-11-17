@@ -1,0 +1,13 @@
+# Sample footage (D28, D30), not a case study. See crowned.yaml for the rule.
+title: "Something Blue"
+category: Weddings
+location: "Lagos"
+video_url: /media/work/clip-13.mp4
+poster: media/work/poster-13.jpg
+hero_reel: false
+deliverables: []
+summary: "A couple in blue aso ebi on a green backdrop, caught mid-laugh."
+publish_ok: false
+verified: false
+demo: true
+sort_order: 60

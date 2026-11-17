@@ -4,8 +4,8 @@ Where everything lives and why. Read this before creating, moving or deleting a 
 
 | | |
 |---|---|
-| Last updated | 2026-10-27 |
-| Structure version | 0.8 |
+| Last updated | 2026-11-17 |
+| Structure version | 0.9 |
 | Status | Partly real. Files marked (exists) are on disk. Everything else is created when its ROADMAP task is started. Since P-1 the `web` workspace is a normal Astro 7 site with Tailwind v4, the Preact integration, the Fonts API, the design tokens and a base layout, and since P-2 it has the ten section components, the real page order, a 404 page and the assets `not_found_handling` that goes with it; `shared` is still an empty workspace until P-10 and P-11, and `worker` still holds only the spike routes. P-3 built the hero and P-4 wired the showreel, which is now the one component that ships JavaScript. P-25 moved the whole site onto DESIGN section 5's breakpoints and gutters and rebuilt the Process section as a rail. P-5 added the content layer: `web/src/content.config.ts` with the projects schema and the verification build guard in `content-rules.ts`, and four labelled demo entries under `web/src/content/projects/`. The Work grid reads that collection now, and no real project is in it |
 
 ## Update rule (mandatory, applies to humans and agents)
@@ -107,13 +107,17 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │   │   ├── favicon.svg                (exists, P-21) brand gold star favicon
 │   │   ├── og-image.png               (exists, P-21) 1200 x 630 OpenGraph social preview image
 │   │   ├── media/                     (exists, P-4) video files, served as they are with no build step
-│   │   │   └── demo-reel-1.mp4, demo-reel-2.mp4, demo-reel-3.mp4 (exists, P-26) 7 s, 1280 x 720, 24 fps, 41 to 69 kB each, silent. The labelled stand-ins the carousel plays until C-2 delivers footage, one per reel item. They replace the single P-4 clip, deleted at P-26
+│   │   │   ├── work/                  (exists, P-28) the nine 9:16 sample cuts, one per project
+│   │   │   │   └── clip-01, 04, 06, 07, 08, 09, 10, 13, 14 .mp4 (exists, P-28) 8 s, 720 x 1280, silent H.264 CRF 27, 690 kB to 2.5 MB each, 12 MB in total. The poster beside each one is a frame of the same cut, so a tile never shows footage the page does not play
+│   │   │   ├── reel/                  (exists, P-28) the five carousel cuts
+│   │   │   │   └── reel-01 to reel-05 .mp4 (exists, P-28) 6 s, 480 x 854, silent, 136 to 391 kB each, all under D29's 400 kB cap. reel-01 is the only file that may autoplay
+│   │   │   └── demo-reel-1 to -3 .mp4 (superseded, P-26) the rendered 16:9 stand-ins that P-28 replaced. No component references them; they are on the C-2 removal list with `vids/`
 │   │   └── robots.txt                 (exists, P-20) noindex on the test environment
 │   └── src/
 │       ├── assets/brand/              (exists, P-1) web-ready logo and poster images
 │       │   └── alpha-movies-logo.webp (exists, P-1) 1600 x 760, moved here from assets/brand so Astro optimizes it
 │       ├── assets/media/              (exists, P-4) stills that go through Astro's image pipeline
-│       │   └── demo-reel-1-poster.webp, demo-reel-2-poster.webp, demo-reel-3-poster.webp (exists, P-26) 1280 x 720, 9 to 11 kB each, one poster per carousel item, labelled inside the artwork in its top left. The stage builds 640 and 1280 widths from them and the strip builds 176 and 400. They replace the single P-4 poster, deleted at P-26
+│       │   └── work/poster-01, 04, 06, 07, 08, 09, 10, 13, 14 .jpg (exists, P-28) 720 x 1280, 40 to 120 kB each, 672 kB in total. One per project, used by the hero, the reel, the grid and the project page, built into WebP at 400 and 720 widths
 │       ├── styles/
 │       │   ├── tokens.css             (exists, P-1) the only implementation of the DESIGN.md tokens, plus the section 8 motion values
 │       │   ├── global.css             (exists, P-1) Tailwind v4 entry, the `@theme inline` map, the DESIGN breakpoint scale, base styles and the shared component classes including .container-site (P-2, P-25)
@@ -134,9 +138,9 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 │       ├── components/                (exists, P-2) the section shells, all .astro
 │       │   ├── Nav.astro                (exists, P-2) sticky bar, text brand, desktop links, mobile details menu, Check a date
 │       │   ├── Hero.astro               (exists, P-2) logo, headline, supporting line, both CTAs
-│       │   ├── Showreel.astro           (exists, P-2) 16:9 carousel stage, one item at a time with a thumbnail strip, and the tap that creates the player (P-4). Since P-26 the first item's own muted clip may start by itself while the section is on screen, with pause and sound controls (D29). Since P-27 each item wears a caption of its label and category, on the stage and under its thumbnail, and a stand-in entry prints `reelTitle` rather than its bracket. The one component with a script
+│       │   ├── Showreel.astro           (exists, P-2) 9:16 carousel stage, one item at a time with a portrait thumbnail strip, and the tap that creates the player (P-4). Since P-26 the first item's own muted clip may start by itself while the section is on screen, with pause and sound controls (D29). Since P-28 every item is a real portrait clip badged `sampleFootageLabel` and captioning its title and category. The one component with a script
 │       │   ├── PortfolioGrid.astro      (exists, P-2) category chips from the schema's own category list, inert until P-6, and the cards the collection returns: the demo entries today (P-5)
-│       │   ├── ProjectCard.astro        (exists, P-2) 16:9 poster, category chip, H3 title
+│       │   ├── ProjectCard.astro        (exists, P-2) 9:16 poster, category chip, title, and the `Sample footage` line while the entry is a stand-in (P-28)
 │       │   ├── Credentials.astro        (exists, P-2) DEMO cards showing the verified-only treatment
 │       │   ├── Services.astro           (exists, P-2) four service cards with tag chips
 │       │   ├── Process.astro            (exists, P-2) the five-step rail: 44 px numeral, divider per row, heading beside it from 1200 px (P-25)
@@ -242,9 +246,10 @@ Markers: (exists) is a real file today. (P-12) and similar mean created by that 
 | web/src/content/** | Projects, credentials, settings | projects exist (P-5) | Content is verified, added or withdrawn |
 | web/src/components/Nav.astro | Sticky bar: text brand, desktop links, mobile details menu, primary CTA | exists (P-2) | The nav spec in DESIGN.md section 7 changes, or Q12 settles the brand text |
 | web/src/components/Hero.astro | Logo, headline, supporting line, both CTAs | exists (P-2) | P-3 replaces the bracketed copy. P-21 or Q12 changes the mark |
-| web/src/components/Showreel.astro | 16:9 carousel stage and thumbnail strip, poster first, player created on tap, the first item's muted autoplay under D29, and a per-item caption of label plus category (P-27) | exists (P-2, wired P-4, carousel P-26, captions P-27) | C-2 footage or a YouTube link per entry replaces the stand-ins. There is no site-level reel id any more |
-| web/public/media/demo-reel-1.mp4 to -3.mp4 | The three 7 s silent placeholder clips | exists (P-26, replacing the P-4 file) | Delete when C-2 delivers real footage (P-24) |
-| web/src/assets/media/demo-reel-1-poster.webp to -3- | One labelled placeholder poster per carousel item | exists (P-26, replacing the P-4 file) | Replaced with real posters at C-2 |
+| web/src/components/Showreel.astro | 9:16 carousel stage and portrait thumbnail strip, poster first, player created on tap, the first item's muted autoplay under D29, and a per-item caption of label plus category (P-27) | exists (P-2, wired P-4, carousel P-26, captions P-27) | C-2 footage or a YouTube link per entry replaces the stand-ins. There is no site-level reel id any more |
+| web/public/media/work/clip-*.mp4 | The nine 8 s 9:16 sample cuts | exists (P-28) | Replaced entry by entry at C-2, with permission |
+| web/public/media/reel/reel-01 to -05.mp4 | The five 6 s carousel cuts | exists (P-28) | Replaced at C-2 |
+| web/src/assets/media/work/poster-*.jpg | One 9:16 poster per sample project, a frame of its own cut | exists (P-28) | Replaced at C-2 |
 | web/src/components/PortfolioGrid.astro | Category chips and the card grid, interactive category filtering and pruning empty categories | exists (P-2, wired P-6) | P-6 wires filtering and hides empty categories (FR-26) |
 | web/src/components/ProjectCard.astro | Poster, category chip, H3 title, poster path resolved to Astro Image via poster-index | exists (P-2, wired P-6) | P-6 gives it a real poster and P-7 a project page. The category and title come from the collection since P-5 |
 | web/src/components/Credentials.astro | Collection-driven credentials cards with verified minimum count hide rule (FR-26) and Phase 0 demo card fallback | exists (P-2, wired P-8) | P-8 replaces it with the collection and the hide rule |
@@ -314,7 +319,9 @@ Newest first.
 
 | Date | Who | Change | Task |
 |---|---|---|---|
+| 2026-11-17 | Agent | No file added, moved or renamed. `/vids`, the 3.1 GB folder of sixteen source clips that P-28 cut down, is now gitignored so it cannot be committed by accident; the tree already excludes it and only the cuts under `web/public/media` and the posters under `web/src/assets/media/work` belong to the project | P-28, D31 |
 | 2026-11-16 | Ademola, Agent | Added `.agents/` and `skills-lock.json` for installed `animate` skill motion library | DESIGN 8, P-26 |
+| 2026-11-17 | Agent | P-28 added `web/public/media/work/` (nine 9:16 sample cuts), `web/public/media/reel/` (five 6 s carousel cuts) and `web/src/assets/media/work/` (nine portrait posters). `demo-reel-1 to -3 .mp4` and `demo-reel-1 to -3-poster.webp` are superseded and no longer referenced; they stay on disk, on the C-2 removal list, because deleting files needs a yes first. `vids/` remains untracked and is not part of the project tree | P-28 |
 | 2026-11-16 | Ademola, Agent | Moved EnquiryForm Preact island to dedicated page `web/src/pages/commission.astro`; replaced inline form on landing page `web/src/pages/index.astro` with high-converting Direct Commission CTA block linking to `/commission/` | P-12, FR-1 |
 | 2026-11-16 | Ademola, Agent | Integrated owner's transparent logo asset: added `assets/brand/alpha-movies-logo-transparent.png` and regenerated `web/src/assets/brand/alpha-movies-logo.webp` without black background, removing `.cinema-plate` wrapper across `Hero.astro`, `Footer.astro`, and `404.astro` | P-21, DESIGN 2 |
 | 2026-11-16 | Agent | Landed pre-launch audit fixes & tasks P-16, B-2: created `web/public/robots.txt` (staging disallow), `worker/.dev.vars.example` and `worker/src/config.ts` (typed env schema); updated `web/public/_headers` (added Turnstile to connect-src), `web/src/layouts/Base.astro` (absolute og:image and environment-aware noindex), `web/src/components/Nav.astro` (prefixed navigation links with /), `web/src/pages/projects/[slug].astro` (gated video/iframe behind tap per Rule 10), `web/src/components/EnquiryForm.tsx` (preserved email, email/phone/date boundary validation, honeypot, background POST /api/enquiries, clientRequestId, GA4 tracking for form_submit and whatsapp_tap), `web/src/components/Footer.astro` (GA4 tracking for WhatsApp direct links), `shared/whatsapp.ts` (email inclusion in brief), and `worker/src/index.ts` (staging origin, production fail-closed Turnstile, POST /api/enquiries with honeypot, and 90-day retention pruning cron) | P-16, B-2, R-3 |

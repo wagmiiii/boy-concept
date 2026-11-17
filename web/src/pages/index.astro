@@ -1,14 +1,14 @@
 ---
-// P-2: the section order from docs/PRD.md section 5.
-// Direct commission CTA section links to dedicated /commission/ booking brief page.
+// The home page. The form itself lives on /commission/ so a booking brief has its own address to
+// share. The order follows docs/PRD.md section 5.
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav.astro";
 import Hero from "../components/Hero.astro";
 import Showreel from "../components/Showreel.astro";
 import PortfolioGrid from "../components/PortfolioGrid.astro";
-import Credentials from "../components/Credentials.astro";
 import Services from "../components/Services.astro";
 import Process from "../components/Process.astro";
+import Credentials from "../components/Credentials.astro";
 import Faq from "../components/Faq.astro";
 import Footer from "../components/Footer.astro";
 import { siteConfig } from "../../../shared/site-config";
@@ -17,58 +17,77 @@ import { buildWhatsAppDirectLink } from "../../../shared/whatsapp";
 const directWhatsAppUrl = buildWhatsAppDirectLink(siteConfig.ownerWhatsAppDigits);
 ---
 
-<Base title="Boy Concept">
+<Base title="Boy Concept | Alpha Movies">
   <Nav />
 
   <main>
     <Hero />
     <Showreel />
     <PortfolioGrid />
-    <Credentials />
     <Services />
     <Process />
+    <Credentials />
     <Faq />
 
-    {/* Direct Commission Call to Action Section */}
-    <section id="enquiry" class="relative bg-surface-1 py-18 md:py-30 overflow-hidden">
-      <div class="pointer-events-none absolute inset-0 glow-gold-ambient opacity-50" aria-hidden="true"></div>
-      <div class="container-site relative flex flex-col gap-8">
-        <div class="flex flex-col gap-3" data-reveal>
-          <p class="eyebrow">Direct Commission</p>
-          <h2 class="font-display text-h2 text-text">Ready to Commission Your Production?</h2>
-          <p class="max-w-[65ch] text-body-large text-text-2">
-            Commercial campaigns, luxury weddings, cultural celebrations, and documentary retrospectives. Reserve your date and receive a bespoke production proposal.
-          </p>
-        </div>
+    <section id="enquiry" class="container-site pb-20 md:pb-32">
+      <div class="relative overflow-hidden rounded-panel border border-line-strong bg-surface-1" data-reveal>
+        <div class="ambient-gold pointer-events-none absolute inset-0 opacity-80" aria-hidden="true"></div>
 
-        <div class="card p-8 md:p-12 flex flex-col gap-8 md:flex-row md:items-center md:justify-between" data-reveal data-reveal-delay="1">
-          <div class="flex flex-col gap-3 max-w-xl">
-            <div class="cinematic-badge self-start">
-              <span>CALENDAR OPEN • 2026/27</span>
+        <div class="relative grid gap-10 p-6 md:p-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:p-16">
+          <div class="flex flex-col gap-6">
+            <p class="eyebrow">Direct commission</p>
+            <h2 class="max-w-[18ch] text-h2 font-semibold text-text">
+              Tell us the date. We will take it from <span class="display-italic text-gold">there.</span>
+            </h2>
+            <p class="max-w-[50ch] text-body text-text-2">
+              Four questions get you a real answer: the date, the city, the kind of film and how to
+              reach you. The brief builder turns them into one message you send yourself.
+            </p>
+
+            <div class="flex flex-col gap-3 md:flex-row md:items-center">
+              <a href="/commission/" class="btn-primary">
+                Build your brief
+                <svg class="size-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+              <a
+                href={directWhatsAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-secondary"
+                data-track-whatsapp="true"
+              >
+                Message on WhatsApp
+              </a>
             </div>
-            <h3 class="font-display text-h3 text-text">Reserve Your Event Date</h3>
-            <p class="text-body text-text-2 leading-relaxed">
-              We review every brief directly and reply with bespoke creative treatment, camera crew allocation, and confirmed pricing. Zero commitment to inquire.
-            </p>
-            <p class="text-small text-text-muted pt-1">
-              Packages start from <span class="text-gold font-semibold">₦[amount]</span> &bull; Direct WhatsApp brief handoff
+
+            <p class="text-small text-text-muted">
+              No payment is taken on this site. Nothing is sent until you send it.
             </p>
           </div>
 
-          <div class="flex flex-col gap-3 shrink-0 items-stretch md:items-center">
-            <a href="/commission/" class="btn-primary shadow-glow-gold hover:scale-[1.02] transition-transform text-base group px-8 py-4">
-              <span>Begin Commission Brief</span>
-              <span class="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
-            </a>
-            <a
-              href={directWhatsAppUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-small text-center text-gold underline underline-offset-4 hover:text-gold-bright transition-colors pt-1"
-            >
-              Message directly on WhatsApp
-            </a>
-          </div>
+          <ol class="flex flex-col gap-0 rounded-card border border-line bg-bg/40 p-2">
+            {
+              [
+                ["01", "Date and place", "The two things that decide everything else."],
+                ["02", "The film", "Coverage, format and the pieces you want back."],
+                ["03", "The handoff", "One message, sent by you on WhatsApp."],
+              ].map(([number, title, body], index) => (
+                <li
+                  class="flex gap-4 border-b border-line p-5 last:border-b-0"
+                  data-reveal
+                  data-reveal-delay={String(index + 1)}
+                >
+                  <span class="font-mono text-small text-gold">{number}</span>
+                  <div class="flex flex-col gap-1">
+                    <p class="text-body font-medium text-text">{title}</p>
+                    <p class="text-small text-text-muted">{body}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
         </div>
       </div>
     </section>
@@ -76,3 +95,13 @@ const directWhatsAppUrl = buildWhatsAppDirectLink(siteConfig.ownerWhatsAppDigits
 
   <Footer />
 </Base>
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>("[data-track-whatsapp]").forEach((el) => {
+    el.addEventListener("click", () => {
+      if (typeof window !== "undefined" && typeof (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag === "function") {
+        (window as unknown as { gtag: (...args: unknown[]) => void }).gtag("event", "whatsapp_tap", { source: "home_cta" });
+      }
+    });
+  });
+</script>

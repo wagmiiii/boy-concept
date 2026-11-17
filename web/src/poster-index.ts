@@ -4,7 +4,7 @@
 // joins the two.
 import type { ImageMetadata } from "astro";
 
-const images = import.meta.glob("./assets/media/*.{webp,avif,jpg,jpeg,png}", {
+const images = import.meta.glob("./assets/media/**/*.{webp,avif,jpg,jpeg,png}", {
   eager: true,
   import: "default",
 }) as Record<string, ImageMetadata>;

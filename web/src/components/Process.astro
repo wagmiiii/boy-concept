@@ -1,58 +1,77 @@
 ---
-// FR-19: The five-step production rail from date reservation to master delivery.
+// FR-19. The five steps are a sequence, so the number carries meaning and leads each row. The copy
+// is a builder draft under D25: no turnaround times, crew sizes or delivery promises.
 const steps = [
   {
     number: "01",
-    title: "Date & Brief Consultation",
-    summary: "Check event date availability on WhatsApp with your location, schedule, and deliverable requirements. We confirm availability directly.",
+    title: "Check the date",
+    summary:
+      "Send the date, the city and the kind of film you have in mind. You get a straight answer on availability and a starting point for the budget conversation.",
   },
   {
     number: "02",
-    title: "Creative Treatment & Logistics",
-    summary: "We align on your visual style, emotional tone, music pacing, and itinerary. Technical reconnaissance ensures seamless execution on filming day.",
+    title: "Shape the brief",
+    summary:
+      "We agree how the day or the shoot should feel, what needs to be captured and what the finished pieces are for.",
   },
   {
     number: "03",
-    title: "Principal Cinematography",
-    summary: "Dual-camera coverage with cinema prime lenses, professional wireless audio, and licensed drone aerial cinematography.",
+    title: "Shoot the day",
+    summary:
+      "One crew, one plan, and room for the moments nobody scheduled. You spend the day present; we spend it watching.",
   },
   {
     number: "04",
-    title: "Color Grade & Sound Design",
-    summary: "Meticulous scene assembly, dialogue mastering, custom cinematic color grading, and licensed music scoring.",
+    title: "Cut, colour, sound",
+    summary:
+      "The edit finds the story. Colour and sound carry the mood. You see a cut and we refine it together.",
   },
   {
     number: "05",
-    title: "Master 4K Delivery & Archive",
-    summary: "Private digital 4K download link, quick social teasers within 10 days, and complete uncompressed raw footage archiving.",
+    title: "Deliver and archive",
+    summary:
+      "The finished film arrives in the formats you asked for, with the raw material archived so nothing is lost.",
   },
 ];
 ---
 
-<section id="process" class="bg-surface-1 border-y border-line/60">
-  <div class="container-site grid gap-8 py-18 md:py-30 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-16">
-    <div class="flex flex-col gap-3" data-reveal>
-      <p class="eyebrow">Production Workflow</p>
-      <h2 class="font-display text-h2 text-text">From first consultation to final master</h2>
-      <p class="text-body-large text-text-2 max-w-[45ch]">
-        A structured, reliable process guarantees that your day runs without interruption and your films arrive on time.
+<section id="process" class="section-rule bg-surface-1">
+  <div class="container-site grid gap-12 py-20 md:py-32 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+    <div class="flex flex-col gap-5 lg:sticky lg:top-32 lg:self-start" data-reveal>
+      <p class="eyebrow">The process</p>
+      <h2 class="max-w-[14ch] text-h2 font-semibold text-text">
+        From first message to <span class="display-italic text-gold">final cut.</span>
+      </h2>
+      <p class="max-w-[40ch] text-body text-text-2">
+        Five steps, no mystery. You always know what happens next and who is doing it.
       </p>
+      <a href="/commission/" class="btn-secondary mt-2 w-fit">
+        Start with a date
+        <svg class="size-3.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </a>
     </div>
 
-    <ol class="steps">
+    <ol class="flex flex-col">
       {
         steps.map((step, index) => (
-          <li class="step group" data-reveal data-reveal-delay={String(index + 1)}>
-            <span class="step-number font-mono text-gold" aria-hidden="true">
+          <li
+            class="group grid grid-cols-[auto_1fr] gap-5 border-t border-line py-7 last:border-b md:gap-8 md:py-9"
+            data-reveal
+            data-reveal-delay={String(Math.min(index + 1, 5))}
+          >
+            <span
+              class="flex size-11 items-center justify-center rounded-full border border-line font-mono text-small text-gold transition-colors duration-300 group-hover:border-gold"
+              aria-hidden="true"
+            >
               {step.number}
             </span>
-            <div class="flex flex-col gap-2">
-              <h3 class="font-display text-h3 text-text group-hover:text-gold transition-colors duration-200">
+            <div class="flex flex-col gap-2.5">
+              <h3 class="text-h3 font-semibold text-text transition-colors duration-300 group-hover:text-gold">
                 {step.title}
               </h3>
-              <p class="max-w-[60ch] text-body text-text-2 leading-relaxed">
-                {step.summary}
-              </p>
+              <p class="max-w-[58ch] text-body text-text-2">{step.summary}</p>
             </div>
           </li>
         ))
@@ -60,55 +79,3 @@ const steps = [
     </ol>
   </div>
 </section>
-
-<style>
-  /* Section 6: depth from borders, never from shadows, so the rows are divided rather than boxed. */
-  .steps {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .step {
-    display: grid;
-    grid-template-columns: 44px minmax(0, 1fr);
-    gap: 16px;
-    align-items: start;
-    padding-block: 24px;
-    border-top: 1px solid var(--line);
-  }
-
-  .step:first-child {
-    padding-top: 0;
-    border-top: 0;
-  }
-
-  .step:last-child {
-    padding-bottom: 0;
-  }
-
-  /* 44 px is the section 5 tap target, and it keeps the number legible at 13 px with tracking. */
-  .step-number {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border: 1px solid var(--line);
-    border-radius: 9999px;
-    color: var(--gold);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    transition:
-      transform var(--motion-base) var(--ease-out-back),
-      border-color var(--motion-base) var(--motion-ease),
-      background-color var(--motion-base) var(--motion-ease);
-  }
-
-  .step:hover .step-number {
-    border-color: var(--gold);
-    background-color: color-mix(in srgb, var(--gold) 10%, transparent);
-    transform: scale(1.12);
-  }
-</style>

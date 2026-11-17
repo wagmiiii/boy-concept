@@ -1,8 +1,10 @@
 ---
-// DESIGN.md section 7 Portfolio card.
-// P-6: Resolves the poster path string to an optimized Astro image via poster-index.
-// P-7: Links to project page template via slug.
+// One tile in the work wall. Every tile is 9:16 because every cut is vertical. The whole card is
+// the link, so a thumb has one target and the project page owns playback. No clip is loaded here: a
+// poster is a still, and a byte of video only moves after the visitor asks for it on the project
+// page (ESSENTIALS rule 10).
 import { Image } from "astro:assets";
+import { sampleFootageLabel } from "../content-rules";
 import { posterFor } from "../poster-index";
 
 interface Props {
@@ -10,66 +12,68 @@ interface Props {
   title: string;
   poster?: string;
   slug?: string;
+  index?: number;
+  demo?: boolean;
   revealDelay?: string;
 }
 
-const { category, title, poster, slug, revealDelay } = Astro.props;
+const { category, title, poster, slug, index = 1, demo = false, revealDelay } = Astro.props;
 const posterImage = poster ? posterFor(poster) : undefined;
 ---
 
 <article
-  class="group card overflow-hidden flex flex-col justify-between transition-all duration-300 hover:border-gold/60"
+  class="group mb-5 break-inside-avoid"
   data-category={category}
   data-reveal
   data-reveal-delay={revealDelay}
 >
-  <div class="poster-frame relative flex items-center justify-center overflow-hidden">
-    {/* Corner viewfinder markers */}
-    <span class="pointer-events-none absolute top-2.5 left-2.5 z-20 font-mono text-xs text-gold/50 select-none transition-colors duration-300 group-hover:text-gold" aria-hidden="true">&ulcorner;</span>
-    <span class="pointer-events-none absolute top-2.5 right-2.5 z-20 font-mono text-xs text-gold/50 select-none transition-colors duration-300 group-hover:text-gold" aria-hidden="true">&urcorner;</span>
+  {
+    slug ? (
+      <a href={`/projects/${slug}/`} class="block" aria-label={`${title}, ${category}`}>
+        <div
+          class="tile-frame aspect-[9/16] border border-line transition-all duration-500 group-hover:border-gold/60 group-hover:shadow-[0_30px_70px_-30px_var(--bg)]"
+        >
+          {posterImage ? (
+            <Image
+              src={posterImage}
+              widths={[420, 840, 1260]}
+              sizes="(max-width: 767px) 100vw, (max-width: 1199px) 50vw, 33vw"
+              alt={`${title} still`}
+              class="absolute inset-0 size-full object-cover transition-transform duration-[900ms] ease-[var(--ease-out-quint)] group-hover:scale-[1.04]"
+            />
+          ) : (
+            <span class="absolute inset-0 z-10 flex items-center justify-center text-small uppercase tracking-[0.14em] text-text-muted">
+              Still to come
+            </span>
+          )}
 
-    <div class="absolute top-3 left-3 right-3 z-20 flex items-center justify-between">
-      <span class="chip backdrop-blur-md bg-surface-2/80 shadow-sm">{category}</span>
-      <span class="flex size-8 items-center justify-center rounded-full border border-line/60 bg-surface-2/80 text-text-2 backdrop-blur-md transition-all duration-300 group-hover:bg-gold group-hover:text-bg group-hover:border-gold group-hover:scale-115 group-active:scale-95">
-        <svg class="size-3.5 fill-current transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 19L19 5M19 5H9M19 5V15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
-        </svg>
-      </span>
-    </div>
+          <div class="media-chrome absolute inset-0 flex flex-col justify-between p-4 md:p-5">
+            <div class="flex items-start justify-between gap-3">
+              <span class="tag">{category}</span>
+              <span class="font-mono text-[0.7rem] tracking-[0.18em] text-media-text/70">
+                {String(index).padStart(2, "0")}
+              </span>
+            </div>
 
-    {
-      posterImage ? (
-        <Image
-          src={posterImage}
-          widths={[360, 720]}
-          sizes="(max-width: 767px) 100vw, (max-width: 1199px) 50vw, 33vw"
-          alt={`${title} poster`}
-          class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
-        />
-      ) : (
-        <span class="z-10 text-small uppercase tracking-[0.12em] text-text-muted">DEMO poster</span>
-      )
-    }
-  </div>
+            <div class="flex items-end justify-between gap-4">
+              <div class="min-w-0">
+                <h3 class="truncate text-h3 font-medium text-media-text">{title}</h3>
+                {demo ? <p class="mt-1 text-eyebrow uppercase tracking-[0.18em] text-media-text/60">{sampleFootageLabel}</p> : null}
+              </div>
 
-  <div class="p-5 flex flex-col gap-2">
-    {
-      slug ? (
-        <h3 class="font-display text-h3">
-          <a
-            href={`/projects/${slug}/`}
-            class="inline-flex min-h-11 items-center text-text transition-colors group-hover:text-gold"
-          >
-            {title}
-          </a>
-        </h3>
-      ) : (
-        <h3 class="font-display text-h3 text-text group-hover:text-gold transition-colors">{title}</h3>
-      )
-    }
-    <p class="text-small text-text-muted flex items-center gap-1.5 transition-colors group-hover:text-text-2">
-      <span>Explore project deliverables</span>
-      <span class="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
-    </p>
-  </div>
+              <span class="flex size-11 shrink-0 items-center justify-center rounded-full border border-media-text/30 text-media-text transition-all duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-bg">
+                <svg class="size-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M7 17L17 7M9 7h8v8" />
+                </svg>
+              </span>
+            </div>
+          </div>
+        </div>
+      </a>
+    ) : (
+      <div class="tile-frame aspect-[9/16] border border-line">
+        <span class="absolute inset-0 flex items-center justify-center text-small text-text-muted">Still to come</span>
+      </div>
+    )
+  }
 </article>

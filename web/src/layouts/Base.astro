@@ -12,7 +12,7 @@ interface Props {
 
 const {
   title,
-  description = "Booking and showcase site for Boy Concept (Alpha Movies Ltd). High-end cinematography and wedding films in Lagos and worldwide.",
+  description = "Boy Concept (Alpha Movies Ltd) films weddings, cultural events, campaigns and documentaries in Lagos and worldwide.",
   noindex = !import.meta.env.PROD || import.meta.env.PUBLIC_PREVIEW === "true",
 } = Astro.props;
 
@@ -28,7 +28,6 @@ const ogImageUrl = new URL("/og-image.png", siteConfig.siteOrigin).toString();
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <!-- OpenGraph & Social Cards (P-21) -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -38,22 +37,24 @@ const ogImageUrl = new URL("/og-image.png", siteConfig.siteOrigin).toString();
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
 
-    <Font cssVariable="--font-marcellus" preload />
     <Font cssVariable="--font-inter" preload />
+    <Font cssVariable="--font-instrument" preload />
     <title>{title}</title>
 
     <script>
+      // Set the theme before first paint so a light-mode visitor never sees a black flash.
       const storedTheme = typeof localStorage !== "undefined" ? localStorage.getItem("theme") : null;
       const theme = storedTheme || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
       document.documentElement.setAttribute("data-theme", theme);
     </script>
   </head>
-  <body class="bg-bg text-text font-sans">
+  <body class="grain bg-bg text-text font-sans">
     <slot />
 
     <script>
-      // Scroll reveal observer (Emil Kowalski pattern)
-      const initScrollReveal = () => {
+      // One observer for every [data-reveal] element on the page. Elements start hidden in CSS only
+      // when reduced motion is off, so a no-JS visitor still sees all the content.
+      const reveal = () => {
         const elements = document.querySelectorAll<HTMLElement>("[data-reveal]");
         if (elements.length === 0) return;
 
@@ -71,19 +72,16 @@ const ogImageUrl = new URL("/og-image.png", siteConfig.siteOrigin).toString();
               }
             });
           },
-          {
-            rootMargin: "0px 0px -40px 0px",
-            threshold: 0.1,
-          }
+          { rootMargin: "0px 0px -8% 0px", threshold: 0.08 },
         );
 
         elements.forEach((el) => observer.observe(el));
       };
 
       if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initScrollReveal);
+        document.addEventListener("DOMContentLoaded", reveal);
       } else {
-        initScrollReveal();
+        reveal();
       }
     </script>
   </body>

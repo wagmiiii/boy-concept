@@ -1,17 +1,19 @@
 # DESIGN: Alpha Movies Booking and Showcase Site
 
-Status: Draft v0.9 (P-4 findings: the showreel tap is wired and its script must ship external (D26), the section 6 poster gradient has to come off once a player is in the frame, and a placeholder label bolted on as a pill is the wrong tool at thumbnail size. P-25 added the Process rail and the FAQ treatment, wrote the 44 px tap-target reading for chips, and moved the build onto the section 5 breakpoint scale. P-26 rebuilt the showreel as a carousel and, under D29, made the first item's own muted clip the one thing on the site that may start by itself. P-27 gave every reel item a two-line caption, drafted the section heading under D25, and moved the placeholder wording into the artwork's top left so the caption never sits on it) | Date: 2026-10-28 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
+Status: v1.0 (P-28 replaced the v0.9 direction end to end: a warm near-black editorial system, Inter with an Instrument Serif italic accent, every video a vertical 9:16 frame, and real sample cuts in place of the rendered DEMO cards. Sections 1 to 9 and 12 to 13 describe the build as it stands. The P-4 to P-27 findings they replace are kept in `ROADMAP.md`) | Date: 2026-11-17 | Source: the supplied logo (`assets/brand/alpha-movies-logo-original.png`) | Pairs with PRD.md section 10.
 
 Everything visual in the site comes from here. If a value is not in this file, ask before inventing one. Colors were sampled from the logo file, not from a brand guide, so they are provisional until Emmanuel confirms the logo is current (ROADMAP D-9).
 
 ## 1. Direction
 
-A black screening room with gold on it. The page recedes so the work and the logo carry the light. Gold is rare and means "this matters or this is clickable". Nothing is decorated for its own sake.
+A warm near-black room with a film on the wall. Editorial, not glossy: oversized tight sans headings, one serif italic word for emphasis, gold kept for the thing that matters or the thing you can press. The page recedes so the footage carries the light.
 
-- Page background is black, `#000000`. This replaces the `#0A0A0A` in the earlier PRD.
-- Gold covers at most about 10% of any viewport. If everything is gold, nothing is.
-- Video posters and the logo are the brightest things on the page. Text and UI stay quieter.
-- Sparkle is a motif, used sparingly. The logo's own flares are the main instance.
+- Page background is `--bg` (`#070606` dark, warm ivory `#F7F3EA` light). Warm rather than neutral: no blue-grey surfaces.
+- Text is warm ivory, never pure white. Gold covers at most about 10% of a viewport; a heading carries one gold italic word at most.
+- Every video frame is vertical 9:16. The wall of portrait tiles is the page's signature, and a landscape clip is a bug, not a variant (D31).
+- Surfaces are flat with a hairline. Depth comes from a glass panel, a border and a shadow, never from a gradient card.
+- One grain plate sits over the page at 5% opacity. Decoration only, never a click target.
+- The logo's sparkle is retired as a motif. Type, footage and the gold accent carry the page now.
 
 ## 2. The logo
 
@@ -24,16 +26,16 @@ Supplied file facts, measured:
 | Web asset | `web/src/assets/brand/alpha-movies-logo.webp`, 1600 x 760 px, WebP, master resolution with transparent alpha background |
 | Wordmark proportions | About 96% of the image width and 21% of its height, sitting in the lower middle. The flares occupy the space above and around it |
 
-The logo renders in full native master quality with transparent background, seamlessly displayed across both dark mode and light mode without requiring dark background containers.
+The logo renders in full native master quality with a transparent background. It never sits on a light surface: in light mode the hero, footer and 404 wrap it in `.logo-plate`, which paints `--surface-cinema` (`#0B0B0B`) behind it and is transparent in dark mode.
 
 Rules:
 
-1. The transparent wordmark contains no black background and sits cleanly on both dark surfaces and warm ivory surfaces.
+1. The transparent wordmark sits only on `--bg` darker than 15% luminance or on a `.logo-plate`. It is never placed on warm ivory, on a poster or on gold.
 2. On photos or video, place it only over a dark overlay of at least 70% black.
 3. Clear space on all sides is 10% of the logo's width (about one cap height of the lettering).
 4. Minimum width for the 3D logo is 220 px. Below that the bevel turns to mud. [Guessing] Use the flat wordmark instead (task P-21, not yet produced). Measured at P-2: the web file is 1600 x 760, so at the 64 px nav height it is 135 px wide and at the 220 px minimum it is 105 px tall. Rule 4 and the nav height in section 7 cannot both hold, so the nav carries the brand as text and the 3D logo is used where there is room: the hero and the footer, both at 220 px or wider. Section 13 item 6 tracks the wordmark that lets the nav take the mark back.
 5. Never recolor, stretch, outline, add a glow, crop the flares, animate the letters or place it on gold.
-6. The hero shows the full logo, large, with its flares. The nav shows the compact version.
+6. The hero, the footer and the 404 show the full logo with its flares. The nav shows the brand as text, never the 3D mark.
 7. Never load the 2.4 MB original on the site. Use the WebP. Display it at 800 px wide or less, and the 1600 px file already covers 2x screens.
 8. Alt text is "Alpha Movies".
 
@@ -41,144 +43,115 @@ Open: which name leads publicly, Alpha Movies or Boy Concept (ROADMAP Q12). The 
 
 ## 3. Color
 
-Sampled from opaque gold pixels in the logo. The lettering shifts from lemon yellow on "ALPHA" to amber on "MOVIES", so the ramp has both ends.
+The gold ramp is sampled from the logo. The surfaces are warm rather than neutral: a warm near-black in dark mode, a warm ivory in light mode. `web/src/styles/tokens.css` is the implementation, and it and this section change together.
 
-### Tokens
+### Tokens (dark, default)
 
 ```css
 :root {
   /* surfaces */
-  --bg:            #000000;  /* page */
-  --surface-1:     #0B0B0B;  /* alternate sections */
-  --surface-2:     #141414;  /* cards, panels */
-  --surface-3:     #1C1C1C;  /* hover, raised */
+  --bg:            #070606;  /* page */
+  --surface-1:     #0D0C0B;  /* panels */
+  --surface-2:     #15130F;  /* inset blocks, inputs */
+  --surface-3:     #1F1C17;  /* media fallback */
+  --surface-glass: rgba(13, 12, 11, 0.62);  /* the nav pill */
 
   /* lines */
-  --line:          #2A2A2A;  /* dividers, card edges (decorative) */
-  --line-input:    #77736A;  /* input and control boundaries */
+  --line:          #2A2721;  /* decorative hairlines */
+  --line-strong:   #3E3930;  /* panel edges that need to read */
+  --line-input:    #7E776A;  /* control boundaries */
 
   /* text */
-  --text:          #F5F1E6;  /* primary, warm off-white */
-  --text-2:        #B8B2A3;  /* secondary */
-  --text-muted:    #8A8578;  /* captions, 14px and up only */
+  --text:          #F6F2E8;  /* warm ivory */
+  --text-2:        #B9B2A4;
+  --text-muted:    #8D8679;
 
   /* gold ramp, from the logo */
-  --gold-bright:   #FFEF00;  /* highlights, focus ring, hover */
-  --gold:          #FBC300;  /* primary brand gold, buttons, links, eyebrows */
-  --gold-deep:     #D29A00;  /* "MOVIES" body tone, pressed states */
-  --gold-shadow:   #9F6A00;  /* decorative only, never text */
-  --bronze:        #491700;  /* bevel edge, decorative only */
+  --gold-bright:   #FFEF00;
+  --gold:          #FBC300;
+  --gold-deep:     #D29A00;
+  --gold-shadow:   #9F6A00;
+  --bronze:        #491700;
 
-  /* cinema plate (seamless in dark mode, framed dark plate in light mode) */
+  /* cinema plate: transparent in dark mode, a dark frame in light mode */
   --surface-cinema: transparent;
   --line-cinema:    transparent;
 
-  /* flare */
-  --flare-core:    #FFFEFB;
-  --flare-glow:    #D29600;
+  /* ink that only sits on footage */
+  --scrim:         rgba(4, 4, 4, 0.58);
+  --media-text:    #FFFFFF;
 
   /* gradient and glow */
   --gradient-gold: linear-gradient(100deg, #FFE100 0%, #FFEC00 25%, #F5C500 50%, #D19900 70%, #DBA200 100%);
-  --glow-gold:     0 0 32px rgba(251, 195, 0, 0.20);
+  --glow-gold:     0 0 40px rgba(251, 195, 0, 0.18);
 
-  /* semantic */
   --error:         #FF6B6B;
   --success:       #3DDC97;
 }
 ```
 
-### Light Mode Tokens (Cinema Plate Protocol)
+### Light mode
 
-In light mode (`html[data-theme="light"]`), the page transitions to a warm gallery ivory and stone palette, while preserving the 3D metallic gold logo and cinematography media inside framed Dark Cinema Plates (`--surface-cinema: #0B0B0B`) so that lens flares and metallic highlights maintain full optical fidelity and avoid the unreadable 1.6:1 contrast of gold on white.
+`html[data-theme="light"]` swaps to a warm print room. Gold is re-tuned for contrast on ivory, and `--surface-cinema` becomes `#0B0B0B` so the 3D logo and every video frame keep a dark ground.
 
 ```css
 html[data-theme="light"] {
-  /* surfaces */
-  --bg:            #FAF8F5;  /* warm gallery ivory */
-  --surface-1:     #F0EAE1;  /* warm stone */
-  --surface-2:     #E5DFD4;  /* cards, panels */
-  --surface-3:     #D8D1C4;  /* hover, interactive */
-
-  /* lines */
-  --line:          #D0C8B8;
-  --line-input:    #8A8170;
-
-  /* text */
-  --text:          #161513;  /* deep charcoal */
-  --text-2:        #464137;  /* secondary charcoal */
-  --text-muted:    #726B5E;  /* captions */
-
-  /* gold ramp (tuned for light background readability) */
-  --gold-bright:   #684800;
-  --gold:          #8A6200;  /* deep amber gold, passes WCAG AA at 5.15:1 */
-  --gold-deep:     #543900;
-  --gold-shadow:   #3D2900;
-  --bronze:        #3B1400;
-
-  /* cinema plate: preserves dark screening background for 3D gold logo & footage */
-  --surface-cinema: #0B0B0B;
-  --line-cinema:    #2A2A2A;
-
-  /* flare */
-  --flare-core:    #FFFFFF;
-  --flare-glow:    #B8860B;
-
-  /* gradient and glow */
-  --gradient-gold: linear-gradient(100deg, #8A6200 0%, #684800 50%, #543900 100%);
-  --glow-gold:     0 0 32px rgba(138, 98, 0, 0.16);
-
-  /* semantic */
-  --error:         #D93838;
-  --success:       #198754;
+  --bg: #F7F3EA; --surface-1: #EFE9DD; --surface-2: #E7E0D2; --surface-3: #DCD3C2;
+  --surface-glass: rgba(247, 243, 234, 0.72);
+  --line: #D6CDBC; --line-strong: #B9AE9A; --line-input: #857C6C;
+  --text: #14120F; --text-2: #494338; --text-muted: #5F584C;
+  --gold-bright: #684800; --gold: #7E5800; --gold-deep: #543900;
+  --gold-shadow: #3D2900; --bronze: #3B1400;
+  --surface-cinema: #0B0B0B; --line-cinema: #2A2A2A;
+  --gradient-gold: linear-gradient(100deg, #7E5800 0%, #684800 50%, #543900 100%);
+  --glow-gold: 0 0 40px rgba(138, 98, 0, 0.14);
+  --error: #C22B2B; --success: #14734A;
 }
 ```
 
-### Contrast (WCAG), measured
+### Contrast (WCAG), calculated from the token values
 
 | Pair | Ratio | Use |
 |---|---|---|
-| `--gold-bright` on black | 17.6 | Passes AAA |
-| `--gold` on black | 12.9 | Passes AAA. Primary text color for gold in dark mode |
-| `--gold` (#8A6200) on ivory (#FAF8F5) | 5.2 | Passes AA. Primary text/accent in light mode |
-| `--gold-deep` on black | 8.4 | Passes AAA |
-| `--gold-shadow` on black | 4.5 | Borderline. Decorative only, never text |
-| `--text` on black | 18.6 | Body and headings in dark mode |
-| `--text` on ivory (#FAF8F5) | 16.8 | Body and headings in light mode |
-| `--text-2` on black | 9.9 | Secondary text in dark mode |
-| `--text-2` on ivory (#FAF8F5) | 9.5 | Secondary text in light mode |
-| `--text-muted` on black | 5.7 | Captions. On `--surface-2` it is 5.0, still passes AA |
-| `--text-muted` on ivory (#FAF8F5) | 4.8 | Captions in light mode |
-| black on `--gold` | 12.9 | Button label |
-| ivory on `--gold` (#8A6200) | 5.2 | Button label in light mode |
-| black on `--gold-deep` | 8.4 | Pressed button label |
-| `--error` on black | 7.6 | Error text |
-| `--line-input` on black | 4.4 | Meets the 3:1 needed to identify a control |
-| `--line-input` on ivory | 3.2 | Meets the 3:1 needed to identify a control in light mode |
-| `--line` on black | 1.5 | Fails 3:1. Decorative dividers only, never a control boundary |
+| `--gold` on `--bg` | 12.4 | AAA. Gold text and accents in dark mode |
+| `--gold-bright` on `--bg` | 17.0 | AAA. Hover and focus |
+| `--gold-deep` on `--bg` | 8.1 | AAA. Pressed states |
+| `--bg` on `--gold` | 12.4 | Primary button label |
+| `--text` on `--bg` | 18.1 | AAA. Headings and body |
+| `--text-2` on `--bg` | 9.6 | AAA. Secondary body |
+| `--text-muted` on `--bg` | 5.6 | AA. Captions and eyebrows |
+| `--line-input` on `--bg` | 4.6 | Above the 3:1 needed to identify a control |
+| `--line` on `--bg` | 1.4 | Decorative only, never a control boundary |
+| `--error` on `--bg` | 7.3 | Error text |
+| `--gold` on `--bg` (light) | 6.0 | AA. Gold text and the primary button surface in light mode |
+| `--gold` on `--surface-2` (light) | 4.9 | AA. The worst light ground gold text sits on |
+| `--bg` on `--gold` (light) | 6.0 | Primary button label in light mode |
+| `--text` on `--bg` (light) | 16.9 | AAA |
+| `--text-2` on `--bg` (light) | 8.8 | AAA |
+| `--text-muted` on `--bg` (light) | 5.8 | AA |
+| `--text-muted` on `--surface-3` (light) | 4.7 | AA. The worst light ground muted text sits on |
+| `--line-input` on `--bg` (light) | 3.7 | Above 3:1 |
 
-Rules: gold text and buttons only on `--bg`, `--surface-1` or `--surface-2`. Never put gold text on a photo without the overlay. Never convey state by color alone: errors also get an icon and a message.
+Rules: gold text and buttons only on `--bg`, `--surface-1` or `--surface-2`. Never put gold text on a poster without the scrim. Never convey state by colour alone: an error also prints a message.
 
 ### Where gold is allowed
 
 - Primary buttons and text links.
-- Eyebrow labels above section headings.
-- The focus ring.
-- Active filter chips and the credentials type label.
-- The reference code on the confirmation screen.
-- Sparkle motif and hairlines.
-
-Gold is not used for body text, for whole-section backgrounds or for card fills. The gradient appears only on the logo, on primary button hover and on 1 to 2 px hairlines. Never on text.
+- One italic word inside a heading, never the whole heading.
+- The eyebrow label above a section title, and the index numerals in the form and the process timeline.
+- The focus ring, the active chip and the active thumbnail outline.
+- The hairline that becomes gold on hover.
 
 ## 4. Typography
 
-Two families.
+Two families, loaded through Astro's Fonts API.
 
 | Role | Family | Why | Fallback stack |
 |---|---|---|---|
-| Display (headings, hero) | Marcellus, 400 | Flared, inscriptional letterforms that echo the logo's flared caps without copying them | `Optima, Candara, Georgia, serif` |
-| Interface and body | Inter, 400 / 600 | Neutral, readable on mobile at small sizes | `system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` |
+| Interface, body and headings | Inter, 400 / 500 / 600 / 700 | Tight, legible at phone sizes and at 96 px; a neutral frame for the footage | `system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` |
+| Accent word inside a heading | Instrument Serif, 400 italic (400 roman available) | One word in italic serif gives the editorial contrast the sans cannot, without setting a whole heading in a display face | `Georgia, 'Times New Roman', serif` |
 
-Checked on 2026-10-27 at P-1, rendered in a browser on black beside the logo (evidence in docs/spikes/stack-spike.md). Marcellus holds up at hero and H2 sizes and its flared caps sit comfortably next to the logo's lettering. At H3 (24 px) it is thin but readable. At 18 px the serifs start to disappear against black. So the display role stops at H3 and the switch to Syne 700 is not needed. [Certain for the sizes tested]
+Marcellus is retired: it made every heading look inscriptional and dated the page. The new rule is one sans for structure, one italic serif word per heading at most, set in `.display-italic`. Italic accents are never used for body copy, labels or buttons, and never for a whole heading.
 
 I did not identify the logo's own typeface. Do not claim a match.
 
@@ -186,16 +159,19 @@ Scale (fluid, mobile first):
 
 | Style | Size | Line height | Notes |
 |---|---|---|---|
-| Display | `clamp(2.5rem, 6vw + 1rem, 5rem)` | 1.05 | Marcellus. Hero only |
-| H2 | `clamp(2rem, 4vw, 3rem)` | 1.1 | Marcellus |
-| H3 | `1.5rem` | 1.2 | Marcellus |
-| Body large | `1.125rem` | 1.6 | Intro lines |
-| Body | `1rem` | 1.6 | Inter 400 |
-| Small | `0.875rem` | 1.5 | Inter 400, captions |
-| Eyebrow | `0.8125rem` | 1.2 | Inter 600, uppercase, tracking `0.18em`, `--gold` |
+| Display | `clamp(3rem, 8.5vw + 0.5rem, 7.5rem)` | 0.94, tracking `-0.045em` | Inter 600. Hero and page titles only |
+| H2 | `clamp(2.25rem, 4.8vw + 0.5rem, 4.25rem)` | 1.0, tracking `-0.035em` | Inter 600 |
+| H3 | `clamp(1.35rem, 1.6vw + 0.5rem, 1.85rem)` | 1.15 | Inter 500 to 600 |
+| H4 | `1.125rem` | 1.3 | Inter 600, panel and card headings |
+| Body large | `1.125rem` | 1.65 | Intro lines |
+| Body | `1rem` | 1.65 | Inter 400 |
+| Small | `0.875rem` | 1.5 | Inter 400, captions, form notes |
+| Eyebrow | `0.75rem` | 1.2 | Inter 500, uppercase, tracking `0.2em`, `--text-muted` or `--gold` |
 | Button | `0.9375rem` | 1 | Inter 600, sentence case |
 
-Rules: form fields are 16 px minimum so iOS does not zoom on focus. [Certain] Body line length stays under 70 characters. Do not set long text in all caps. No gold gradient text. Marcellus is for Display, H2 and H3 only, never below 24 px (see the P-1 check above).
+The heading scale is set tight on purpose: large sizes lose tracking, small sizes keep it. `display-italic` swaps a word to Instrument Serif italic at the same size and tracking as its parent heading; it carries the gold colour where the heading uses it.
+
+Rules: form fields are 16 px minimum so iOS does not zoom on focus. [Certain] Body line length stays under 70 characters. Do not set long text in all caps. No gold gradient text, no gradient headings, no outlined type.
 
 ## 5. Layout and spacing
 
@@ -203,18 +179,21 @@ Rules: form fields are 16 px minimum so iOS does not zoom on focus. [Certain] Bo
 - Design at 390 px first. Breakpoints: 768, 1200, 1440.
 - Container max width 1200 px. Side gutters 20 px mobile, 32 px tablet, 40 px desktop.
 - Section vertical padding 72 px mobile, 120 px desktop.
-- Portfolio grid: 1 column on mobile, 2 on tablet, 3 on desktop. Posters are 16:9.
-- Radii: buttons 4 px, inputs 6 px, cards 8 px, chips full.
+- Portfolio grid: a CSS column wall, 1 column on mobile, 2 on tablet, 3 on desktop. Every tile is 9:16.
+- Radii: buttons and chips `999px` (full), inputs 14 px, cards 20 px, panels 28 px.
 - Tap targets are at least 44 x 44 px.
+- The container is 1280 px (`--container`), wider than the old 1200, because a three-column portrait wall needs the room. Section padding 80 px mobile, 128 px from `md`.
 
 ## 6. Surfaces and depth
 
-Shadows do not show on black, so depth is made with lightness and borders.
+Depth is lightness, a hairline and one shadow, not a gradient card.
 
-- Stack: `--bg` page, `--surface-2` cards, `--surface-3` hover.
-- Cards get a 1 px `--line` border. On hover the border becomes `--gold` and the card lifts 2 px. No scaling.
-- Glow (`--glow-gold`) only on the primary button hover and the active focus target. Never on text.
-- Posters get a bottom gradient `linear-gradient(to top, #000 0%, transparent 60%)` so text stays readable.
+- Stack: `--bg` page, `--surface-1` panels, `--surface-2` inset blocks, `--surface-3` media fallback.
+- Panels use `.panel`: 1 px `--line`, `--surface-1`, `--radius-panel`. A media tile uses `.tile-frame`.
+- `.glass` is `--surface-glass` with a 22 px blur and a saturate, used only for the floating nav and small floating pills. Where blur is unsupported it falls back to `--surface-1`.
+- `.ambient-gold` is one soft radial gold wash behind a page header, at 14% gold and fading to nothing. It never sits behind body text.
+- Footage carries its own scrim (`--scrim`) and its own ink (`--media-text`), so a caption stays readable on a bright frame and neither token is used on the page itself.
+- `.grain` is a fixed SVG noise plate at 5% opacity over the whole page, `pointer-events: none`.
 
 ## 7. Components
 
@@ -230,65 +209,53 @@ Height 52 px on mobile, 48 px on desktop. Label sentence case: "Check a date", "
 
 ### Navigation
 
-Height 64 px mobile, 72 px desktop. Background black at 60% opacity with a 12 px blur, falling back to solid black where blur is unsupported. 1 px `--line` bottom border. Logo left, links center on desktop, primary button "Check a date" right. Mobile shows the logo and the button, with the rest in a menu.
+A floating glass pill that spans the container, inset from the top, with the brand as text on the left, the four section links in the middle at `md` and above, and a gold pill "Check a date" on the right. Below `md` the links collapse into a full-screen overlay sheet built from a real button and `aria-expanded`, with the four links, the theme toggle and the same CTA stacked at 44 px. The bar is `.glass` over `--surface-glass` with a 22 px blur; it is not a solid strip and it has no bottom border.
 
-Implemented at P-2 with two changes to that paragraph, both recorded here so the file matches the build:
+The brand stays text ("Boy Concept") rather than the 3D logo: at the pill's height the logo is under its own 220 px minimum (section 2 rule 4).
 
-- The left slot holds the brand as **text** (Marcellus at the H3 size, 24 px, "Boy Concept"), not the 3D logo. See section 2 rule 4: at 64 px tall the logo is 135 px wide, under its own minimum.
-- The mobile menu is a `<details>` disclosure, so it works with JavaScript disabled. Two labels are duplicated in markup, one row for desktop and one for the disclosure, because a closed `<details>` cannot be forced open by CSS at the desktop breakpoint.
-
-Nav link labels are Showreel, Work, Services and FAQ, which are the section names from `content/copy.md`. Add or change them there first. "Work" is the same word the section itself prints: the nav said Portfolio until P-25, and one destination needs one name, which also buys back about 20 px in a bar that has 12 px of slack at 320 px.
+A 2 px gold scroll progress line sits at the very top of the viewport, driven by one passive scroll listener and disabled under `prefers-reduced-motion`.
 
 ### Hero
 
-Full logo with flares, large, centered or left-aligned over a quiet black field. One headline, one line of supporting text, two buttons: "Check a date" and "View showreel". No autoplay video iframes. If a background loop is used it is poster-first and short, and never behind the logo without the 70% overlay.
+Editorial split. Left: an eyebrow, the display headline ("Films with feeling." with "feeling" in `display-italic` gold), one supporting paragraph, two pill buttons ("Check a date" primary, "Watch the reel" secondary), then the 3D logo on a hairline rule with a one-line explanation. Right: a portrait media card at 9:16, poster first, with a second smaller 9:16 frame offset behind it and rotated 2 degrees at `md` and above.
 
-Built at P-3 in `web/src/components/Hero.astro`, centered. Two implementation notes from that build: the logo is the largest element above the fold, so it is the LCP candidate and it renders with `loading="eager" fetchpriority="high"` (Astro defaults to lazy, which costs the hero its largest paint). The headline is a builder draft under decision D25, not approved copy.
+The media card is the page's only tap-to-play surface above the fold: the poster is an image, and the `<video>` element is created inside the click, so nothing points at a video byte before the visitor asks. The card carries a "Now screening" tag, its category in mono, the project title and the `Sample footage` label. The logo is the LCP candidate and renders `loading="eager" fetchpriority="high"` behind `.logo-plate`, which keeps it on black in light mode.
+
+Under the hero, a marquee strip of the six service words scrolls slowly between hairlines, duplicated once for the loop and `aria-hidden`.
 
 ### Showreel
 
-16:9 stage, one reel item at a time, a strip of 16:9 thumbnails under it to choose between them. A thumbnail is 176 px wide below `md` and 200 px from it, and the mobile figure is measured rather than chosen: at the 128 px P-26 shipped with, the longest category name the strip has to print needs 168 px, so the caption that tells the three items apart was being cut off with an ellipsis. Each item shows its poster first with a centered play control: a 72 px circle with a 1.5 px `--gold` ring and a gold triangle. The active thumbnail carries a 2 px `--gold` outline.
+The section is centred on a single 9:16 stage, 400 px wide at most, with the header copy above it and the controls and a 5-item portrait thumbnail strip below. Every thumbnail is 9:16, 112 px wide on mobile and 132 px from `md`. The active thumbnail carries a 2 px `--gold` outline. Each item shows its poster first with a 56 px play circle; the caption inside the frame carries the category, the title and the `Sample footage` label.
 
-Every item wears a caption (P-27): the title in `--text` at the small size, and the category under it in `--text-muted` at the eyebrow size with 0.12em tracking. On the stage it sits in the bottom-left corner inside the section 6 gradient, and it disappears with the gradient once the frame is playing, because the clip carries its own label in the artwork and a third line of text over the player chrome is one too many. In the strip it sits under the thumbnail, inside the button, so the words a visitor reads are also the button's accessible name. Both lines truncate rather than wrap. A `demo: true` entry captions itself "Placeholder reel" and not its bracketed `[project title]` (D25); the three stand-ins are told apart by their categories, which is the truth of what they are.
+The items are the visible projects flagged `hero_reel` (ARCH section 5). Weddings are excluded by content, not by code, so the reel never autoplays a ceremony.
 
-Measured at P-27 in a built page, at 390 px and at the harness width of 730 px: no caption line truncates at either, the stage caption block is 134 x 63 px in the corner of a 335 x 188 px frame at 390 px, its text clears the 72 px play circle by about 10 px, and the burned-in artwork label sits in the top 29 percent of the frame, well clear of it.
-
-The items are the visible projects flagged `hero_reel` (ARCH section 5). A wedding with no permission is not visible at all, so it cannot reach the reel.
-
-Autoplay, decision D29, chosen by Ademola on 2026-10-28:
+Autoplay, decision D29, unchanged by the redesign:
 
 - Only the first item starts by itself, only when its source is a file we serve from `/media`, and never an iframe.
-- It is muted, looping and silent, waits for the page `load` event so it cannot compete with the hero's LCP, and runs only while the stage is at least half on screen. Scrolling away pauses it; scrolling back resumes it.
-- It has two visible 44 px controls, pause and sound, which is what WCAG 2.2.2 asks of a moving or auto-playing block (DESIGN section 11). Turning the sound on hands the clip to the visitor: native controls appear, the loop stops, and the scroll gate lets it run.
-- Every other item, and every YouTube source, is tap-only. Nothing points at a video byte until the visitor asks.
-- The clip is capped at 15 seconds and 400 kB. The three placeholder clips run 7 seconds at 1280 x 720 and weigh 41, 57 and 69 kB, each of them less than the 135 kB the hero logo costs at its largest built width.
+- It is muted, looping and silent, waits for the page `load` event, and runs only while the stage is at least half on screen. Scrolling away pauses it; scrolling back resumes it.
+- A 44 px pause control is visible while it plays, and `prefers-reduced-motion` suppresses the autoplay entirely.
+- Every other item is tap-only, including the rest of the reel.
+- The cap is 15 seconds and 400 kB. The five cuts shipped at P-28 run 6 seconds at 480 x 854 and weigh 136 to 391 kB; the heaviest two were re-encoded twice to get under the cap.
 
-Built at P-4 and rebuilt as a carousel at P-26. Four implementation notes:
-
-- The placeholder label is drawn into the poster artwork and into the clip, in the top left, and the DOM caption is plain text in the bottom-left gradient. Neither is a `.demo-tag` pill: a pill over a 335 x 188 px frame at 390 px wrapped to two lines and covered a fifth of the image (P-4). The in-artwork label scales with the frame and the two never overlap, so the poster carries both the stand-in's name and the fact that it is one.
-- The section 6 bottom gradient is suppressed once the frame carries a player (`[data-playing]`), because it exists to keep text readable over a poster and would otherwise sit on top of the native controls.
-- Until C-2 delivers footage the three items play `web/public/media/demo-reel-1.mp4` to `demo-reel-3.mp4`, 7 second silent cards the builder rendered with ffmpeg, each labelled "DEMO REEL 1 OF 3" through "3 OF 3", its own category, and "Placeholder artwork. Not client work." inside the frame with its own poster. A real reel is a file swap plus `hero_reel: true` in the content entry, and a YouTube source needs nothing but the watch link in `video_url`. The old single `YOUTUBE_ID` config is gone: the source is per item, and `media-sources.ts` turns any link that carries an id into a youtube-nocookie embed at tap time.
-- Every visibility state lives on data attributes on the frame (`data-playing`, `data-paused`, `data-muted`), and one scoped style block reads them. `@apply` cannot be used in that block: a component style tag does not see the Tailwind theme, so `border-gold` fails the build there. Utility classes stay in the markup and the raw token variables in the CSS.
+The visibility states live on data attributes (`data-playing`, `data-paused`, `data-autoplay`) and the scoped style block reads them with raw `var()` values, because `@apply` does not work in a component style tag.
 
 ### Portfolio card
 
-16:9 poster, category chip top left, title below in H3. The chip is an outlined pill (`--gold` text, 1 px `--gold` border at 60% opacity). Hover per section 6. No auto-playing previews on touch devices.
+A 9:16 poster under `tile-frame`, the category as a tag top left, the tile index in mono top right, and the title bottom left over the frame's own scrim. A `demo: true` entry adds the `Sample footage` label under the title instead of printing nothing. The whole card is one link to the project page; playback belongs to that page. Hover lifts the border to gold and scales the poster 1.04. There are no autoplaying previews.
 
 ### Category filter
 
-Chips in a row that scrolls horizontally on mobile. Active chip: bg `--gold`, text black. Inactive: outlined. Hide a chip with no verified projects.
+Chips in a row that scrolls horizontally on mobile. The active chip is filled `--gold` on `--bg`; the rest are outlined. A chip only exists for a category that holds work (FR-26).
 
-Section 5 asks every tap target for at least 44 x 44 px and the chip renders 32 px tall, so P-25 read the rule as applying to a chip that is a control: `button.chip` and `a.chip` are 44 px, the label chips inside a card or a service tile stay 32 px. The filter row is the one place a thumb does the work, and it is live from P-6.
+A chip that is a control (`button.chip`, `a.chip`, the form's deliverable chips) is 44 px tall; a label chip inside a card stays 32 px.
 
 ### Process
 
-Not specified before P-25. The five steps are a sequence, which is the one case where numbering carries information, so each row leads with the number rather than wearing it as a chip: a 44 px outlined numeral, the step name in H3 beside it, the step copy under the name, and a 1 px `--line` rule between rows instead of a card each (`--surface-1` section, so the dividers are the only depth).
-
-The row replaced five cards in a row. With the container capped at 1200 px, five columns are 211 px each and 163 px of text after the card padding, which is about ten characters a line at every width the site has, so the old layout could not hold real step copy at any breakpoint. From the 1200 px breakpoint the heading sits in a left column and the rail in a right one, which keeps a step line near 60 characters instead of running the full 1200.
+A sticky timeline: the heading and intro sit in a left column that sticks while the right column scrolls through the steps. Each step is a numbered line with a hairline, the step name at H4 and the copy under it. The number is the sequence, which is the one place numbering carries information.
 
 ### FAQ
 
-Four disclosures, `<details>` so they work without JavaScript, each a `--surface-2` card with the question in body semibold and the answer below. No Q1 to Q4 markers: a FAQ is scanned, not stepped through, so numbering them is decoration. The numbered list in the enquiry shell went for the same reason; the field order still reads top to bottom, which is the sequence that matters (FR-11).
+`<details>` disclosures, so they work without JavaScript, each on its own hairline with a large question at H3 and the answer below. No numbering. The gold plus/minus marker is CSS only.
 
 ### Credentials
 
@@ -296,97 +263,99 @@ Cards on `--surface-2`. Eyebrow type label in `--gold` (Registration, Equipment,
 
 ### Enquiry form
 
-- Labels sit above fields in `--text-2`. Inputs are 52 px high, bg `--surface-2`, 1 px `--line-input` border, 6 px radius, 16 px text.
-- Focus: border `--gold-bright` plus a 2 px outer ring of `--gold-bright` with a 2 px offset.
-- Error: border `--error`, an icon and a message below in `--error`.
-- The date field is first. The short-notice message uses an info icon and `--text-2`, not red.
-- The "packages start from" line sits above the submit button in `--text-2`, with the amount in `--gold`.
-- Submit is the primary button, full width on mobile.
+One panel, three numbered fieldsets and no budget field anywhere. Order: date and place (date first, always), the film, then contact. Inputs are 16 px, `--surface-2` on `--bg` with a 1 px `--line-input` boundary and a 14 px radius; focus swaps the boundary to gold. Errors name the field and print under it in `--error`.
+
+Deliverables are toggle chips (`aria-pressed`), not checkboxes. The reference video field swaps to a notes requirement when "I will describe it instead" is checked. A contact block requires a WhatsApp number or an email, and the newsletter-style consent line links the privacy notice. The hidden honeypot stays.
+
+The submit button builds the brief locally and opens the confirmation state; the POST to `/api/enquiries` runs in the background and can fail without stopping the handoff (ESSENTIALS rule 5).
 
 ### Confirmation screen
 
-Replaces the form. Shows "Brief received" in H3, the reference code in `--gold` with letter spacing, a primary "Open WhatsApp" button with the WhatsApp icon, and the copyable message in a `--surface-2` card with a Copy button. This is the handoff, so it must be unmissable. Also show the direct WhatsApp link.
+Replaces the form in place. A gold check, "Your brief is written", one primary button "Open WhatsApp and send" (the only handoff), the deep-link fallback line for in-app browsers, and the assembled message in a scrollable block with a copy button. A line states plainly that nothing has been sent yet. "Start another brief" resets the form.
 
 ### Footer
 
-`--surface-1`, 1 px `--line` top border. Logo, Instagram, YouTube, WhatsApp, base city, copyright. The direct "Already booked with us? Message directly" link lives here and in the form section.
+A closing CTA at display size ("Tell us the date.") with the commission button and the direct WhatsApp link, then a three-column base: the 3D logo on a plate and a one-line description, the section links, and the legal and contact links. Every number and address comes from `shared/site-config.ts`.
 
 ## 8. Motion
 
 | Token | Value |
 |---|---|
-| Fast | 150 ms |
-| Base | 250 ms |
-| Slow | 400 ms |
-| Easing | `cubic-bezier(0.2, 0.7, 0.2, 1)` |
-| Ease-Out Quint | `cubic-bezier(0.23, 1, 0.32, 1)` |
-| Ease-In-Out Cubic | `cubic-bezier(0.645, 0.045, 0.355, 1)` |
-| Ease-Out Cubic | `cubic-bezier(0.33, 1, 0.68, 1)` |
-| Ease-Out Back | `cubic-bezier(0.34, 1.56, 0.64, 1)` |
+| `--motion-fast` | 160 ms |
+| `--motion-base` | 260 ms |
+| `--motion-slow` | 440 ms |
+| `--motion-ease` | `cubic-bezier(0.2, 0.7, 0.2, 1)` |
+| `--ease-out-quint` | `cubic-bezier(0.22, 1, 0.36, 1)` |
+| `--ease-in-out-cubic` | `cubic-bezier(0.645, 0.045, 0.355, 1)` |
+| `--ease-out-cubic` | `cubic-bezier(0.33, 1, 0.68, 1)` |
+| `--ease-out-back` | `cubic-bezier(0.34, 1.36, 0.64, 1)` |
 
-Implemented in `tokens.css` as `--motion-fast`, `--motion-base`, `--motion-slow`, `--motion-ease`, `--ease-out-quint`, `--ease-in-out-cubic`, `--ease-out-cubic`, and `--ease-out-back`. Easing curves follow Emil Kowalski's animation specifications for high-performance GPU transitions.
-
-- Scroll reveal: fade up 16 px, once per element, Base duration.
-- Sparkle twinkle: opacity 0.55 to 1 and scale 0.95 to 1.05 over 3 to 4 seconds, at most three flares in view, decorative only. Static on mobile.
-- Honor `prefers-reduced-motion`: no reveal, no twinkle, no hover lift, and no reel autoplay (D29). The rule is read once, in the reel script, and a visitor who asks for less motion still gets the poster and can still press play.
-- No autoplaying video iframes anywhere (D29). The one thing that starts by itself is the first reel item's own muted, looping file, which pauses off-screen and carries a pause control.
-
-Implemented at P-3, the twinkle only (scroll reveal waits until the sections hold real content). Three four-point SVG flares sit around the hero logo in `Hero.astro`, each `aria-hidden`, `--gold` at 0.55 opacity, animated by one scoped `@keyframes twinkle` with staggered durations (3.4 s, 4 s, 3.4 s) and delays (0, 1.2 s, 2.3 s). "Static on mobile" is read as static below the 768 px breakpoint, so the animation sits inside `@media (min-width: 768px)` and the reduced-motion query sets `animation: none` with opacity 0.8. Verified in a browser: three flares, `animation-name: twinkle` at 1200 px and `none` at 730 px. The reduced-motion branch is written but not exercised, because the available tools cannot emulate that media feature (S-2 and P-17 cover it on devices).
+- Scroll reveal: `[data-reveal]` elements fade up 16 px and settle, once each, observed by one IntersectionObserver in `Base.astro`. `[data-reveal-delay="1".."4"]` staggers by 60 ms per step. The same elements are visible with JavaScript off: the observer only removes an initial state.
+- Hover: borders move to gold over `--motion-base`; posters scale 1.04 over 900 ms; no element moves more than 8 px.
+- Marquee: the service strip translates by half its own width on a linear loop, paused on hover, `aria-hidden`, and duplicated once.
+- Reduced motion: one media query in `global.css` disables reveal, marquee, hover transforms and smooth scrolling, and the reel script skips the autoplay branch entirely (D29). Poster and tap to play still work.
 
 ## 9. Imagery and iconography
 
-- Posters and stills are the color on the page. Do not tint them gold.
-- Icons are 1.5 px stroke line icons, 24 px grid, currentColor. The sparkle star (four-point) is the only filled glyph, used as a bullet or section marker at 12 to 16 px in `--gold`. The one carve-out is media transport: play, pause and the muted and unmuted speaker are filled, because a stroked play triangle reads as a outline of nothing at 20 px, and this is the convention every operating system's own player uses. They appear only in the showreel controls, which P-26 added.
-- Real work only. No stock footage and no AI-generated stand-ins for client work.
-- One exception, recorded because Ademola chose it on 2026-10-27 at P-4, extended to the carousel at P-26 and re-rendered with the caption wording at P-27: the showreel plays three silent title cards the builder rendered locally (ffmpeg, gold and `--text` on black, "DEMO REEL 1 OF 3" through "3 OF 3", the item's category, and "Placeholder artwork. Not client work." in the frame's top left). They are the product's own artwork, not a stand-in for a specific job, and each is labelled twice, in the image and in the caption beside it, so it cannot be mistaken for client work at any size or in a screenshot. They are on P-24's removal list and leave the moment C-2 delivers footage. Stock footage, AI imagery and unlabelled stills stay barred.
-- Every project image needs the client's permission (CMS `publish_ok`).
+- Every video on the site is vertical 9:16. The work cuts are 8 second, 720 x 1280, silent H.264 at CRF 27; the five reel cuts are 6 second, 480 x 854, silent, CRF 33 to 36, all under 400 kB.
+- Posters are 720 x 1280 JPEGs pulled from the cut itself, so a tile shows a frame the visitor will actually see. They run through Astro's image pipeline and become WebP at build.
+- Footage is never tinted. The scrim exists so a caption reads, not to colour-grade.
+- Icons are 1.5 px stroke line icons at currentColor, except media transport (play, pause), which stays filled.
+- Real work only, with one labelled exception below. No stock footage, no AI imagery.
+
+### The sample footage exception (D31)
+
+The nine projects shipped at P-28 are `demo: true` entries built from the studio's own unused shots: the sixteen source files in `/vids`, cut to one vertical clip each. They are real footage, not rendered cards, but none of them has a client permission or a verified brief, so every surface badges them `Sample footage` and every entry keeps `verified: false` and `publish_ok: false`. The label is text, not artwork burned into the frame, and a real project never prints it.
+
+Three things about these files are launch risks, not design decisions:
+
+1. Four cuts carry a third-party handle or logo in the frame (`@OMOBECKY_`, `@LONERSZONE_99`, `@SHOLLY_STICKS`, and sponsor logos on the robotics hall). They are visible and cannot be cropped out without losing the subject. They need the owner's written permission or they come down.
+2. Guests and couples are identifiable, including a wedding party and children in one dropped campaign clip. Three source clips were dropped for this reason: a client's engagement invitation with their names, a retail campaign with minors, and a Pizza Hut advert with agency watermarks.
+3. The number of source clips is finite. Nine is enough for a wall; it is not a portfolio.
+
+C-2 replaces these files entry by entry. The code path does not change: `demo: false`, `verified: true`, `publish_ok: true`, a permitted `poster` and `video_url`.
 
 ## 10. Voice
 
-Confident and plain. Short sentences. Say what a visitor can do next. No superlatives such as "elite" or "world-class" unless backed by a verified fact. Buttons are verbs: "Check a date", "Open WhatsApp", "View showreel". Copy lives in `content/copy.md`.
+Confident and plain. Short sentences. Say what a visitor can do next. No superlatives such as "elite" or "world-class" unless a verified fact backs them. Buttons are verbs: "Check a date", "Build the WhatsApp brief", "Open WhatsApp and send".
 
-When a sentence is not approved yet, decision D25 in ARCHITECTURE allows the builder to draft one so a demo reads as finished. A draft still obeys every rule on this page, is written into `content/copy.md` with its alternatives, and stays an open row in `content/PLACEHOLDERS.md` until the client approves it.
+Copy lives in `content/copy.md`. A builder draft (D25) is still a draft: it obeys every rule here, it ships with alternatives, and it stays an open row in `content/PLACEHOLDERS.md` until the client approves it.
 
 ## 11. Accessibility
 
-- All text pairs in the section 3 table pass WCAG AA or better. Check any new pair before using it.
-- Visible focus ring on every interactive element.
-- Form fields have labels, not placeholders alone. Errors name the field.
-- Logo and posters have alt text. Decorative sparkles are `aria-hidden`.
-- Keyboard-only submit works and the confirmation button receives focus.
-- Any motion that starts by itself has a pause control and a `prefers-reduced-motion` escape (WCAG 2.2.2). That is the reel's first clip, and the rule is why it carries a 44 px pause button rather than only a click on the video.
+- Every text pair in section 3 passes AA, and the body pairs pass AAA.
+- Visible focus ring on every interactive element, `2px` `--gold-bright` at 2 px offset.
+- A media frame is a poster with a labelled button, never a bare clickable `div`.
+- Form fields have visible labels, errors name the field and are announced with `role="alert"`. Fields are 16 px minimum so iOS does not zoom.
+- Deliverable toggles are buttons with `aria-pressed`, so they are reachable and stateful without a pointer.
+- The reel's first clip has a 44 px pause control and a `prefers-reduced-motion` escape (WCAG 2.2.2). Every other clip needs a tap.
+- The menu is a real button with `aria-expanded`, and the overlay traps nothing: Escape closes it.
+- Decorative layers (grain, marquee duplicate, ambient wash) are `aria-hidden` and `pointer-events: none`; ambient and grain are also `aria-hidden` in markup.
 
 ## 12. Implementation notes
 
-- `web/src/styles/tokens.css` is the only implementation of these tokens, and it exists since P-1. Tailwind v4 maps them to utilities with `@theme inline` in `web/src/styles/global.css`, so a utility compiles to `var(--gold)` rather than a second copy of the hex value. There are no copies anywhere else.
-- Never hardcode a hex value outside `tokens.css`. `web/src/styles/design-tokens.test.ts` now enforces this, along with the rule that every section 3 token is declared.
-- The section 4 type scale is implemented as Tailwind theme entries in `global.css` (`text-display`, `text-h2`, `text-h3`, `text-body-large`, `text-body`, `text-small`, `text-eyebrow`, `text-button`), because that is where Tailwind reads them. They carry no color values.
-- Fonts load through Astro's built-in Fonts API for Marcellus and Inter. Verified at P-1 on Astro 7.4.1: the woff2 files are downloaded at build time and served from the same origin with `font-display: swap`, preload links and metric-matched fallback faces, and the API exposes `--font-marcellus` and `--font-inter`. No third-party font host is needed in the CSP.
-- The logo and posters go through Astro's build-time image optimization. The 2.4 MB original is never imported. The web logo now lives at `web/src/assets/brand/alpha-movies-logo.webp` and builds to 48.6 kB.
-- Use the focus ring, button and form specs above as shared component styles, not per-page overrides. The focus ring is in the base layer of `web/src/styles/global.css` as a `:focus-visible` rule, so it applies to every interactive element without any component opting in.
-- Since P-2 the shared specs are classes in an `@layer components` block in `web/src/styles/global.css`: `.btn-primary`, `.btn-secondary`, `.eyebrow`, `.chip` (with `[data-active="true"]` for the filled state), `.card`, `.poster-frame` and `.demo-tag`. They are written with `@apply` for anything from the `@theme inline` map (type size, radius, color utilities) and with plain CSS for the `tokens.css` variables. `@theme inline` values are **not** emitted as CSS custom properties, so `var(--text-button)` and `var(--radius-button)` do not exist in the browser and only resolve through `@apply`. Verified against the built stylesheet on 2026-10-27.
-- Button height is 52 px, becoming 48 px from the 768 px breakpoint, so a hand-written rule, not a utility. Same for the 1.5 px secondary border, the chip outline (gold at 60% through `color-mix`, with a `transparent` fallback declared first), and the poster bottom gradient in section 6, which uses `var(--bg)` rather than a second copy of black.
-- Section anchors get `scroll-margin-top` equal to the nav height (64 px, 72 px from 768 px) in the base layer, so "Check a date" does not bury the heading under the sticky nav. Verified at P-3 at 730 px wide: both hero CTAs land their section 64 px from the top, with the heading below the 65 px nav. The 72 px desktop offset is the same rule at the other breakpoint and was not re-measured.
-- The hero sparkle flares are the one motion spec that lives in a component rather than `global.css`, in a scoped `<style>` block in `Hero.astro`, because no other section uses them. Astro inlines a style block that small directly into the HTML head instead of emitting a CSS file, so the rules are in the served document and can be checked there.
-- `@apply` works only inside `global.css`. A component `<style>` block is compiled without the `@theme inline` map, so `@apply border-gold` in `Showreel.astro` failed the P-26 build with "Cannot apply unknown utility class". The rule now: utilities go in the markup, and a component style block holds plain CSS that reads the `tokens.css` variables directly (`var(--gold)`), which is what `Process.astro` and `Nav.astro` already do.
-- The breakpoint scale is the section 5 one, not Tailwind's. `web/src/styles/global.css` resets `--breakpoint-*` and re-declares md 768, lg 1200 and xl 1440, so 640, 1024, 1280 and 1536 do not exist as utilities and a wrong variant name emits no CSS at all rather than a wrong width. Verified against the built stylesheet at P-25: the only width queries in the output are 768, 1200 and 1440. `web/src/styles/design-tokens.test.ts` refuses any `sm:`, `xs:` or `2xl:` in `web/src`.
-- One container, one gutter rule: `.container-site` is `mx-auto max-w-site px-5 md:px-8 lg:px-10`, i.e. 20 / 32 / 40 px from section 5, and every section, the nav, the footer and the 404 use it instead of writing `mx-auto max-w-site px-*` per component. Before P-25 ten components each repeated the gutters and the 40 px desktop step existed nowhere.
-- The showreel tap is the site's only client script, and it must arrive as a file. Astro 7 inlines a small component `<script>` into the page, `script-src 'self'` then refuses to run it, and the button does nothing with only a console violation to show for it. `vite.build.assetsInlineLimit: 0` in `web/astro.config.mjs` keeps it external (decision D26). `style-src 'unsafe-inline'` is a different matter and stays: the Fonts API and Astro's scoped styles both inject inline `<style>`.
-- Posters go through Astro's image pipeline (`web/src/assets/media`), video does not and is served untouched from `web/public/media`. The poster renders at 640 and 1280 widths from one 16 kB source, and the browser picks by `sizes`, so a phone downloads 4 kB rather than the original.
-- If a token changes, change this file and `tokens.css` in the same pull request.
+- `web/src/styles/tokens.css` holds every token. `web/src/styles/global.css` maps them to Tailwind with `@theme inline`, then defines the component classes in one `@layer components` block. No hex value exists outside `tokens.css`; `design-tokens.test.ts` enforces that.
+- Component classes: `.container-site`, `.eyebrow`, `.display-italic`, `.btn-primary`, `.btn-secondary`, `.btn-icon`, `.chip` (with `[data-active]`), `.tag`, `.panel`, `.glass`, `.media-frame`, `.stage-frame`, `.tile-frame`, `.grain`, `.ambient-gold`, `.logo-plate`, `.field`, `.field-label`, `.marquee`.
+- `.stage-frame`, `.tile-frame` and `.media-frame` are written as one selector list rather than `@apply`-ing a custom class, because Tailwind 4 refuses `@apply` of a component class. Their scrim is a `::after` that is removed once the frame carries a player (`[data-playing]`).
+- Fonts: Astro's Fonts API, Inter 400/500/600/700 and Instrument Serif 400 normal and italic, configured in `web/astro.config.mjs` and preloaded in `Base.astro`. No third-party font host is needed in the CSP.
+- Breakpoints are `md` 768, `lg` 1200, `xl` 1440. `global.css` resets Tailwind's scale so 640, 1024 and 1280 do not exist; `design-tokens.test.ts` rejects `sm:`, `xs:` and `2xl:`.
+- One container: `.container-site` is `mx-auto max-w-site px-5 md:px-8 lg:px-10`, i.e. 20 / 32 / 40 px, over a 1280 px max.
+- `@apply` works only inside `global.css`. A component `<style>` block holds plain CSS reading `var(--token)`.
+- Astro inlines a small component `<script>` into the HTML, and `script-src 'self'` then refuses it. `vite.build.assetsInlineLimit: 0` keeps every script external (D26).
+- Posters go through the image pipeline from `web/src/assets/media/work/`; video is served untouched from `web/public/media/work/` and `web/public/media/reel/`.
+- If a token changes, change this file and `tokens.css` in the same commit.
 
 ## 13. Open items
 
 | # | Item | Owner | Tracked as |
 |---|---|---|---|
-| 1 | Confirm the supplied logo is the current official one. Ask for a vector or flat version | Ademola, Emmanuel | D-9, Q11 |
-| 2 | Decide which name leads publicly. Since P-2 the site renders Boy Concept in the nav, title and copyright as an interim call by Ademola, while the supplied logo artwork spells ALPHA MOVIES | Emmanuel | D-9, Q12 |
-| 3 | Produce a flat one-color wordmark, a favicon mark and a 1200 x 630 social image | Ademola, Agent | P-21 |
-| 4 | Closed 2026-10-27 at P-1. Marcellus was rendered on black beside the logo: strong at Display and H2, thin but readable at H3, weak below 24 px. The display role stops at H3 and Syne 700 is not needed | done | P-1 |
-| 5 | Validate that gold stays under about 10% of a viewport on the built pages | Ademola | P-17 |
-| 6 | Section 2 rule 4 (the 3D logo is never below 220 px wide) and section 7 (the nav is 64 px tall) are geometrically incompatible. P-2 resolved it by putting text in the nav. Revisit when the flat wordmark exists, and confirm the interim nav treatment is acceptable | Ademola, Emmanuel | P-21, Q12 |
-| 7 | Approve or replace the hero headline. P-3 built it with the builder's draft "Shot for the occasion" under D25; two alternatives are in `content/copy.md`. The page reads as finished copy while no one at Alpha Movies has chosen it | Emmanuel | D-7, P-3, PLACEHOLDERS |
-| 8 | Replace the showreel stand-ins. P-4 built the poster-first tap and P-26 made it a carousel; at Ademola's call the three slots play labelled placeholder cards so the demo moves. Real posters and footage arrive at C-2, each entry gets its own `video_url` and `poster` and `hero_reel: true`, and the stand-ins are deleted with the rest of the scaffolding text | Emmanuel, Agent | C-2, P-24, section 7, section 9 exception |
-| 9 | Check that the desktop nav still reads as designed now that the breakpoint moved from 1024 to 1200 px, and confirm the 44 px tap-target reading in section 7 (a chip is 44 px when it is a control, 32 px when it is a label) is the treatment you want to keep | Ademola | P-17, P-25 |
-| 10 | Two rules in this file are currently claims without a measurement: the 72 px anchor offset at the desktop breakpoint, and section 11's "keyboard-operable form", which has no form until P-12. Measure the first at 1200 px in the P-17 pass; the second arrives with the island | Agent | P-12, P-17 |
-| 11 | Approve or replace the showreel heading. P-27 built the section out with the builder's draft "See the work in motion" under D25; two alternatives are in `content/copy.md`. Like the hero line it reads as finished copy that no one at Alpha Movies has chosen | Emmanuel | D-7, PLACEHOLDERS |
+| 1 | Confirm the supplied logo is current, and ask for a vector or flat version | Ademola, Emmanuel | D-9, Q11 |
+| 2 | Decide which name leads publicly. The site renders Boy Concept while the logo spells ALPHA MOVIES | Emmanuel | D-9, Q12 |
+| 3 | Approve or replace the hero headline. P-28 re-drafted it as "Films with feeling." under D25 | Emmanuel | D-7, PLACEHOLDERS |
+| 4 | Approve or replace the reel and work headings ("See the work in motion", "A catalogue of moments") | Emmanuel | D-7, PLACEHOLDERS |
+| 5 | Get written permission for the four sample cuts that carry a third-party handle or logo, or take them down | Ademola, Emmanuel | C-2, D31, PLACEHOLDERS |
+| 6 | Light mode checked on 2026-11-17 (P-28). Two tokens failed AA for small text and were re-tuned: `--text-muted` was 4.23:1 on `--surface-1` and is now 4.73:1 (#5F584C), and `--gold` was 4.18:1 on `--surface-2` and is now 4.87:1 (#7E5800). The logo plate renders #0B0B0B with 18/22 px around the 3D mark on the hero and the footer, and the grain reads at 3.5% on a light ground. Still open: the same reading on the deployed build | Agent | P-17 |
+| 7 | Validate that gold stays under about 10% of a viewport | Ademola | P-17 |
+| 8 | Measure the mobile pass properly: LCP on throttled 4G, the reel's autoplay bytes, keyboard order through the new form, and the 390 px layout with the nine real posters | Ademola | P-17 |
+| 9 | Replace the sample entries with permitted work and delete `/vids` from the repo once the cuts are approved | Emmanuel, Agent | C-2 |
+

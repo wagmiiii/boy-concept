@@ -1,0 +1,15 @@
+# Sample footage (D28, D30), not a case study. The clip is a real, unretouched cut from the
+# studio's own shooting, but no client has permitted publication and no brief has been verified, so
+# the entry is demo: true and every claim field stays empty. C-2 replaces these with permitted work.
+title: "Crowned"
+category: Cultural Festivals
+location: "Lagos"
+video_url: /media/reel/reel-01.mp4
+poster: media/work/poster-09.jpg
+hero_reel: true
+deliverables: []
+summary: "A red-capped monarch and a packed hall, cut from the red carpet in."
+publish_ok: false
+verified: false
+demo: true
+sort_order: 10

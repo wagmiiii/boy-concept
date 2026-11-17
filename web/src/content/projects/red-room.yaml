@@ -1,0 +1,12 @@
+# Sample footage (D28, D30), not a case study. See crowned.yaml for the rule.
+title: "Red Room"
+category: Commercial
+video_url: /media/work/clip-08.mp4
+poster: media/work/poster-08.jpg
+hero_reel: false
+deliverables: []
+summary: "A red aso oke look against a sunburst panel, shot as a portrait series."
+publish_ok: false
+verified: false
+demo: true
+sort_order: 90

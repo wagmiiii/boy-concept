@@ -2,19 +2,21 @@
 
 :root {
   /* surfaces, DESIGN.md section 3 */
-  --bg:            #000000;
-  --surface-1:     #0B0B0B;
-  --surface-2:     #141414;
-  --surface-3:     #1C1C1C;
+  --bg:            #070606;
+  --surface-1:     #0D0C0B;
+  --surface-2:     #15130F;
+  --surface-3:     #1F1C17;
+  --surface-glass: rgba(13, 12, 11, 0.62);
 
   /* lines */
-  --line:          #2A2A2A;
-  --line-input:    #77736A;
+  --line:          #2A2721;
+  --line-strong:   #3E3930;
+  --line-input:    #7E776A;
 
   /* text */
-  --text:          #F5F1E6;
-  --text-2:        #B8B2A3;
-  --text-muted:    #8A8578;
+  --text:          #F6F2E8;
+  --text-2:        #B9B2A4;
+  --text-muted:    #8D8679;
 
   /* gold ramp, from the logo */
   --gold-bright:   #FFEF00;
@@ -31,52 +33,69 @@
   --flare-core:    #FFFEFB;
   --flare-glow:    #D29600;
 
+  /* ink that only ever sits on footage or a cinema plate, never on the page */
+  --scrim:         rgba(4, 4, 4, 0.58);
+  --media-text:    #FFFFFF;
+
   /* gradient and glow */
   --gradient-gold: linear-gradient(100deg, #FFE100 0%, #FFEC00 25%, #F5C500 50%, #D19900 70%, #DBA200 100%);
-  --glow-gold:     0 0 32px rgba(251, 195, 0, 0.20);
+  --glow-gold:     0 0 40px rgba(251, 195, 0, 0.18);
 
   /* semantic */
   --error:         #FF6B6B;
   --success:       #3DDC97;
 
   /* motion, DESIGN.md section 8 */
-  --motion-fast:   150ms;
-  --motion-base:   250ms;
-  --motion-slow:   400ms;
+  --motion-fast:   160ms;
+  --motion-base:   260ms;
+  --motion-slow:   440ms;
   --motion-ease:   cubic-bezier(0.2, 0.7, 0.2, 1);
 
-  /* easing curves (from animate skill / Emil Kowalski) */
-  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+  /* easing curves */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
   --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
-  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.36, 0.64, 1);
+
+  /* radii, DESIGN.md section 5 */
+  --radius-button: 999px;
+  --radius-input:  14px;
+  --radius-card:   20px;
+  --radius-panel:  28px;
+
+  /* layout */
+  --container:     1280px;
 }
 
-/* Luxury Editorial Light Mode (with Dark Cinema Plates for brand logo & video) */
+/* Light mode: a warm print room rather than a screening room. Footage and the 3D logo stay on
+   dark cinema plates so their highlights keep their contrast. */
 html[data-theme="light"] {
   /* surfaces */
-  --bg:            #FAF8F5;
-  --surface-1:     #F0EAE1;
-  --surface-2:     #E5DFD4;
-  --surface-3:     #D8D1C4;
+  --bg:            #F7F3EA;
+  --surface-1:     #EFE9DD;
+  --surface-2:     #E7E0D2;
+  --surface-3:     #DCD3C2;
+  --surface-glass: rgba(247, 243, 234, 0.72);
 
   /* lines */
-  --line:          #D0C8B8;
-  --line-input:    #8A8170;
+  --line:          #D6CDBC;
+  --line-strong:   #B9AE9A;
+  --line-input:    #857C6C;
 
-  /* text: high contrast against light surfaces */
-  --text:          #161513;
-  --text-2:        #464137;
-  --text-muted:    #726B5E;
+  /* text */
+  --text:          #14120F;
+  --text-2:        #494338;
+  /* 4.7:1 even on --surface-3, the darkest light surface small text sits on (P-28 light pass) */
+  --text-muted:    #5F584C;
 
-  /* gold ramp: tuned for light mode contrast (passes WCAG AA at 5.15:1) */
+  /* gold ramp: tuned so gold text clears AA on every light surface, --surface-2 included (4.9:1) */
   --gold-bright:   #684800;
-  --gold:          #8A6200;
+  --gold:          #7E5800;
   --gold-deep:     #543900;
   --gold-shadow:   #3D2900;
   --bronze:        #3B1400;
 
-  /* cinema plate: preserves dark screening background for 3D gold logo & footage */
+  /* cinema plate: preserves a dark screening background for the 3D logo and footage */
   --surface-cinema: #0B0B0B;
   --line-cinema:    #2A2A2A;
 
@@ -85,10 +104,10 @@ html[data-theme="light"] {
   --flare-glow:    #B8860B;
 
   /* gradient and glow */
-  --gradient-gold: linear-gradient(100deg, #8A6200 0%, #684800 50%, #543900 100%);
-  --glow-gold:     0 0 32px rgba(138, 98, 0, 0.16);
+  --gradient-gold: linear-gradient(100deg, #7E5800 0%, #684800 50%, #543900 100%);
+  --glow-gold:     0 0 40px rgba(138, 98, 0, 0.14);
 
   /* semantic */
-  --error:         #D93838;
-  --success:       #198754;
+  --error:         #C22B2B;
+  --success:       #14734A;
 }

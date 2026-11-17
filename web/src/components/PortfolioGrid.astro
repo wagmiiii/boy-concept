@@ -1,41 +1,47 @@
 ---
-// DESIGN.md section 7 Category filter and Portfolio card.
-// P-6: Interactive category filtering, poster rendering, and empty category pruning (FR-3, FR-26).
+// The work wall. Every visible project is a tile, the filter row is built from the categories that
+// actually hold work (FR-3, FR-26), and the wall keeps the mixed portrait and landscape rhythm of
+// the footage instead of forcing every still into a 16:9 box.
 import { getCollection } from "astro:content";
 import { projectCategories, visibleProjects } from "../content-rules";
 import ProjectCard from "./ProjectCard.astro";
 
 const cards = visibleProjects(await getCollection("projects"));
-
-// FR-26: Only show chips for categories that have at least one visible project.
 const activeCategories = projectCategories.filter((category) =>
-  cards.some((project) => project.data.category === category)
+  cards.some((project) => project.data.category === category),
 );
 ---
 
-<section
-  id="work"
-  class="container-site flex flex-col gap-6 py-18 md:py-30"
->
-  <div class="flex flex-col gap-2" data-reveal>
-    <p class="eyebrow">Work</p>
-    <h2 class="font-display text-h2">[Portfolio heading, written at C-10]</h2>
+<section id="work" class="container-site py-20 md:py-32">
+  <div class="flex flex-col gap-8" data-reveal>
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div class="flex flex-col gap-4">
+        <p class="eyebrow">Selected work</p>
+        <h2 class="max-w-[16ch] text-h2 font-semibold text-text">
+          A catalogue of <span class="display-italic text-gold">moments.</span>
+        </h2>
+      </div>
+      <p class="max-w-[36ch] text-small text-text-muted md:text-right">
+        Weddings, festivals, campaigns and documentary. Tap a tile to watch the cut.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter work by category" id="portfolio-filters">
+      <button type="button" class="chip shrink-0" data-filter="all" data-active="true" aria-pressed="true">All work</button>
+      {
+        activeCategories.map((category) => (
+          <button type="button" class="chip shrink-0" data-filter={category} aria-pressed="false">
+            {category}
+          </button>
+        ))
+      }
+      <span class="ml-auto hidden shrink-0 text-small text-text-muted md:block" data-count>
+        {cards.length} pieces
+      </span>
+    </div>
   </div>
 
-  <div class="flex items-center gap-2 overflow-x-auto pb-2" role="group" aria-label="Filter by category" id="portfolio-filters" data-reveal data-reveal-delay="1">
-    <button type="button" class="chip shrink-0 cursor-pointer transition-all hover:scale-105" data-filter="all" data-active="true" aria-pressed="true">
-      All
-    </button>
-    {
-      activeCategories.map((category) => (
-        <button type="button" class="chip shrink-0 cursor-pointer transition-all hover:scale-105" data-filter={category} aria-pressed="false">
-          {category}
-        </button>
-      ))
-    }
-  </div>
-
-  <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" id="portfolio-grid">
+  <div id="portfolio-grid" class="mt-10 columns-1 gap-5 md:mt-14 md:columns-2 lg:columns-3">
     {
       cards.map((project, index) => (
         <ProjectCard
@@ -43,48 +49,49 @@ const activeCategories = projectCategories.filter((category) =>
           title={project.data.title}
           poster={project.data.poster}
           slug={project.id}
+          index={index + 1}
+          demo={project.data.demo}
           revealDelay={String((index % 3) + 1)}
         />
       ))
     }
   </div>
+
+  <p id="portfolio-empty" class="mt-10 hidden text-small text-text-muted" role="status">
+    No work in this category yet.
+  </p>
 </section>
 
 <script>
-  // P-6: Client-side category filtering. Emitted as external JS file under D26.
   const filterContainer = document.getElementById("portfolio-filters");
   const grid = document.getElementById("portfolio-grid");
+  const countLabel = filterContainer?.querySelector<HTMLElement>("[data-count]");
+  const empty = document.getElementById("portfolio-empty");
 
   if (filterContainer && grid) {
-    const buttons = filterContainer.querySelectorAll<HTMLButtonElement>("button[data-filter]");
-    const articles = grid.querySelectorAll<HTMLElement>("article[data-category]");
+    const buttons = [...filterContainer.querySelectorAll<HTMLButtonElement>("button[data-filter]")];
+    const cards = [...grid.querySelectorAll<HTMLElement>("article[data-category]")];
 
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const filter = btn.dataset.filter;
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const filter = button.dataset.filter;
         if (!filter) return;
 
-        buttons.forEach((b) => {
-          const isActive = b === btn;
-          b.dataset.active = isActive ? "true" : "false";
-          b.setAttribute("aria-pressed", isActive ? "true" : "false");
+        buttons.forEach((other) => {
+          const isActive = other === button;
+          other.dataset.active = String(isActive);
+          other.setAttribute("aria-pressed", String(isActive));
         });
 
-        articles.forEach((card) => {
-          const cardCat = card.dataset.category;
-          const match = filter === "all" || cardCat === filter;
-          if (match) {
-            card.style.display = "";
-            card.classList.remove("animate-filter-in");
-            card.classList.add("is-revealed");
-            // Trigger reflow to restart animation
-            void card.offsetWidth;
-            card.classList.add("animate-filter-in");
-          } else {
-            card.style.display = "none";
-            card.classList.remove("animate-filter-in");
-          }
+        let visible = 0;
+        cards.forEach((card) => {
+          const match = filter === "all" || card.dataset.category === filter;
+          card.hidden = !match;
+          if (match) visible += 1;
         });
+
+        if (countLabel) countLabel.textContent = `${visible} ${visible === 1 ? "piece" : "pieces"}`;
+        empty?.classList.toggle("hidden", visible > 0);
       });
     });
   }

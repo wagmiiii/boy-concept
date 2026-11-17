@@ -1,6 +1,6 @@
 ---
-// FR-20, FR-24 and DESIGN.md section 7 Footer.
-// Direct WhatsApp link built from shared/site-config.ts (P-10, P-15).
+// FR-20, FR-24 and DESIGN.md section 7. The direct link works without JavaScript and carries the
+// owner digits from the single definition in shared/site-config.ts.
 import { Image } from "astro:assets";
 import logo from "../assets/brand/alpha-movies-logo.webp";
 import { siteConfig } from "../../../shared/site-config";
@@ -12,71 +12,87 @@ const directWhatsAppUrl = buildWhatsAppDirectLink(siteConfig.ownerWhatsAppDigits
 const links = [
   { label: "Instagram", value: "[handle]", href: undefined },
   { label: "YouTube", value: "[channel]", href: undefined },
-  { label: "WhatsApp", value: siteConfig.ownerWhatsAppDigits, href: directWhatsAppUrl },
 ];
 ---
 
-<footer class="border-t border-line bg-surface-1">
-  <div class="container-site flex flex-col gap-12 py-18 md:py-24">
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-2 md:items-start md:justify-between">
+<footer class="section-rule relative overflow-hidden bg-surface-1">
+  <div class="ambient-gold pointer-events-none absolute inset-x-0 bottom-0 h-[420px]" aria-hidden="true"></div>
+
+  <div class="container-site relative py-16 md:py-24">
+    <div class="flex flex-col gap-6 border-b border-line pb-12 md:flex-row md:items-end md:justify-between">
+      <div class="flex flex-col gap-5" data-reveal>
+        <p class="eyebrow">Next</p>
+        <h2 class="max-w-[16ch] text-h2 font-semibold text-text">
+          Let's make something worth <span class="display-italic text-gold">watching.</span>
+        </h2>
+      </div>
+      <a href="/commission/" class="btn-primary w-fit" data-reveal data-reveal-delay="1">
+        Start a brief
+        <svg class="size-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </a>
+    </div>
+
+    <div class="grid gap-12 py-12 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
       <div class="flex flex-col gap-4" data-reveal>
         <Image
           src={logo}
-          widths={[440, 880]}
-          sizes="(max-width: 767px) 300px, 380px"
-          alt="Alpha Movies Ltd"
-          class="w-full max-w-95 brightness-95"
+          widths={[320, 640]}
+          sizes="(max-width: 767px) 240px, 300px"
+          alt="Alpha Movies"
+          class="logo-plate h-auto w-[240px] opacity-90 md:w-[300px]"
         />
-        <p class="max-w-[42ch] text-small text-text-muted">
-          Master-grade cinematography, high-framerate multi-cam coverage, and bespoke post-production for milestone occasions worldwide.
+        <p class="max-w-[40ch] text-small text-text-muted">
+          The film and video studio behind Boy Concept. Lagos, Nigeria, shooting wherever the story is.
         </p>
       </div>
 
-      <div class="flex flex-col gap-6 md:items-end" data-reveal data-reveal-delay="1">
-        <ul class="flex flex-col gap-3 md:items-end">
+      <nav aria-label="Footer" class="flex flex-col gap-3" data-reveal data-reveal-delay="1">
+        <p class="text-eyebrow uppercase tracking-[0.2em] text-text-muted">Explore</p>
+        <ul class="flex flex-col gap-2">
+          <li><a href="/#work" class="inline-flex min-h-11 items-center text-small text-text-2 transition-colors hover:text-gold">Work</a></li>
+          <li><a href="/#reel" class="inline-flex min-h-11 items-center text-small text-text-2 transition-colors hover:text-gold">The reel</a></li>
+          <li><a href="/#services" class="inline-flex min-h-11 items-center text-small text-text-2 transition-colors hover:text-gold">Services</a></li>
+          <li><a href="/commission/" class="inline-flex min-h-11 items-center text-small text-text-2 transition-colors hover:text-gold">Commission a film</a></li>
+        </ul>
+      </nav>
+
+      <div class="flex flex-col gap-3" data-reveal data-reveal-delay="2">
+        <p class="text-eyebrow uppercase tracking-[0.2em] text-text-muted">Elsewhere</p>
+        <ul class="flex flex-col gap-2">
           {
             links.map((link) => (
-              <li class="flex flex-wrap items-baseline gap-2 text-body">
-                <span class="text-small font-semibold tracking-wider uppercase text-text-muted">{link.label}:</span>
-                {link.href ? (
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="font-medium text-gold underline underline-offset-4 hover:text-gold-bright transition-colors"
-                    data-track-whatsapp={link.label === "WhatsApp" ? "true" : undefined}
-                  >
-                    {link.value}
-                  </a>
-                ) : (
-                  <span class="text-text-muted">{link.value}</span>
-                )}
+              <li class="flex min-h-11 items-center gap-2 text-small">
+                <span class="text-text-muted">{link.label}</span>
+                <span class="text-text-muted">{link.value}</span>
               </li>
             ))
           }
-        </ul>
-
-        <div class="flex flex-col gap-1 md:text-right">
-          <p class="text-body text-text-2">Studio base: <span class="text-text">[confirm, Q3]</span></p>
-          <p class="text-small text-text-muted">
-            Existing clients:{" "}
+          <li>
             <a
               href={directWhatsAppUrl}
               target="_blank"
               rel="noopener noreferrer"
+              class="inline-flex min-h-11 items-center gap-2 text-small font-medium text-gold transition-colors hover:text-gold-bright"
               data-track-whatsapp="true"
-              class="font-semibold text-gold underline underline-offset-4 hover:text-gold-bright"
             >
-              Direct WhatsApp channel
+              WhatsApp us directly
+              <svg class="size-3.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 17L17 7M9 7h8v8" />
+              </svg>
             </a>
-          </p>
-        </div>
+          </li>
+        </ul>
       </div>
     </div>
 
-    <div class="flex flex-wrap items-center justify-between gap-4 border-t border-line/60 pt-6 text-small text-text-muted" data-reveal data-reveal-delay="2">
+    <div class="flex flex-col gap-4 border-t border-line pt-6 text-small text-text-muted md:flex-row md:items-center md:justify-between">
       <p>© {year} Boy Concept (Alpha Movies Ltd). RC [confirm on CAC public search]</p>
-      <a href="/privacy" class="hover:text-text-2 underline underline-offset-4 transition-colors">Privacy Notice</a>
+      <div class="flex items-center gap-6">
+        <a href="/privacy" class="link-underline hover:text-text-2">Privacy notice</a>
+        <span>Built for phones first.</span>
+      </div>
     </div>
   </div>
 </footer>

@@ -13,11 +13,11 @@ Status: skeleton copy in place since P-2 (nav labels, 404 page, footer and form 
 
 ## Hero
 
-- Headline: "Shot for the occasion" (candidate A below, built at P-3). Builder drafted, not approved. It stays an open placeholder in `PLACEHOLDERS.md` until Emmanuel approves a line, at the D-7 walkthrough or as copy at C-10.
-- Candidates considered (P-3, all two or three words, none uses a superlative or a claim):
-  - A. "Shot for the occasion" (built)
-  - B. "Filmed for the moment"
-  - C. "Your day, on film"
+- Headline: "Films with feeling." (candidate A below, built at P-28, with "feeling" in `display-italic`). Builder drafted, not approved. It stays an open placeholder in `PLACEHOLDERS.md` until Emmanuel approves a line, at the D-7 walkthrough or as copy at C-10.
+- Candidates considered (P-3 and P-28, none uses a superlative or a claim):
+  - A. "Films with feeling." (built at P-28)
+  - B. "Films with feeling" (no full stop, if the italic word needs more room at 390 px)
+  - C. "The day, kept"
 - Subheadline: "Commercial films, cultural festival coverage, wedding and documentary work. Tell us the date and we will tell you what is possible." (built at P-3, also unapproved. It names only the four service categories already in the research brief and the PRD, and promises nothing a booking form cannot deliver.)
 - Primary CTA: Check a date
 - Secondary CTA: View showreel
@@ -29,13 +29,13 @@ Status: skeleton copy in place since P-2 (nav labels, 404 page, footer and form 
   - A. "See the work in motion" (built)
   - B. "The films, in one place"
   - C. "Watch what we film"
-- Per-item visible label (built at P-27, on the stage bottom left and under the matching thumbnail): the item's own title, and its category under it in eyebrow caps. A `demo: true` entry has no title a visitor may read, so it prints the stand-in "Placeholder reel" instead of its bracketed `[project title]` (D23, and `placeholderTitle` / `displayTitle` in `web/src/content-rules.ts`). The three stand-ins share that label and are told apart by their categories, which is the honest outcome: they are three placeholder frames, not three named jobs. C-2 does not edit this line, it fills in the content entries.
+- Per-item visible label (built at P-27, re-cut at P-28): the item's own title, and its category under it in eyebrow caps. A `demo: true` entry prints the stand-in label `sampleFootageLabel` ("Sample footage") instead of its bracketed `[project title]`, on the stage, under the thumbnail, on every card and on the project page. One label everywhere, so a visitor cannot mistake which surface is a sample. Titles are short enough for 112 px and were re-measured at 390 px
 - Poster alt text per item (built at P-26): "<label> poster. Placeholder artwork, not client work" while the entry is a stand-in, "<label> poster" once it is shorable.
 - Play control label per item (screen readers only): "Play <label>". The strip button's accessible name is the visible caption itself, so a voice-control user can say the words printed under the thumbnail.
 - Player title, set only on a YouTube item: "Reel".
 - Autoplay controls (built at P-26, screen-reader labels beside 24 px icons): "Pause the reel" / "Play the reel", and "Turn the sound on" / "Turn the sound off". These describe what the page does rather than the business, and they stay whatever C-2 delivers.
 - Data line (built at P-4, rewritten at P-26): "The first clip starts on its own, muted and looping, and stops when you scroll past it. Nothing else loads until you press play, so the page never spends your data on a video you did not ask for." Builder drafted, not approved. It claims nothing about the business, only what the page does, but C-10 rewrites it or cuts it once the reel is real.
-- Placeholder text drawn inside each poster and clip (re-rendered at P-27): "DEMO REEL 1 OF 3" through "3 OF 3", the item's category in caps under it, and "Placeholder artwork. Not client work." under that, all of it in the top left so the DOM caption in the bottom left never sits on top of it. These are pixels in `demo-reel-1-poster.webp` to `-3-` and `demo-reel-1.mp4` to `-3.mp4`, not strings in a component, so C-2 replaces them by replacing the files rather than by an edit here.
+- Nothing is drawn inside the P-28 posters or clips. The label is DOM text, so it changes with the entry and never survives into real work (D31). The rendered "DEMO REEL n OF 3" artwork retired with the demo-reel files
 
 ## Work
 
@@ -103,10 +103,10 @@ This section is called Work everywhere a visitor reads it, the nav and the eyebr
 These lines exist to tell us, not a visitor, what is not built yet. They are inside the DEMO blocks and they go when the real content arrives (task P-24).
 
 - "The chips are disabled: filtering needs the verified projects, and that is task P-6."
-- "DEMO poster" (the label inside each portfolio card. The showreel prints no such pill: its placeholder wording lives in the poster and clip artwork, and since P-27 the DOM caption beside each item prints the stand-in label "Placeholder reel", which becomes the entry's real title at C-2)
+- "Sample footage" (the label inside each card and under each reel caption. It is `sampleFootageLabel` in `web/src/content-rules.ts`, one string for every surface, so a wording change is one edit. The bracketed `[project title]` never reaches a visitor)
 - "Verified items only. Source note lives in content/verification-log.md."
 - "This section hides entirely while it holds fewer than [N] verified items (FR-26, P-8)."
 - "The fields are a list, not a working form yet. The island arrives at P-12 with validation, the confirmation screen and the WhatsApp handoff."
 - "The link goes live at P-15 and works without JavaScript."
 - "The first clip starts on its own, muted and looping, and stops when you scroll past it. Nothing else loads until you press play, so the page never spends your data on a video you did not ask for." (added at P-4, rewritten at P-26 to describe the carousel. It goes with the stand-in media at C-2, which is what DESIGN section 13 item 8 says; P-24 stays the task that clears whatever scaffolding is left)
-- "<label> poster. Placeholder artwork, not client work" (the per-item alt text, added at P-26. The label is `displayTitle`, so a stand-in entry reads "Placeholder reel poster. Placeholder artwork, not client work" and the brackets never reach a visitor. It becomes real copy when C-2 fills the entries in, not when a component is edited)
+- "<label> still. Sample footage." (per-item alt text at P-28, so a screen reader hears the same caveat the frame prints. It becomes "<label> still" when C-2 fills the entry in)

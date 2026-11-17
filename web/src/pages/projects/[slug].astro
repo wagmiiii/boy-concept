@@ -1,13 +1,13 @@
 ---
-// Project page template (ROADMAP Task P-7, PRD FR-4).
-// Renders single project details: video or poster, category, client, event,
-// year, location, deliverables list, and summary brief story.
+// Project page (P-7, FR-4). Every entry here is 9:16, so the player is a portrait frame and the
+// page is built around it rather than around a wide hero. Playback stays poster first: the clip is
+// only fetched when the visitor taps (ESSENTIALS rule 10).
 import { getCollection, type CollectionEntry } from "astro:content";
 import { Image } from "astro:assets";
 import Base from "../../layouts/Base.astro";
 import Nav from "../../components/Nav.astro";
 import Footer from "../../components/Footer.astro";
-import { visibleProjects } from "../../content-rules";
+import { sampleFootageLabel, visibleProjects } from "../../content-rules";
 import { posterFor } from "../../poster-index";
 import { isSelfHostedVideo, youtubeEmbedUrl } from "../../media-sources";
 
@@ -29,138 +29,144 @@ const data = project.data;
 const posterImage = data.poster ? posterFor(data.poster) : undefined;
 const youtubeUrl = data.video_url ? youtubeEmbedUrl(data.video_url) : undefined;
 const isSelfHosted = data.video_url ? isSelfHostedVideo(data.video_url) : false;
+const playable = isSelfHosted || Boolean(youtubeUrl);
+const facts = [
+  data.client_name ? ["Client", data.client_name] : null,
+  data.event_name ? ["Event", data.event_name] : null,
+  data.location ? ["Location", data.location] : null,
+  data.year ? ["Year", String(data.year)] : null,
+].filter((fact): fact is [string, string] => fact !== null);
 ---
 
 <Base
   title={`${data.title} | Boy Concept`}
-  description={data.summary || `${data.title} - ${data.category} video by Boy Concept (Alpha Movies Ltd)`}
+  description={data.summary || `${data.title}, a ${data.category.toLowerCase()} film by Boy Concept (Alpha Movies Ltd)`}
 >
   <Nav />
 
-  <main class="container-site flex flex-col gap-10 py-12 md:py-20 max-w-4xl">
-    <nav aria-label="Breadcrumb" class="flex items-center">
-      <a
-        href="/#work"
-        class="group inline-flex min-h-11 items-center gap-2 text-small font-semibold text-text-muted transition-colors hover:text-gold"
-      >
-        <span class="transition-transform duration-200 group-hover:-translate-x-1" aria-hidden="true">&larr;</span> Back to Work
-      </a>
-    </nav>
+  <main class="relative overflow-hidden pb-20 pt-32 md:pb-32 md:pt-40">
+    <div class="ambient-gold pointer-events-none absolute inset-x-0 top-0 h-[480px]" aria-hidden="true"></div>
 
-    <header class="flex flex-col gap-3">
-      <div class="flex items-center gap-3">
-        <span class="chip">{data.category}</span>
-        {data.year && <span class="text-small text-text-muted">{data.year}</span>}
-      </div>
-      <h1 class="font-display text-display text-text">{data.title}</h1>
-    </header>
+    <div class="container-site relative">
+      <nav aria-label="Breadcrumb">
+        <a href="/#work" class="inline-flex min-h-11 items-center gap-2 text-small text-text-muted transition-colors hover:text-gold">
+          <svg class="size-3.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 12H5M11 6l-6 6 6 6" />
+          </svg>
+          All work
+        </a>
+      </nav>
 
-    <section class="card overflow-hidden">
-      <div
-        id="project-player-frame"
-        class="poster-frame relative flex items-center justify-center bg-surface-2 group"
-        data-src={data.video_url}
-        data-kind={isSelfHosted ? "file" : youtubeUrl ? "youtube" : "none"}
-        aria-label={`Play ${data.title}`}
-      >
-        {
-          posterImage ? (
-            <Image
-              src={posterImage}
-              widths={[640, 1280]}
-              sizes="(max-width: 767px) 100vw, 896px"
-              alt={`${data.title} poster`}
-              class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            />
-          ) : (
-            <div class="flex h-full w-full items-center justify-center bg-surface-2">
-              <span class="text-small uppercase tracking-[0.12em] text-text-muted">DEMO preview</span>
-            </div>
-          )
-        }
-        {
-          (isSelfHosted || youtubeUrl) && (
-            <button
-              type="button"
-              id="project-play-btn"
-              class="btn-primary absolute flex h-14 w-14 items-center justify-center rounded-full p-0 shadow-lg cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"
-              aria-label={`Play ${data.title}`}
-            >
-              <svg class="h-6 w-6 fill-current ml-1" viewBox="0 0 24 24" aria-hidden="true">
-                <polygon points="5 3 19 12 5 21 5 3" />
+      <header class="mt-6 flex flex-col gap-4" data-reveal>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="chip" data-active="true">{data.category}</span>
+          {data.demo ? <span class="tag">{sampleFootageLabel}</span> : null}
+        </div>
+        <h1 class="max-w-[18ch] text-display font-semibold text-text">{data.title}</h1>
+      </header>
+
+      <div class="mt-10 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-16">
+        <div class="mx-auto w-full max-w-[420px] lg:mx-0" data-reveal data-reveal-delay="1">
+          <div
+            id="project-player-frame"
+            class="tile-frame aspect-[9/16] border border-line-strong bg-surface-2 shadow-[0_50px_120px_-50px_var(--bg)]"
+            data-src={data.video_url}
+            data-kind={isSelfHosted ? "file" : youtubeUrl ? "youtube" : "none"}
+            aria-label={`Play ${data.title}`}
+          >
+            {
+              posterImage ? (
+                <Image
+                  src={posterImage}
+                  widths={[420, 720]}
+                  sizes="(max-width: 1023px) 92vw, 420px"
+                  alt={`${data.title} still`}
+                  class="absolute inset-0 size-full object-cover"
+                />
+              ) : (
+                <span class="absolute inset-0 flex items-center justify-center text-small uppercase tracking-[0.14em] text-text-muted">
+                  Still to come
+                </span>
+              )
+            }
+
+            {
+              playable ? (
+                <button
+                  type="button"
+                  id="project-play-btn"
+                  class="absolute inset-0 z-20 flex items-center justify-center"
+                  aria-label={`Play ${data.title}`}
+                >
+                  <span class="flex size-16 items-center justify-center rounded-full border border-media-text/40 bg-bg/40 text-media-text backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-gold hover:bg-gold hover:text-bg">
+                    <svg class="ml-1 size-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M8 5.5v13l11-6.5z" />
+                    </svg>
+                  </span>
+                </button>
+              ) : null
+            }
+          </div>
+          {
+            data.demo ? (
+              <p class="mt-3 text-center text-small text-text-muted lg:text-left">
+                {sampleFootageLabel}. Not a client case study.
+              </p>
+            ) : null
+          }
+        </div>
+
+        <div class="flex flex-col gap-10">
+          <section class="flex flex-col gap-4" data-reveal data-reveal-delay="2">
+            <p class="eyebrow">The brief</p>
+            <p class="text-body-large text-text-2">{data.summary}</p>
+          </section>
+
+          {
+            facts.length > 0 && (
+              <section class="flex flex-col gap-4 border-t border-line pt-8">
+                <p class="eyebrow">Details</p>
+                <dl class="grid grid-cols-2 gap-x-6 gap-y-5">
+                  {facts.map(([label, value]) => (
+                    <div class="flex flex-col gap-1">
+                      <dt class="text-eyebrow uppercase tracking-[0.18em] text-text-muted">{label}</dt>
+                      <dd class="text-small text-text">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            )
+          }
+
+          {
+            data.deliverables.length > 0 && (
+              <section class="flex flex-col gap-3 border-t border-line pt-8">
+                <p class="eyebrow">Delivered</p>
+                <ul class="flex flex-wrap gap-2">
+                  {data.deliverables.map((item) => (
+                    <li class="tag">{item}</li>
+                  ))}
+                </ul>
+              </section>
+            )
+          }
+
+          <section class="flex flex-col gap-4 rounded-panel border border-line bg-surface-1 p-6 md:p-8">
+            <h2 class="text-h4 font-semibold text-text">Film something like this</h2>
+            <p class="max-w-[42ch] text-small text-text-2">
+              Send the date and the brief. We answer with availability first, then the shape of the
+              shoot.
+            </p>
+            <a href="/commission/" class="btn-primary w-full md:w-auto md:self-start">
+              Check a date
+              <svg class="size-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
-            </button>
-          )
-        }
+            </a>
+          </section>
+        </div>
       </div>
-    </section>
-
-    <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-      <div class="md:col-span-2 flex flex-col gap-4">
-        <h2 class="font-display text-h3 text-gold">Overview</h2>
-        <p class="text-body-large text-text-2 leading-relaxed">
-          {data.summary || "Project overview and production brief notes."}
-        </p>
-      </div>
-
-      <aside class="card flex flex-col gap-4 p-6 self-start">
-        <h2 class="font-display text-h3 text-text">Project Details</h2>
-        <dl class="flex flex-col gap-3 text-small">
-          {
-            data.client_name && (
-              <div>
-                <dt class="text-text-muted">Client</dt>
-                <dd class="font-medium text-text">{data.client_name}</dd>
-              </div>
-            )
-          }
-          {
-            data.event_name && (
-              <div>
-                <dt class="text-text-muted">Event</dt>
-                <dd class="font-medium text-text">{data.event_name}</dd>
-              </div>
-            )
-          }
-          {
-            data.location && (
-              <div>
-                <dt class="text-text-muted">Location</dt>
-                <dd class="font-medium text-text">{data.location}</dd>
-              </div>
-            )
-          }
-          {
-            data.deliverables && data.deliverables.length > 0 && (
-              <div>
-                <dt class="text-text-muted">Deliverables</dt>
-                <dd class="mt-1">
-                  <ul class="flex flex-col gap-1 text-text">
-                    {data.deliverables.map((item) => (
-                      <li class="flex items-center gap-2">
-                        <span class="text-gold" aria-hidden="true">&bull;</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </dd>
-              </div>
-            )
-          }
-        </dl>
-      </aside>
     </div>
-
-    <section class="card flex flex-col gap-4 p-6 md:p-8 mt-4 text-center items-center">
-      <h2 class="font-display text-h3 text-gold">Ready to film your event?</h2>
-      <p class="max-w-[50ch] text-body text-text-2">
-        Let us know your event date and required deliverables. We confirm availability and pricing directly on WhatsApp.
-      </p>
-      <a href="/commission/" class="btn-primary group">
-        <span>Check a date</span>
-        <span class="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
-      </a>
-    </section>
   </main>
 
   <Footer />
@@ -184,7 +190,7 @@ const isSelfHosted = data.video_url ? isSelfHostedVideo(data.video_url) : false;
         iframe.src = embed;
         iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
         iframe.allowFullscreen = true;
-        iframe.className = "absolute inset-0 h-full w-full border-0";
+        iframe.className = "absolute inset-0 z-10 size-full border-0";
         iframe.title = frame.getAttribute("aria-label") || "Project video";
         frame.innerHTML = "";
         frame.appendChild(iframe);
@@ -194,17 +200,14 @@ const isSelfHosted = data.video_url ? isSelfHostedVideo(data.video_url) : false;
         video.controls = true;
         video.playsInline = true;
         video.autoplay = true;
-        video.className = "absolute inset-0 h-full w-full object-cover";
+        video.className = "absolute inset-0 z-10 size-full bg-surface-cinema object-cover";
         frame.innerHTML = "";
         frame.appendChild(video);
       }
     };
 
-    playBtn?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      startPlayback();
-    });
-    frame?.addEventListener("click", () => {
+    playBtn?.addEventListener("click", (event) => {
+      event.stopPropagation();
       startPlayback();
     });
   </script>

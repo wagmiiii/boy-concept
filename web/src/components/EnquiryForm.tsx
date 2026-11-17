@@ -37,12 +37,7 @@ const PROJECT_TYPES = [
   "Other",
 ] as const;
 
-const DURATIONS = [
-  "Half day",
-  "Full day",
-  "Multiple days",
-  "Not sure",
-] as const;
+const DURATIONS = ["Half day", "Full day", "Multiple days", "Not sure"] as const;
 
 const DELIVERABLES = [
   "Highlight reel",
@@ -52,6 +47,8 @@ const DELIVERABLES = [
   "Social cuts",
   "Other",
 ] as const;
+
+const fieldClass = (invalid: boolean) => `field ${invalid ? "field-error" : ""}`;
 
 function getTodayString(): string {
   const now = new Date();
@@ -75,6 +72,34 @@ function isWithin7Days(dateStr: string): boolean {
   return diffDays >= 0 && diffDays <= 7;
 }
 
+function SectionHead({
+  number,
+  title,
+  note,
+}: {
+  number: string;
+  title: string;
+  note?: string;
+}) {
+  return (
+    <div class="flex flex-col gap-1.5 border-t border-line pt-6 first:border-t-0 first:pt-0">
+      <div class="flex items-baseline gap-3">
+        <span class="font-mono text-small text-gold">{number}</span>
+        <h3 class="text-h4 font-semibold text-text">{title}</h3>
+      </div>
+      {note ? <p class="pl-8 text-small text-text-muted">{note}</p> : null}
+    </div>
+  );
+}
+
+function ErrorText({ message }: { message?: string }) {
+  return message ? (
+    <p class="text-small text-error" role="alert">
+      {message}
+    </p>
+  ) : null;
+}
+
 export default function EnquiryForm() {
   const idPrefix = useId();
   const today = getTodayString();
@@ -84,11 +109,11 @@ export default function EnquiryForm() {
     eventDate: "",
     flexibleDate: false,
     secondDate: "",
-    projectType: PROJECT_TYPES[1], // default "Wedding or event"
+    projectType: PROJECT_TYPES[1],
     venue: "",
     city: "",
     country: "Nigeria",
-    duration: DURATIONS[1], // default "Full day"
+    duration: DURATIONS[1],
     deliverables: ["Highlight reel"],
     referenceVideo: "",
     describeInstead: false,
@@ -107,23 +132,34 @@ export default function EnquiryForm() {
   const [clientRequestId] = useState(() =>
     typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
       ? crypto.randomUUID()
-      : `req_${Date.now()}_${Math.random().toString(36).slice(2)}`
+      : `req_${Date.now()}_${Math.random().toString(36).slice(2)}`,
   );
 
   const trackEvent = (name: string, params?: Record<string, unknown>) => {
-    if (typeof window !== "undefined" && typeof (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag === "function") {
+    if (
+      typeof window !== "undefined" &&
+      typeof (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag === "function"
+    ) {
       (window as unknown as { gtag: (...args: unknown[]) => void }).gtag("event", name, params);
     }
   };
 
   const directWhatsAppUrl = buildWhatsAppDirectLink(siteConfig.ownerWhatsAppDigits);
 
+  const clearError = (key: string) => {
+    if (!errors[key] && !(key === "whatsapp" || key === "email") ) return;
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      if (key === "whatsapp" || key === "email") delete next.contact;
+      return next;
+    });
+  };
+
   const toggleDeliverable = (item: string) => {
     setForm((prev) => {
       const exists = prev.deliverables.includes(item);
-      const next = exists
-        ? prev.deliverables.filter((d) => d !== item)
-        : [...prev.deliverables, item];
+      const next = exists ? prev.deliverables.filter((d) => d !== item) : [...prev.deliverables, item];
       return { ...prev, deliverables: next };
     });
     if (errors.deliverables) {
@@ -138,7 +174,7 @@ export default function EnquiryForm() {
   const validate = (): boolean => {
     const nextErrors: Record<string, string> = {};
 
-    // Silently reject bot submissions if hidden honeypot is populated (Audit Item 5)
+    // Silently reject bot submissions if the hidden honeypot is populated.
     if (honeypot) return false;
 
     if (!form.eventDate) {
@@ -151,29 +187,17 @@ export default function EnquiryForm() {
       nextErrors.secondDate = "Second date must be on or after the first date.";
     }
 
-    if (!form.city.trim()) {
-      nextErrors.city = "Please enter the city.";
-    }
-
-    if (!form.country.trim()) {
-      nextErrors.country = "Please enter the country.";
-    }
-
-    if (form.deliverables.length === 0) {
-      nextErrors.deliverables = "Select at least one deliverable.";
-    }
+    if (!form.city.trim()) nextErrors.city = "Please enter the city.";
+    if (!form.country.trim()) nextErrors.country = "Please enter the country.";
+    if (form.deliverables.length === 0) nextErrors.deliverables = "Select at least one deliverable.";
 
     if (!form.describeInstead && !form.referenceVideo.trim()) {
       nextErrors.referenceVideo = "Please provide a reference video link or check describe instead.";
     }
-
     if (form.describeInstead && !form.notes.trim()) {
       nextErrors.notes = "Please describe your vision in the notes field.";
     }
-
-    if (!form.name.trim()) {
-      nextErrors.name = "Please enter your name.";
-    }
+    if (!form.name.trim()) nextErrors.name = "Please enter your name.";
 
     if (!form.whatsapp.trim() && !form.email.trim()) {
       nextErrors.contact = "Provide either a WhatsApp number or an email address.";
@@ -186,9 +210,7 @@ export default function EnquiryForm() {
       }
     }
 
-    if (!form.consent) {
-      nextErrors.consent = "You must agree to be contacted about this enquiry.";
-    }
+    if (!form.consent) nextErrors.consent = "You must agree to be contacted about this enquiry.";
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -217,28 +239,18 @@ export default function EnquiryForm() {
 
     const message = buildWhatsAppMessage(briefInput);
     setSubmittedBrief(message);
-
-    // Track GA4 conversion event (Task P-16, PRD FR-21, Audit Item 19)
     trackEvent("form_submit", { project_type: form.projectType });
 
-    // Asynchronously dispatch background POST to persist lead in D1 & send alert email (Audit Item 1).
-    // Rule 5: A backend failure never blocks the WhatsApp handoff.
-    const payload = {
-      ...briefInput,
-      clientRequestId,
-      website: honeypot,
-    };
-
+    // A backend failure never blocks the WhatsApp handoff (ESSENTIALS rule 5).
+    const payload = { ...briefInput, clientRequestId, website: honeypot };
     fetch("/api/enquiries", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-    }).catch(() => {
-      // Backend failure is logged in network and never blocks WhatsApp handoff
-    });
+    }).catch(() => undefined);
 
-    const target = document.getElementById("enquiry-form-section") || document.getElementById("enquiry");
-    window.scrollTo({ top: (target?.offsetTop || 0) - 70, behavior: "smooth" });
+    const target = document.getElementById("enquiry-form-section");
+    window.scrollTo({ top: (target?.offsetTop || 0) - 96, behavior: "smooth" });
   };
 
   const handleCopy = async () => {
@@ -248,98 +260,97 @@ export default function EnquiryForm() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      // Fallback if clipboard API is blocked
       setCopied(true);
     }
   };
 
-  // Confirmation screen replaces form on successful submission
   if (submittedBrief) {
     const waUrl = buildWhatsAppUrl(siteConfig.ownerWhatsAppDigits, submittedBrief);
     const deepLinkUrl = buildWhatsAppDeepLink(siteConfig.ownerWhatsAppDigits, submittedBrief);
 
     return (
-      <div class="card relative flex flex-col gap-6 p-6 md:p-10 overflow-hidden">
-        {/* Viewfinder corner brackets */}
-        <span class="absolute top-3 left-3 text-xs text-gold/30 select-none font-mono" aria-hidden="true">⌜</span>
-        <span class="absolute top-3 right-3 text-xs text-gold/30 select-none font-mono" aria-hidden="true">⌝</span>
-        <span class="absolute bottom-3 left-3 text-xs text-gold/30 select-none font-mono" aria-hidden="true">⌞</span>
-        <span class="absolute bottom-3 right-3 text-xs text-gold/30 select-none font-mono" aria-hidden="true">⌟</span>
-
-        <div class="flex flex-col gap-2 border-b border-line pb-6">
-          <p class="eyebrow">Call Sheet Ready</p>
-          <h3 class="font-display text-h3 text-text">Commission Brief Formatted</h3>
-          <p class="text-body text-text-2">
-            Your production brief is formatted and ready. Tap below to launch WhatsApp with Emmanuel (Boy Concept) and transmit your project specifications.
-          </p>
+      <div class="rounded-panel border border-line-strong bg-surface-1 p-6 md:p-10">
+        <div class="flex flex-col gap-6 border-b border-line pb-8">
+          <span class="flex size-14 items-center justify-center rounded-full border border-gold/50 bg-gold/10 text-gold">
+            <svg class="size-6 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </span>
+          <div class="flex flex-col gap-3">
+            <p class="eyebrow">Ready to send</p>
+            <h2 class="text-h2 font-semibold text-text">
+              Your brief is <span class="display-italic text-gold">written.</span>
+            </h2>
+            <p class="max-w-[52ch] text-body text-text-2">
+              One last step, and it stays in your hands: open WhatsApp and press send. Nothing has
+              been sent yet.
+            </p>
+          </div>
         </div>
 
-        <div class="flex flex-col gap-3">
+        <div class="flex flex-col gap-4 py-8">
           <a
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
+            data-handoff="whatsapp"
             onClick={() => trackEvent("whatsapp_tap", { source: "confirmation_web" })}
-            class="btn-primary group w-full md:w-auto md:self-start text-base shadow-[0_0_25px_rgba(251,195,0,0.25)] hover:shadow-[0_0_35px_rgba(251,195,0,0.4)]"
+            class="btn-primary w-full md:w-auto"
           >
-            <span>Open WhatsApp & Send Brief</span>
-            <span class="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
+            Open WhatsApp and send
+            <svg class="size-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
           </a>
 
           <a
             href={deepLinkUrl}
             onClick={() => trackEvent("whatsapp_tap", { source: "confirmation_deeplink" })}
-            class="group/link text-small text-gold underline underline-offset-4 hover:text-gold-bright inline-flex items-center gap-1.5 pt-1"
+            class="text-small text-gold underline decoration-gold/40 underline-offset-4 hover:text-gold-bright"
           >
-            <span>Inside Instagram or TikTok in-app browser? Tap for direct app handoff</span>
-            <span class="transition-transform duration-200 group-hover/link:translate-x-1" aria-hidden="true">&rarr;</span>
+            In the Instagram or TikTok in-app browser? Tap for a direct app handoff.
           </a>
         </div>
 
-        <div class="flex flex-col gap-3 pt-2">
-          <div class="flex items-center justify-between">
-            <span class="text-small font-semibold tracking-wider uppercase text-text-muted">Brief Dispatch Preview</span>
-            <button
-              type="button"
-              onClick={handleCopy}
-              class="btn-secondary h-10 px-4 text-small"
-            >
-              {copied ? "✓ Copied to clipboard" : "Copy brief text"}
+        <div class="flex flex-col gap-3 border-t border-line pt-6">
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-eyebrow uppercase tracking-[0.18em] text-text-muted">Your message</span>
+            <button type="button" onClick={handleCopy} class="btn-secondary min-h-11 px-4 py-2 text-small">
+              {copied ? "Copied" : "Copy text"}
             </button>
           </div>
-
-          <div class="rounded-card border border-line bg-surface-1 p-5 font-mono text-small text-text-2 leading-relaxed">
-            <pre class="font-sans whitespace-pre-wrap">
+          <div class="rounded-card border border-line bg-bg p-4 md:p-5">
+            <pre class="whitespace-pre-wrap font-sans text-small leading-relaxed text-text-2">
               {submittedBrief}
             </pre>
           </div>
         </div>
 
-        <div class="border-t border-line pt-4 text-small text-text-muted">
+        <div class="mt-6 flex flex-col gap-3 border-t border-line pt-6 text-small text-text-muted md:flex-row md:items-center md:justify-between">
           <p>
-            Already booked with us?{" "}
+            Already booked?{" "}
             <a
               href={directWhatsAppUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackEvent("whatsapp_tap", { source: "confirmation_direct" })}
-              class="font-semibold text-gold underline hover:text-gold-bright"
+              class="font-semibold text-gold underline decoration-gold/40 underline-offset-4 hover:text-gold-bright"
             >
-              Message directly on WhatsApp
-            </a>.
+              Message directly
+            </a>
+            .
           </p>
+          <button
+            type="button"
+            onClick={() => {
+              setSubmittedBrief(null);
+              setErrors({});
+            }}
+            class="min-h-11 self-start text-small text-text-2 underline decoration-line underline-offset-4 transition-colors hover:text-gold md:self-auto"
+          >
+            Start another brief
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={() => {
-            setSubmittedBrief(null);
-            setErrors({});
-          }}
-          class="btn-secondary w-full md:w-auto md:self-start text-small"
-        >
-          Submit another brief
-        </button>
       </div>
     );
   }
@@ -347,39 +358,30 @@ export default function EnquiryForm() {
   const showShortNotice = isWithin7Days(form.eventDate);
 
   return (
-    <form onSubmit={handleSubmit} noValidate class="card relative flex flex-col gap-8 p-6 md:p-10 overflow-hidden">
-      {/* Viewfinder corner brackets */}
-      <span class="absolute top-3 left-3 text-xs text-gold/25 select-none font-mono" aria-hidden="true">⌜</span>
-      <span class="absolute top-3 right-3 text-xs text-gold/25 select-none font-mono" aria-hidden="true">⌝</span>
-      <span class="absolute bottom-3 left-3 text-xs text-gold/25 select-none font-mono" aria-hidden="true">⌞</span>
-      <span class="absolute bottom-3 right-3 text-xs text-gold/25 select-none font-mono" aria-hidden="true">⌟</span>
-
-      {/* Starting price notice (FR-10) */}
-      <div class="flex flex-col gap-3 rounded-card border border-line bg-surface-1 p-5 md:flex-row md:items-center md:justify-between">
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      class="flex flex-col gap-8 rounded-panel border border-line-strong bg-surface-1 p-6 md:p-10"
+    >
+      <div class="flex flex-col gap-2 rounded-card border border-line bg-bg/50 p-5 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-col gap-1">
-          <span class="eyebrow">Direct Commission Desk</span>
-          <p class="text-body text-text-2">
-            Packages start from <span class="font-semibold text-gold">₦[amount]</span>
+          <p class="text-small text-text-2">
+            Commission packages start from <span class="font-semibold text-gold">₦[amount]</span>
           </p>
-          <p class="text-small text-text-muted">
-            Check availability and receive a custom proposal with zero commitment.
-          </p>
+          <p class="text-small text-text-muted">Every brief gets its own quote.</p>
         </div>
-        <div class="cinematic-badge shrink-0 self-start md:self-auto">
-          <span>CALENDAR OPEN • 2026/27</span>
-        </div>
+        <span class="inline-flex w-fit items-center gap-2 rounded-full border border-line px-3 py-1.5 text-[0.7rem] uppercase tracking-[0.16em] text-text-muted">
+          <span class="size-1.5 rounded-full bg-gold"></span>
+          Replies from a person
+        </span>
       </div>
 
-      {/* Section 01: Dates & Location */}
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-3 border-b border-line pb-2">
-          <span class="text-eyebrow font-semibold tracking-wider text-gold">01</span>
-          <h3 class="font-display text-small tracking-wider uppercase text-text">Dates & Location</h3>
-        </div>
+      <fieldset class="flex flex-col gap-5">
+        <legend class="sr-only">Date and place</legend>
+        <SectionHead number="01" title="Date and place" note="The date decides everything that follows." />
 
-        {/* Field 1: Event date (First field per ESSENTIALS rule 2) */}
         <div class="flex flex-col gap-2">
-          <label htmlFor={`${idPrefix}-eventDate`} class="text-small font-semibold text-text-2">
+          <label htmlFor={`${idPrefix}-eventDate`} class="field-label">
             Event date <span class="text-gold">*</span>
           </label>
           <div class="flex flex-col gap-3 md:flex-row md:items-center">
@@ -392,46 +394,35 @@ export default function EnquiryForm() {
               onInput={(e) => {
                 const val = (e.target as HTMLInputElement).value;
                 setForm((p) => ({ ...p, eventDate: val }));
-                if (errors.eventDate) {
-                  setErrors((prev) => {
-                    const next = { ...prev };
-                    delete next.eventDate;
-                    return next;
-                  });
-                }
+                clearError("eventDate");
               }}
-              class={`h-13 rounded-input border bg-surface-2 px-4 text-base text-text transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
-                errors.eventDate ? "border-error" : "border-line-input hover:border-text-muted"
-              }`}
+              class={`${fieldClass(Boolean(errors.eventDate))} md:max-w-[260px]`}
             />
 
-            <label class="flex items-center gap-2 text-small text-text-2 cursor-pointer select-none">
+            <label class="flex min-h-11 cursor-pointer items-center gap-2.5 text-small text-text-2 select-none">
               <input
                 type="checkbox"
                 checked={form.flexibleDate}
-                onChange={(e) => setForm((p) => ({ ...p, flexibleDate: (e.target as HTMLInputElement).checked }))}
-                class="h-5 w-5 rounded border-line-input accent-gold"
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, flexibleDate: (e.target as HTMLInputElement).checked }))
+                }
+                class="size-5 rounded border-line-input accent-gold"
               />
               Dates are flexible
             </label>
           </div>
-
-          {errors.eventDate && (
-            <p class="text-small text-error">{errors.eventDate}</p>
-          )}
-
-          {showShortNotice && (
-            <p class="text-small text-text-2 flex items-center gap-1.5">
-              <span class="inline-block h-2 w-2 rounded-full bg-gold" aria-hidden="true" />
-              Short notice, we will confirm availability promptly.
+          <ErrorText message={errors.eventDate} />
+          {showShortNotice ? (
+            <p class="flex items-center gap-2 text-small text-text-2">
+              <span class="size-2 rounded-full bg-gold" aria-hidden="true" />
+              Short notice. We will confirm availability promptly.
             </p>
-          )}
+          ) : null}
         </div>
 
-        {/* Field 2: Second date or end date (optional) */}
         <div class="flex flex-col gap-2">
-          <label htmlFor={`${idPrefix}-secondDate`} class="text-small font-semibold text-text-2">
-            Second date or end date <span class="text-text-muted font-normal">(optional: for multi-day shoots or traditional/white wedding pairs)</span>
+          <label htmlFor={`${idPrefix}-secondDate`} class="field-label">
+            Second date or end date <span class="font-normal text-text-muted">(optional)</span>
           </label>
           <input
             id={`${idPrefix}-secondDate`}
@@ -440,109 +431,99 @@ export default function EnquiryForm() {
             max={maxDate}
             value={form.secondDate}
             onInput={(e) => setForm((p) => ({ ...p, secondDate: (e.target as HTMLInputElement).value }))}
-            class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+            class={`${fieldClass(Boolean(errors.secondDate))} md:max-w-[260px]`}
           />
+          <ErrorText message={errors.secondDate} />
         </div>
 
-        {/* Venue, city, country */}
         <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div class="flex flex-col gap-2">
-            <label htmlFor={`${idPrefix}-venue`} class="text-small font-semibold text-text-2">
-              Venue <span class="text-text-muted font-normal">(optional)</span>
+            <label htmlFor={`${idPrefix}-venue`} class="field-label">
+              Venue <span class="font-normal text-text-muted">(optional)</span>
             </label>
             <input
               id={`${idPrefix}-venue`}
               type="text"
-              placeholder="e.g. Landmark Centre"
+              placeholder="Landmark Centre"
               value={form.venue}
               onInput={(e) => setForm((p) => ({ ...p, venue: (e.target as HTMLInputElement).value }))}
-              class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+              class="field"
             />
           </div>
 
           <div class="flex flex-col gap-2">
-            <label htmlFor={`${idPrefix}-city`} class="text-small font-semibold text-text-2">
+            <label htmlFor={`${idPrefix}-city`} class="field-label">
               City <span class="text-gold">*</span>
             </label>
             <input
               id={`${idPrefix}-city`}
               type="text"
-              placeholder="e.g. Lagos"
+              placeholder="Lagos"
               value={form.city}
               onInput={(e) => {
-                const val = (e.target as HTMLInputElement).value;
-                setForm((p) => ({ ...p, city: val }));
-                if (errors.city) {
-                  setErrors((prev) => {
-                    const next = { ...prev };
-                    delete next.city;
-                    return next;
-                  });
-                }
+                setForm((p) => ({ ...p, city: (e.target as HTMLInputElement).value }));
+                clearError("city");
               }}
-              class={`h-13 rounded-input border bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
-                errors.city ? "border-error" : "border-line-input hover:border-text-muted"
-              }`}
+              class={fieldClass(Boolean(errors.city))}
             />
-            {errors.city && <p class="text-small text-error">{errors.city}</p>}
+            <ErrorText message={errors.city} />
           </div>
 
           <div class="flex flex-col gap-2">
-            <label htmlFor={`${idPrefix}-country`} class="text-small font-semibold text-text-2">
+            <label htmlFor={`${idPrefix}-country`} class="field-label">
               Country <span class="text-gold">*</span>
             </label>
             <input
               id={`${idPrefix}-country`}
               type="text"
-              placeholder="e.g. Nigeria"
+              placeholder="Nigeria"
               value={form.country}
-              onInput={(e) => setForm((p) => ({ ...p, country: (e.target as HTMLInputElement).value }))}
-              class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+              onInput={(e) => {
+                setForm((p) => ({ ...p, country: (e.target as HTMLInputElement).value }));
+                clearError("country");
+              }}
+              class={fieldClass(Boolean(errors.country))}
             />
+            <ErrorText message={errors.country} />
           </div>
         </div>
-      </div>
+      </fieldset>
 
-      {/* Section 02: Creative Scope & Deliverables */}
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-3 border-b border-line pb-2">
-          <span class="text-eyebrow font-semibold tracking-wider text-gold">02</span>
-          <h3 class="font-display text-small tracking-wider uppercase text-text">Creative Scope & Deliverables</h3>
-        </div>
+      <fieldset class="flex flex-col gap-5">
+        <legend class="sr-only">The film</legend>
+        <SectionHead number="02" title="The film" note="What it covers and what you want back." />
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Field 3: Project type */}
           <div class="flex flex-col gap-2">
-            <label htmlFor={`${idPrefix}-projectType`} class="text-small font-semibold text-text-2">
+            <label htmlFor={`${idPrefix}-projectType`} class="field-label">
               Project type <span class="text-gold">*</span>
             </label>
             <select
               id={`${idPrefix}-projectType`}
               value={form.projectType}
               onChange={(e) => setForm((p) => ({ ...p, projectType: (e.target as HTMLSelectElement).value }))}
-              class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+              class="field"
             >
               {PROJECT_TYPES.map((type) => (
-                <option key={type} value={type} class="bg-surface-2 text-text">
+                <option key={type} value={type}>
                   {type}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Field 5: Duration */}
           <div class="flex flex-col gap-2">
-            <label htmlFor={`${idPrefix}-duration`} class="text-small font-semibold text-text-2">
+            <label htmlFor={`${idPrefix}-duration`} class="field-label">
               Duration <span class="text-gold">*</span>
             </label>
             <select
               id={`${idPrefix}-duration`}
               value={form.duration}
               onChange={(e) => setForm((p) => ({ ...p, duration: (e.target as HTMLSelectElement).value }))}
-              class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+              class="field"
             >
               {DURATIONS.map((dur) => (
-                <option key={dur} value={dur} class="bg-surface-2 text-text">
+                <option key={dur} value={dur}>
                   {dur}
                 </option>
               ))}
@@ -550,269 +531,214 @@ export default function EnquiryForm() {
           </div>
         </div>
 
-        {/* Field 6: Deliverables (multi-select cards) */}
-        <div class="flex flex-col gap-2">
-          <span class="text-small font-semibold text-text-2">
-            Deliverables <span class="text-gold">* (select at least one)</span>
+        <div class="flex flex-col gap-3">
+          <span class="field-label">
+            Deliverables <span class="text-gold">*</span>{" "}
+            <span class="font-normal text-text-muted">Select all that apply</span>
           </span>
-          <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
+          <div class="flex flex-wrap gap-2">
             {DELIVERABLES.map((item) => {
               const isChecked = form.deliverables.includes(item);
               return (
-                <label
+                <button
                   key={item}
-                  class={`flex min-h-[48px] cursor-pointer items-center justify-between gap-2 rounded-input border p-3.5 text-small transition-all duration-200 active:scale-95 hover:-translate-y-0.5 select-none ${
-                    isChecked
-                      ? "border-gold bg-surface-3 text-text shadow-[0_0_15px_rgba(251,195,0,0.12)]"
-                      : "border-line-input bg-surface-2 text-text-2 hover:border-gold hover:text-text"
-                  }`}
+                  type="button"
+                  aria-pressed={isChecked}
+                  onClick={() => toggleDeliverable(item)}
+                  class="chip"
+                  data-active={isChecked ? "true" : "false"}
                 >
-                  <span class="font-medium">{item}</span>
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => toggleDeliverable(item)}
-                    class="h-4 w-4 rounded border-line-input accent-gold"
-                  />
-                </label>
+                  {isChecked ? (
+                    <svg class="mr-1.5 size-3.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  ) : null}
+                  {item}
+                </button>
               );
             })}
           </div>
-          {errors.deliverables && <p class="text-small text-error">{errors.deliverables}</p>}
+          <ErrorText message={errors.deliverables} />
         </div>
 
-        {/* Field 7: Reference video */}
         <div class="flex flex-col gap-2">
-          <div class="flex items-center justify-between">
-            <label htmlFor={`${idPrefix}-refVideo`} class="text-small font-semibold text-text-2">
-              Reference video {!form.describeInstead && <span class="text-gold">*</span>}
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <label htmlFor={`${idPrefix}-refVideo`} class="field-label">
+              Reference video {!form.describeInstead ? <span class="text-gold">*</span> : null}
             </label>
-            <label class="flex items-center gap-2 text-small text-text-muted cursor-pointer select-none">
+            <label class="flex min-h-11 cursor-pointer items-center gap-2 text-small text-text-muted select-none">
               <input
                 type="checkbox"
                 checked={form.describeInstead}
                 onChange={(e) => {
                   const checked = (e.target as HTMLInputElement).checked;
                   setForm((p) => ({ ...p, describeInstead: checked }));
-                  if (checked && errors.referenceVideo) {
-                    setErrors((prev) => {
-                      const next = { ...prev };
-                      delete next.referenceVideo;
-                      return next;
-                    });
-                  }
+                  if (checked) clearError("referenceVideo");
                 }}
-                class="h-4 w-4 rounded border-line-input accent-gold"
+                class="size-4 rounded border-line-input accent-gold"
               />
               I will describe it instead
             </label>
           </div>
 
-          {!form.describeInstead && (
+          {!form.describeInstead ? (
             <input
               id={`${idPrefix}-refVideo`}
               type="url"
-              placeholder="Link to a video you like (YouTube, Vimeo, Instagram)"
+              placeholder="A link to a film you like (YouTube, Vimeo, Instagram)"
               value={form.referenceVideo}
               onInput={(e) => {
-                const val = (e.target as HTMLInputElement).value;
-                setForm((p) => ({ ...p, referenceVideo: val }));
-                if (errors.referenceVideo) {
-                  setErrors((prev) => {
-                    const next = { ...prev };
-                    delete next.referenceVideo;
-                    return next;
-                  });
-                }
+                setForm((p) => ({ ...p, referenceVideo: (e.target as HTMLInputElement).value }));
+                clearError("referenceVideo");
               }}
-              class={`h-13 rounded-input border bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
-                errors.referenceVideo ? "border-error" : "border-line-input hover:border-text-muted"
-              }`}
+              class={fieldClass(Boolean(errors.referenceVideo))}
             />
-          )}
-          {errors.referenceVideo && <p class="text-small text-error">{errors.referenceVideo}</p>}
+          ) : null}
+          <ErrorText message={errors.referenceVideo} />
         </div>
-      </div>
+      </fieldset>
 
-      {/* Section 03: Client Details & Dispatch */}
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-3 border-b border-line pb-2">
-          <span class="text-eyebrow font-semibold tracking-wider text-gold">03</span>
-          <h3 class="font-display text-small tracking-wider uppercase text-text">Contact Details</h3>
-        </div>
+      <fieldset class="flex flex-col gap-5">
+        <legend class="sr-only">How to reach you</legend>
+        <SectionHead number="03" title="How to reach you" note="One channel is enough. We reply the way you ask." />
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Field 8: Name */}
           <div class="flex flex-col gap-2">
-            <label htmlFor={`${idPrefix}-name`} class="text-small font-semibold text-text-2">
+            <label htmlFor={`${idPrefix}-name`} class="field-label">
               Your name <span class="text-gold">*</span>
             </label>
             <input
               id={`${idPrefix}-name`}
               type="text"
-              placeholder="e.g. Ada and Tunde / Folake Adeyemi"
+              placeholder="Ada and Tunde"
               value={form.name}
               onInput={(e) => {
-                const val = (e.target as HTMLInputElement).value;
-                setForm((p) => ({ ...p, name: val }));
-                if (errors.name) {
-                  setErrors((prev) => {
-                    const next = { ...prev };
-                    delete next.name;
-                    return next;
-                  });
-                }
+                setForm((p) => ({ ...p, name: (e.target as HTMLInputElement).value }));
+                clearError("name");
               }}
-              class={`h-13 rounded-input border bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
-                errors.name ? "border-error" : "border-line-input hover:border-text-muted"
-              }`}
+              class={fieldClass(Boolean(errors.name))}
             />
-            {errors.name && <p class="text-small text-error">{errors.name}</p>}
+            <ErrorText message={errors.name} />
           </div>
 
-          {/* Field 9: Company or agency */}
           <div class="flex flex-col gap-2">
-            <label htmlFor={`${idPrefix}-company`} class="text-small font-semibold text-text-2">
-              Company or agency <span class="text-text-muted font-normal">(optional, for brand shoots and agencies)</span>
+            <label htmlFor={`${idPrefix}-company`} class="field-label">
+              Company or agency <span class="font-normal text-text-muted">(optional)</span>
             </label>
             <input
               id={`${idPrefix}-company`}
               type="text"
-              placeholder="e.g. Studio Red / Brand Name"
+              placeholder="Studio or brand"
               value={form.company}
               onInput={(e) => setForm((p) => ({ ...p, company: (e.target as HTMLInputElement).value }))}
-              class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+              class="field"
             />
           </div>
         </div>
 
-        {/* Contact info: WhatsApp number OR Email */}
-        <div class="flex flex-col gap-3 rounded-card border border-line bg-surface-1 p-5">
+        <div class="flex flex-col gap-3 rounded-card border border-line bg-bg/50 p-5">
           <div>
-            <span class="text-small font-semibold text-text-2">
-              Contact information <span class="text-gold">* (provide at least one)</span>
-            </span>
-            <p class="text-small text-text-muted">
-              We use this exclusively to follow up on your enquiry. When you send the brief on WhatsApp, we reply to that number.
+            <p class="field-label">
+              Contact <span class="text-gold">*</span>{" "}
+              <span class="font-normal text-text-muted">Provide at least one</span>
+            </p>
+            <p class="mt-1 text-small text-text-muted">
+              Used only to follow up on this enquiry.
             </p>
           </div>
 
           <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div class="flex flex-col gap-2">
-              <label htmlFor={`${idPrefix}-whatsapp`} class="text-small font-semibold text-text-2">
+              <label htmlFor={`${idPrefix}-whatsapp`} class="field-label">
                 WhatsApp number
               </label>
               <input
                 id={`${idPrefix}-whatsapp`}
                 type="tel"
-                placeholder="e.g. 08012345678 or +234..."
+                placeholder="0801 234 5678"
                 value={form.whatsapp}
                 onInput={(e) => {
-                  const val = (e.target as HTMLInputElement).value;
-                  setForm((p) => ({ ...p, whatsapp: val }));
-                  if (errors.contact) {
-                    setErrors((prev) => {
-                      const next = { ...prev };
-                      delete next.contact;
-                      delete next.whatsapp;
-                      return next;
-                    });
-                  }
+                  setForm((p) => ({ ...p, whatsapp: (e.target as HTMLInputElement).value }));
+                  clearError("whatsapp");
                 }}
-                class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+                class={fieldClass(Boolean(errors.whatsapp))}
               />
-              {errors.whatsapp && <p class="text-small text-error">{errors.whatsapp}</p>}
+              <ErrorText message={errors.whatsapp} />
             </div>
 
             <div class="flex flex-col gap-2">
-              <label htmlFor={`${idPrefix}-email`} class="text-small font-semibold text-text-2">
-                Email address
+              <label htmlFor={`${idPrefix}-email`} class="field-label">
+                Email
               </label>
               <input
                 id={`${idPrefix}-email`}
                 type="email"
-                placeholder="e.g. you@example.com"
+                placeholder="you@example.com"
                 value={form.email}
                 onInput={(e) => {
-                  const val = (e.target as HTMLInputElement).value;
-                  setForm((p) => ({ ...p, email: val }));
-                  if (errors.contact || errors.email) {
-                    setErrors((prev) => {
-                      const next = { ...prev };
-                      delete next.contact;
-                      delete next.email;
-                      return next;
-                    });
-                  }
+                  setForm((p) => ({ ...p, email: (e.target as HTMLInputElement).value }));
+                  clearError("email");
                 }}
-                class="h-13 rounded-input border border-line-input bg-surface-2 px-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 hover:border-text-muted focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2"
+                class={fieldClass(Boolean(errors.email))}
               />
-              {errors.email && <p class="text-small text-error">{errors.email}</p>}
+              <ErrorText message={errors.email} />
             </div>
           </div>
-          {errors.contact && <p class="text-small text-error">{errors.contact}</p>}
+          <ErrorText message={errors.contact} />
         </div>
 
-        {/* Field 12: Notes */}
         <div class="flex flex-col gap-2">
-          <label htmlFor={`${idPrefix}-notes`} class="text-small font-semibold text-text-2">
-            Notes {form.describeInstead ? <span class="text-gold">*</span> : <span class="text-text-muted font-normal">(optional, max 1000 characters)</span>}
+          <label htmlFor={`${idPrefix}-notes`} class="field-label">
+            Notes{" "}
+            {form.describeInstead ? (
+              <span class="text-gold">*</span>
+            ) : (
+              <span class="font-normal text-text-muted">(optional, 1000 characters)</span>
+            )}
           </label>
           <textarea
             id={`${idPrefix}-notes`}
             rows={4}
             maxLength={1000}
-            placeholder={form.describeInstead ? "Describe your creative vision, references, or specific moments to capture..." : "Any additional details or schedule notes..."}
+            placeholder={
+              form.describeInstead
+                ? "Describe the feeling, the references, the moments that matter."
+                : "Anything else we should know about the day."
+            }
             value={form.notes}
             onInput={(e) => {
-              const val = (e.target as HTMLTextAreaElement).value;
-              setForm((p) => ({ ...p, notes: val }));
-              if (errors.notes) {
-                setErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.notes;
-                  return next;
-                });
-              }
+              setForm((p) => ({ ...p, notes: (e.target as HTMLTextAreaElement).value }));
+              clearError("notes");
             }}
-            class={`rounded-input border bg-surface-2 p-4 text-base text-text placeholder:text-text-muted transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-gold-bright focus-visible:outline-offset-2 ${
-              errors.notes ? "border-error" : "border-line-input hover:border-text-muted"
-            }`}
+            class={fieldClass(Boolean(errors.notes))}
           />
-          {errors.notes && <p class="text-small text-error">{errors.notes}</p>}
+          <ErrorText message={errors.notes} />
         </div>
 
-        {/* Field 13: Consent checkbox */}
-        <div class="flex flex-col gap-1">
-          <label class="flex items-start gap-3 cursor-pointer text-small text-text-2 select-none">
+        <div class="flex flex-col gap-2">
+          <label class="flex cursor-pointer items-start gap-3 text-small text-text-2 select-none">
             <input
               type="checkbox"
               checked={form.consent}
               onChange={(e) => {
-                const checked = (e.target as HTMLInputElement).checked;
-                setForm((p) => ({ ...p, consent: checked }));
-                if (checked && errors.consent) {
-                  setErrors((prev) => {
-                    const next = { ...prev };
-                    delete next.consent;
-                    return next;
-                  });
-                }
+                setForm((p) => ({ ...p, consent: (e.target as HTMLInputElement).checked }));
+                clearError("consent");
               }}
-              class="mt-1 h-5 w-5 rounded border-line-input accent-gold"
+              class="mt-0.5 size-5 rounded border-line-input accent-gold"
             />
             <span>
-              I agree to be contacted about this enquiry in accordance with the{" "}
-              <a href="/privacy" target="_blank" class="text-gold underline underline-offset-2 hover:text-gold-bright">
-                Privacy Notice
-              </a>.
+              I agree to be contacted about this enquiry in line with the{" "}
+              <a href="/privacy" target="_blank" class="text-gold underline decoration-gold/40 underline-offset-2 hover:text-gold-bright">
+                privacy notice
+              </a>
+              .
             </span>
           </label>
-          {errors.consent && <p class="text-small text-error">{errors.consent}</p>}
+          <ErrorText message={errors.consent} />
         </div>
-      </div>
+      </fieldset>
 
-      {/* Honeypot field (Audit Item 5): Hidden from users, traps automated form-scraping bots */}
+      {/* Honeypot: hidden from people, tempting to bots. */}
       <div style={{ display: "none" }} aria-hidden="true">
         <label htmlFor={`${idPrefix}-website`}>Leave this field blank</label>
         <input
@@ -826,18 +752,16 @@ export default function EnquiryForm() {
         />
       </div>
 
-      {/* Submit row & Response-time promise (FR-15) */}
       <div class="flex flex-col gap-4 border-t border-line pt-6">
-        <button
-          type="submit"
-          class="btn-primary group w-full md:w-auto md:self-start text-base shadow-[0_0_20px_rgba(251,195,0,0.2)] hover:shadow-[0_0_30px_rgba(251,195,0,0.35)]"
-        >
-          <span>Generate WhatsApp Brief</span>
-          <span class="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
+        <button type="submit" class="btn-primary w-full text-base md:w-auto md:self-start">
+          Build the WhatsApp brief
+          <svg class="size-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
         </button>
 
         <p class="text-small text-text-2">
-          We review briefs promptly and reply with availability and confirmed pricing.
+          Nothing is sent yet. You will see the message and press send yourself on WhatsApp.
         </p>
 
         <p class="text-small text-text-muted">
@@ -846,10 +770,11 @@ export default function EnquiryForm() {
             href={directWhatsAppUrl}
             target="_blank"
             rel="noopener noreferrer"
-            class="font-semibold text-gold underline hover:text-gold-bright"
+            class="font-semibold text-gold underline decoration-gold/40 underline-offset-4 hover:text-gold-bright"
           >
             Message directly on WhatsApp
-          </a>.
+          </a>
+          .
         </p>
       </div>
     </form>

@@ -1,180 +1,161 @@
 ---
-// DESIGN.md section 7 Showreel, and FR-2 as amended by D29: a 16:9 poster per item, one item on
-// stage at a time, and a strip to choose between them. The first item's self-hosted clip starts by
-// itself, muted and looping, and only while the stage is in view. Everything else, and every
-// YouTube source, waits for a tap, so a visitor on mobile data still decides when to spend bytes.
-//
-// The items are the projects flagged hero_reel (FR-2, ARCH section 5). C-2 has delivered no
-// footage, so today they are three labelled placeholder cards the builder rendered with ffmpeg
-// (DESIGN section 9 exception, D23). A real reel is a file swap plus hero_reel: true.
-//
-// The heading is a builder draft under D25 and is registered as an open placeholder. What a demo
-// entry calls itself comes from reelTitle, so the carousel never prints the bracketed title that the
-// grid still prints on purpose (D23). Each item wears that label plus its category, on the stage and
-// under its thumbnail, and the label hides with the poster once the frame is playing.
+// The reel. One item on stage at a time, chosen from the rail under it. Only the first item starts
+// by itself: muted, looping, silent, and only while the stage is at least half on screen (D29).
+// Every other item waits for a tap, so the page never spends a visitor's data on its own.
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
-import { reelItems, reelTitle } from "../content-rules";
+import { reelItems, sampleFootageLabel } from "../content-rules";
 import { isSelfHostedVideo } from "../media-sources";
 import { posterFor } from "../poster-index";
 
 const reels = reelItems(await getCollection("projects"));
-// The stage holds one frame per item and shows only the active one. Index 0 is the only frame the
-// script may start on its own, and only when the source is a file we serve.
 const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video_url) ? 0 : null;
 ---
 
 {
   reels.length > 0 ? (
-    <section id="showreel" class="container-site flex flex-col gap-6 py-18 md:py-30" data-reel>
-      <div class="flex flex-col gap-2" data-reveal>
-        <div class="flex items-center justify-between">
-          <p class="eyebrow">Showreel</p>
-          <div class="hidden items-center gap-2 text-eyebrow text-text-muted md:flex">
-            <span class="inline-block h-2 w-2 rounded-full bg-error animate-pulse"></span>
-            <span class="font-mono text-gold-bright tracking-wider">REC &bull; 00:00:24</span>
-            <span class="text-line">&bull;</span>
-            <span class="uppercase tracking-widest">4K PRORES &bull; 24 FPS</span>
+    <section id="reel" class="relative overflow-hidden py-20 md:py-32" data-reel>
+      <div class="ambient-gold pointer-events-none absolute inset-x-0 top-0 h-[420px]" aria-hidden="true" />
+
+      <div class="container-site relative">
+        <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between" data-reveal>
+          <div class="flex flex-col gap-4">
+            <p class="eyebrow">The reel</p>
+            <h2 class="max-w-[18ch] text-h2 font-semibold text-text">
+              See the work in <span class="display-italic text-gold">motion.</span>
+            </h2>
+          </div>
+          <p class="max-w-[34ch] text-small text-text-muted md:text-right">
+            Five cuts from recent shoots. The first plays quietly on its own; everything else waits
+            for you.
+          </p>
+        </div>
+
+        <div class="relative mx-auto mt-10 w-full max-w-[400px] md:mt-14" data-reveal data-reveal-delay="1">
+          <div class="stage-frame border border-line-strong bg-surface-1 shadow-[0_50px_120px_-40px_var(--bg)]">
+            {
+              reels.map((reel, index) => {
+                const poster = posterFor(reel.data.poster ?? "");
+                const selfHosted = isSelfHostedVideo(reel.data.video_url);
+
+                return (
+                  <div
+                    class="absolute inset-0"
+                    data-reel-frame
+                    data-index={index}
+                    data-src={reel.data.video_url}
+                    data-kind={selfHosted ? "file" : "youtube"}
+                    data-autoplay={index === autoplayIndex ? "true" : undefined}
+                    hidden={index === 0 ? undefined : true}
+                  >
+                    {poster ? (
+                      <Image
+                        src={poster}
+                        widths={[400, 720, 1080]}
+                        sizes="(max-width: 767px) 92vw, 400px"
+                        alt={reel.data.demo ? `${reel.data.title} still. ${sampleFootageLabel}.` : `${reel.data.title} still`}
+                        class="absolute inset-0 size-full object-cover"
+                      />
+                    ) : null}
+
+                    <div class="media-chrome absolute inset-0 flex flex-col justify-between p-4 md:p-8" data-reel-caption>
+                      <div class="flex items-start justify-between gap-4">
+                        <span class="tag">{reel.data.category}</span>
+                        {reel.data.demo ? <span class="tag">{sampleFootageLabel}</span> : null}
+                      </div>
+
+                      <div class="flex items-end justify-between gap-4">
+                        <div class="flex min-w-0 flex-col gap-1">
+                          <p class="truncate text-h4 font-medium text-media-text">{reel.data.title}</p>
+                          <p class="text-eyebrow uppercase tracking-[0.2em] text-media-text/60">
+                            {String(index + 1).padStart(2, "0")} / {String(reels.length).padStart(2, "0")}
+                          </p>
+                        </div>
+
+                        <button
+                          type="button"
+                          class="group/play pointer-events-auto flex size-14 shrink-0 items-center justify-center rounded-full border border-media-text/40 bg-bg/40 text-media-text backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-gold hover:bg-bg/70 hover:text-gold"
+                          data-reel-play
+                        >
+                          <span class="sr-only">Play {reel.data.title}</span>
+                          <svg class="ml-1 size-5 fill-current md:size-6" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M8 5.5v13l11-6.5z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            }
+          </div>
+
+          <div class="mt-4 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+              <button type="button" class="btn-icon" data-reel-prev>
+                <span class="sr-only">Previous clip</span>
+                <svg class="size-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M19 12H5M11 6l-6 6 6 6" />
+                </svg>
+              </button>
+              <button type="button" class="btn-icon" data-reel-next>
+                <span class="sr-only">Next clip</span>
+                <svg class="size-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </button>
+              <button type="button" class="btn-icon hidden" data-reel-pause>
+                <span class="sr-only" data-reel-pause-label>Pause the reel</span>
+                <svg class="pause-icon size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8.5 5h3v14h-3zM13 5h3v14h-3z" />
+                </svg>
+                <svg class="play-icon size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 5.5v13l11-6.5z" />
+                </svg>
+              </button>
+            </div>
+
+            <p class="text-small text-text-muted">
+              <span data-reel-counter>01</span> / {String(reels.length).padStart(2, "0")}
+            </p>
           </div>
         </div>
-        <h2 class="font-display text-h2">See the work in motion</h2>
-      </div>
 
-      <div class="relative rounded-card border border-line/80 bg-surface-1 p-2 md:p-3 shadow-2xl" data-reveal data-reveal-delay="1">
-        {reels.map((reel, index) => {
-          const poster = posterFor(reel.data.poster ?? "");
-          const selfHosted = isSelfHostedVideo(reel.data.video_url);
-          const title = reelTitle(reel);
-          const alt = reel.data.demo
-            ? `${title} poster. Placeholder artwork, not client work`
-            : `${title} poster`;
-
-          return (
-            <div
-              class="poster-frame relative overflow-hidden rounded-md group"
-              data-reel-frame
-              data-index={index}
-              data-src={reel.data.video_url}
-              data-kind={selfHosted ? "file" : "youtube"}
-              data-autoplay={index === autoplayIndex || null}
-              hidden={index === 0 ? null : true}
-            >
-              {/* Corner viewfinder marks */}
-              <span class="pointer-events-none absolute top-3 left-3 z-10 font-mono text-xs text-gold/60 select-none" aria-hidden="true">&ulcorner;</span>
-              <span class="pointer-events-none absolute top-3 right-3 z-10 font-mono text-xs text-gold/60 select-none" aria-hidden="true">&urcorner;</span>
-              <span class="pointer-events-none absolute bottom-3 left-3 z-10 font-mono text-xs text-gold/60 select-none" aria-hidden="true">&llcorner;</span>
-              <span class="pointer-events-none absolute bottom-3 right-3 z-10 font-mono text-xs text-gold/60 select-none" aria-hidden="true">&lrcorner;</span>
-
-              {poster ? (
-                <Image
-                  src={poster}
-                  widths={[640, 1280]}
-                  sizes="(max-width: 767px) 100vw, 1136px"
-                  alt={alt}
-                  class="absolute inset-0 z-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                />
-              ) : null}
-
-              <div
-                class="pointer-events-none absolute bottom-0 left-0 z-10 flex max-w-[70%] flex-col gap-0.5 p-4 md:p-6"
-                data-reel-caption
-              >
-                <span class="truncate font-display text-h3 text-text drop-shadow-md">{title}</span>
-                <span class="truncate text-eyebrow uppercase tracking-[0.16em] text-gold">
-                  {reel.data.category}
-                </span>
-              </div>
-
-              <button type="button" data-reel-play class="group/btn relative z-10 flex size-full items-center justify-center cursor-pointer">
-                <span class="flex size-20 items-center justify-center rounded-full border border-gold/60 bg-black/50 backdrop-blur-sm transition-all duration-300 group-hover/btn:scale-110 group-hover/btn:border-gold group-hover/btn:bg-black/70 group-hover/btn:shadow-[0_0_30px_rgba(251,195,0,0.35)] group-active/btn:scale-95">
-                  <span class="sr-only">Play {title}</span>
-                  <svg class="ml-1 size-7 text-gold transition-transform duration-300 group-hover/btn:scale-110" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M8 5.5v13l11-6.5z" />
-                  </svg>
-                </span>
-              </button>
-
-              {index === autoplayIndex ? (
-                <div class="absolute right-4 bottom-4 z-20 flex gap-2" data-reel-controls>
+        <ol class="mt-8 flex justify-start gap-3 overflow-x-auto pb-2 md:justify-center lg:gap-4" aria-label="Choose a reel clip">
+          {
+            reels.map((reel, index) => {
+              const poster = posterFor(reel.data.poster ?? "");
+              return (
+                <li class="w-[112px] shrink-0 md:w-[132px]">
                   <button
                     type="button"
-                    class="relative flex size-11 items-center justify-center rounded-full border border-gold/60 bg-black/60 text-gold backdrop-blur-md transition-transform duration-200 hover:scale-110 active:scale-90 hover:border-gold cursor-pointer"
-                    data-reel-pause
+                    class="group block w-full text-left"
+                    data-reel-select={index}
+                    aria-current={index === 0 ? "true" : undefined}
                   >
-                    <span class="sr-only" data-reel-pause-label>
-                      Pause the reel
+                    <span class="tile-frame block aspect-[9/16] border border-line transition-all duration-300 group-hover:border-gold/60 group-hover:-translate-y-1">
+                      {poster ? (
+                        <Image
+                          src={poster}
+                          widths={[132, 264]}
+                          sizes="(max-width: 767px) 112px, 132px"
+                          alt=""
+                          class="absolute inset-0 size-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100"
+                        />
+                      ) : null}
                     </span>
-                    <svg class="icon-pause size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M9 5.5h2.6v13H9zM12.9 5.5h2.6v13h-2.6z" />
-                    </svg>
-                    <svg class="icon-play size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M8 5.5v13l11-6.5z" />
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
-                    class="relative flex size-11 items-center justify-center rounded-full border border-gold/60 bg-black/60 text-gold backdrop-blur-md transition-transform duration-200 hover:scale-110 active:scale-90 hover:border-gold cursor-pointer"
-                    data-reel-sound
-                  >
-                    <span class="sr-only" data-reel-sound-label>
-                      Turn the sound on
+                    <span class="mt-2 flex items-baseline justify-between gap-2">
+                      <span class="truncate text-small text-text-2 transition-colors group-hover:text-text">{reel.data.title}</span>
+                      <span class="text-[0.65rem] font-medium tracking-[0.2em] text-text-muted">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
                     </span>
-                    <svg class="icon-muted size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M4 9.5h3.5L12 5.8v12.4L7.5 14.5H4zM15.4 9l1.2-1.2 2 2 2-2 1.2 1.2-2 2 2 2-1.2 1.2-2-2-2 2-1.2-1.2 2-2z" />
-                    </svg>
-                    <svg class="icon-loud size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M4 9.5h3.5L12 5.8v12.4L7.5 14.5H4zM14.6 9.4c1.3 1.3 1.3 3.9 0 5.2l-1-1c.7-.8.7-2.4 0-3.2zM17 7c2.5 2.5 2.5 7.5 0 10l-1-1c1.9-2.1 1.9-5.9 0-8z" />
-                    </svg>
                   </button>
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-
-      <ol class="flex gap-3 overflow-x-auto pb-1 md:gap-4" aria-label="Reel" data-reveal data-reveal-delay="2">
-        {reels.map((reel, index) => {
-          const poster = posterFor(reel.data.poster ?? "");
-          // The caption goes inside the button, so the words printed under the thumbnail are also its
-          // accessible name and a voice-control user can say them.
-          const title = reelTitle(reel);
-          return (
-            <li class="w-[176px] shrink-0 md:w-[200px]">
-              <button type="button" class="group block w-full text-left cursor-pointer" data-reel-select={index} aria-current={index === 0 || null}>
-                <span class="poster-frame block transition-all duration-200 group-hover:-translate-y-1 group-active:scale-95 group-hover:shadow-lg">
-                  {poster ? (
-                    <Image
-                      src={poster}
-                      widths={[176, 400]}
-                      sizes="(max-width: 767px) 176px, 200px"
-                      alt=""
-                      class="absolute inset-0 z-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                    />
-                  ) : null}
-                </span>
-                <span class="mt-2 flex flex-col gap-0.5">
-                  <span class="truncate text-small text-text transition-colors duration-200 group-hover:text-gold">{title}</span>
-                  <span class="truncate text-eyebrow uppercase tracking-[0.12em] text-text-muted">
-                    {reel.data.category}
-                  </span>
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ol>
-
-      <div class="flex items-start gap-3 rounded-card border border-line/60 bg-surface-1/60 p-4 max-w-2xl text-small text-text-muted" data-reveal data-reveal-delay="3">
-        <svg class="size-5 shrink-0 text-gold mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 16v-4M12 8h.01" />
-        </svg>
-        <p>
-          The first clip starts on its own, muted and looping, and stops when you scroll past it.
-          Nothing else loads until you press play, so the page never spends your data on a video you
-          did not ask for.
-        </p>
+                </li>
+              );
+            })
+          }
+        </ol>
       </div>
     </section>
   ) : null
@@ -183,15 +164,16 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
 <script>
   import { youtubeEmbedUrl } from "../media-sources";
 
-  // The stage holds every frame and plays one. Media is created inside a frame and never before,
-  // so no byte of video moves until the first clip reaches the visitor on their own scroll or they
-  // press play (FR-2 as amended by D29).
   const stage = document.querySelector<HTMLElement>("[data-reel]");
 
   if (stage) {
     const frames = [...stage.querySelectorAll<HTMLElement>("[data-reel-frame]")];
     const strip = [...stage.querySelectorAll<HTMLButtonElement>("[data-reel-select]")];
+    const counter = stage.querySelector<HTMLElement>("[data-reel-counter]");
+    const pauseButton = stage.querySelector<HTMLButtonElement>("[data-reel-pause]");
+    const pauseLabel = pauseButton?.querySelector<HTMLElement>("[data-reel-pause-label]");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let active = 0;
 
     const videoIn = (frame: HTMLElement) => frame.querySelector("video");
 
@@ -199,7 +181,6 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
       frame.querySelectorAll("video, iframe").forEach((media) => media.remove());
       delete frame.dataset.playing;
       delete frame.dataset.paused;
-      delete frame.dataset.muted;
       delete frame.dataset.autopaused;
       delete frame.dataset.userOwned;
     };
@@ -210,8 +191,7 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
       if (paused) video.pause();
       else void video.play().catch(() => undefined);
       frame.dataset.paused = String(paused);
-      const label = frame.querySelector<HTMLElement>("[data-reel-pause-label]");
-      if (label) label.textContent = paused ? "Play the reel" : "Pause the reel";
+      if (pauseLabel) pauseLabel.textContent = paused ? "Play the reel" : "Pause the reel";
     };
 
     const start = (frame: HTMLElement, muted: boolean) => {
@@ -222,11 +202,11 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
         const embed = youtubeEmbedUrl(src);
         if (!embed) return;
         const iframe = document.createElement("iframe");
-        // An embed is a third-party byte stream, so it only ever exists after a tap (rule 10).
         iframe.src = embed;
         iframe.allow = "autoplay; encrypted-media; picture-in-picture";
         iframe.allowFullscreen = true;
-        iframe.title = "Reel";
+        iframe.title = "Reel clip";
+        iframe.className = "absolute inset-0 z-0 size-full";
         media = iframe;
       } else {
         const video = document.createElement("video");
@@ -234,24 +214,19 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
         video.muted = muted;
         video.defaultMuted = muted;
         video.playsInline = true;
-        // The muted loop is the banner and our two buttons cover it. A clip the visitor asked for
-        // is the real viewing, so it gets the native controls and stops looping.
         video.controls = !muted;
         video.loop = muted;
+        video.className = "absolute inset-0 z-0 size-full bg-surface-cinema object-cover";
         media = video;
       }
 
-      media.className = "absolute inset-0 z-0 size-full bg-black object-cover";
       frame.dataset.playing = "true";
-      frame.dataset.muted = String(muted);
       frame.append(media);
 
       if (media instanceof HTMLVideoElement) {
         if (muted) {
-          // A click on the banner pauses it. Once the visitor has taken the clip over, the native
-          // controls own the clicks and this handler must not fight them.
           media.addEventListener("click", () => {
-            if (frame.dataset.muted !== "true") return;
+            if (frame.dataset.userOwned === "true") return;
             setPaused(frame, frame.dataset.paused !== "true");
           });
           media
@@ -259,27 +234,37 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
             .then(() => {
               frame.dataset.paused = "false";
             })
-            .catch(() => {
-              // If browser policy blocks autoplay (e.g. low-power mode or iOS restriction),
-              // pause gracefully instead of destroying the video DOM element.
-              setPaused(frame, true);
-            });
+            .catch(() => setPaused(frame, true));
         } else {
-          media.play().catch(() => undefined);
+          void media.play().catch(() => undefined);
         }
       }
     };
 
+    const syncControls = () => {
+      const frame = frames[active];
+      if (!frame) return;
+      if (counter) counter.textContent = String(active + 1).padStart(2, "0");
+      const playing = frame.dataset.playing === "true" && frame.dataset.paused !== "true";
+      pauseButton?.classList.toggle("hidden", frame.dataset.playing !== "true");
+      pauseButton?.classList.toggle("flex", frame.dataset.playing === "true");
+      if (pauseLabel && pauseButton) {
+        pauseLabel.textContent = playing ? "Pause the reel" : "Play the reel";
+      }
+    };
+
     const activate = (index: number) => {
+      active = (index + frames.length) % frames.length;
       frames.forEach((frame, frameIndex) => {
-        const selected = frameIndex === index;
+        const selected = frameIndex === active;
         frame.toggleAttribute("hidden", !selected);
         if (!selected) stop(frame);
       });
       strip.forEach((button, buttonIndex) => {
-        if (buttonIndex === index) button.setAttribute("aria-current", "true");
+        if (buttonIndex === active) button.setAttribute("aria-current", "true");
         else button.removeAttribute("aria-current");
       });
+      syncControls();
     };
 
     strip.forEach((button) => {
@@ -289,37 +274,23 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
       });
     });
 
+    stage.querySelector<HTMLButtonElement>("[data-reel-prev]")?.addEventListener("click", () => activate(active - 1));
+    stage.querySelector<HTMLButtonElement>("[data-reel-next]")?.addEventListener("click", () => activate(active + 1));
+
     frames.forEach((frame) => {
       frame.querySelector<HTMLButtonElement>("[data-reel-play]")?.addEventListener("click", () => {
         start(frame, false);
+        frame.dataset.userOwned = "true";
+        syncControls();
       });
     });
 
-    stage.querySelectorAll<HTMLButtonElement>("[data-reel-pause]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const frame = button.closest<HTMLElement>("[data-reel-frame]");
-        if (frame) setPaused(frame, frame.dataset.paused !== "true");
-      });
-    });
-
-    stage.querySelectorAll<HTMLButtonElement>("[data-reel-sound]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const frame = button.closest<HTMLElement>("[data-reel-frame]");
-        const video = frame ? videoIn(frame) : undefined;
-        if (!frame || !video) return;
-        video.muted = !video.muted;
-        video.loop = video.muted;
-        frame.dataset.muted = String(video.muted);
-        const label = button.querySelector<HTMLElement>("[data-reel-sound-label]");
-        if (label) label.textContent = video.muted ? "Turn the sound on" : "Turn the sound off";
-        if (!video.muted) {
-          // The visitor has asked to watch, so the clip is theirs now: the native controls appear,
-          // and the scroll gate stops pausing it. Restarting an audible clip the moment they scroll
-          // back would be the worst possible surprise on a phone.
-          video.controls = true;
-          frame.dataset.userOwned = "true";
-        }
-      });
+    pauseButton?.addEventListener("click", () => {
+      const frame = frames[active];
+      if (!frame) return;
+      if (frame.dataset.playing === "true") setPaused(frame, frame.dataset.paused !== "true");
+      else start(frame, true);
+      syncControls();
     });
 
     const autoplayFrame = frames.find((frame) => frame.dataset.autoplay === "true");
@@ -328,15 +299,14 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
       let inView = false;
       let pageLoaded = document.readyState === "complete";
 
-      // Both gates matter. Waiting for load keeps the bytes off the hero's critical path, and
-      // waiting for the section to be in view means nobody downloads a clip they never saw.
       const maybeStart = () => {
-        if (!inView || !pageLoaded) return;
+        if (!inView || !pageLoaded || active !== 0) return;
         if (!autoplayFrame.dataset.playing) start(autoplayFrame, true);
         else if (autoplayFrame.dataset.autopaused === "true") {
           delete autoplayFrame.dataset.autopaused;
           setPaused(autoplayFrame, false);
         }
+        syncControls();
       };
 
       new IntersectionObserver(
@@ -360,56 +330,30 @@ const autoplayIndex = reels.length > 0 && isSelfHostedVideo(reels[0]!.data.video
         maybeStart();
       });
     }
+
+    syncControls();
   }
 </script>
 
 <style>
-  /* The controls only exist over a playing frame, and the play button only over a poster. Both
-  states live on the frame, so the media and its chrome cannot disagree. No @apply here: a scoped
-  component style block cannot see the Tailwind theme, so the tokens come through as CSS variables
-  and the utility classes stay in the markup. */
-  [data-reel-controls] {
-    display: none;
-  }
-
-  [data-playing="true"] [data-reel-controls] {
-    display: flex;
-  }
-
   [data-playing="true"] [data-reel-play] {
     display: none;
   }
 
-  /* The caption belongs to the poster, and the clip carries its own label in the artwork, so the
-  DOM caption would be a third line of text over the player chrome. The same reasoning already hides
-  the .poster-frame bottom gradient once a frame plays. */
   [data-playing="true"] [data-reel-caption] {
     display: none;
   }
 
-  /* One icon per state. Muted and running is the default, so the other two are the exceptions. */
-  .icon-play,
-  .icon-loud {
+  .play-icon,
+  [data-paused="true"] .pause-icon {
     display: none;
   }
 
-  [data-paused="true"] .icon-pause,
-  [data-muted="false"] .icon-muted {
-    display: none;
-  }
-
-  [data-paused="true"] .icon-play,
-  [data-muted="false"] .icon-loud {
+  [data-paused="true"] .play-icon {
     display: block;
   }
 
-  [data-reel-select] > .poster-frame {
-    transition: transform var(--motion-base) var(--ease-out-quint),
-                outline-color var(--motion-base) var(--ease-out-quint),
-                box-shadow var(--motion-base) var(--ease-out-quint);
-  }
-
-  [data-reel-select][aria-current="true"] > .poster-frame {
+  [data-reel-select][aria-current="true"] > .tile-frame {
     outline: 2px solid var(--gold);
     outline-offset: 2px;
   }

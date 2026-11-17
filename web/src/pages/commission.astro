@@ -1,7 +1,6 @@
 ---
-// Dedicated Direct Commission Brief Page (P-12, FR-1).
-// Hosts the EnquiryForm Preact island with date-first validation, honeypot protection,
-// background D1 persistence, and WhatsApp handoff.
+// The commission page (P-12, FR-1). The form is the Preact island; everything around it is static
+// so the page still reads and the direct WhatsApp link still works with JavaScript off.
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
@@ -13,63 +12,81 @@ const directWhatsAppUrl = buildWhatsAppDirectLink(siteConfig.ownerWhatsAppDigits
 ---
 
 <Base
-  title="Commission Your Production | Boy Concept"
-  description="Reserve your event date with Boy Concept (Alpha Movies Ltd). High-end cinematography for luxury weddings, commercial films, cultural festivals, and documentaries."
+  title="Commission a film | Boy Concept"
+  description="Tell Boy Concept the date, the place and the film you have in mind. The brief is assembled here and sent by you on WhatsApp."
 >
   <Nav />
 
-  <main class="relative overflow-hidden py-12 md:py-20">
-    {/* Ambient atmospheric glow */}
-    <div class="pointer-events-none absolute inset-0 glow-gold-ambient opacity-45" aria-hidden="true"></div>
+  <main class="relative overflow-hidden pb-20 pt-32 md:pb-32 md:pt-40">
+    <div class="ambient-gold pointer-events-none absolute inset-x-0 top-0 h-[520px]" aria-hidden="true"></div>
 
-    <div class="container-site relative flex flex-col gap-8 max-w-4xl">
-      {/* Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" class="flex items-center">
-        <a
-          href="/"
-          class="group inline-flex min-h-11 items-center gap-2 text-small font-semibold text-text-muted transition-colors hover:text-gold"
-        >
-          <span class="transition-transform duration-200 group-hover:-translate-x-1" aria-hidden="true">&larr;</span> Back to Home
+    <div class="container-site relative">
+      <nav aria-label="Breadcrumb">
+        <a href="/" class="inline-flex min-h-11 items-center gap-2 text-small text-text-muted transition-colors hover:text-gold">
+          <svg class="size-3.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 12H5M11 6l-6 6 6 6" />
+          </svg>
+          Back to the site
         </a>
       </nav>
 
-      {/* Page Header */}
-      <header class="flex flex-col gap-3" data-reveal>
-        <div class="flex items-center justify-between">
-          <p class="eyebrow">Direct Commission Desk</p>
-          <div class="cinematic-badge">
-            <span>CALENDAR OPEN • 2026/27</span>
-          </div>
-        </div>
-
-        <h1 class="font-display text-display text-text">Commission Your Production</h1>
-
-        <p class="max-w-[65ch] text-body-large text-text-2 leading-relaxed">
-          Select your event date, deliverables, and creative scope below. Once complete, your production brief is formatted for direct transmission to Emmanuel (Boy Concept) on WhatsApp to confirm date availability and pricing with zero commitment.
+      <header class="mt-8 flex flex-col gap-5" data-reveal>
+        <p class="eyebrow">Direct commission</p>
+        <h1 class="max-w-[16ch] text-display font-semibold text-text">
+          Build the <span class="display-italic text-gold">brief.</span>
+        </h1>
+        <p class="max-w-[56ch] text-body-large text-text-2">
+          The date comes first because it decides everything else. Fill this in and the page turns
+          your answers into one clean message for WhatsApp. You send it yourself, so you keep the
+          copy.
         </p>
       </header>
 
-      {/* Form Island Section */}
-      <section id="enquiry-form-section" data-reveal data-reveal-delay="1">
-        <EnquiryForm client:load />
-      </section>
+      <div class="mt-12 grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:gap-16">
+        <aside class="flex flex-col gap-6 lg:sticky lg:top-32">
+          <div class="rounded-card border border-line bg-surface-1 p-6" data-reveal data-reveal-delay="1">
+            <p class="text-eyebrow uppercase tracking-[0.2em] text-text-muted">What happens next</p>
+            <ol class="mt-5 flex flex-col gap-5">
+              {
+                [
+                  ["01", "You send the brief", "It arrives on WhatsApp, written in your words."],
+                  ["02", "We answer the date", "Availability first, then the shape of the shoot."],
+                  ["03", "You get a quote", "Priced for the brief, not a menu."],
+                ].map(([number, title, body]) => (
+                  <li class="flex gap-4">
+                    <span class="font-mono text-small text-gold">{number}</span>
+                    <div class="flex flex-col gap-1">
+                      <p class="text-small font-medium text-text">{title}</p>
+                      <p class="text-small text-text-muted">{body}</p>
+                    </div>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
 
-      {/* Support / Direct Contact Notice */}
-      <div class="flex flex-col gap-2 rounded-card border border-line bg-surface-1 p-6 text-small text-text-muted text-center items-center" data-reveal data-reveal-delay="2">
-        <p class="text-body text-text-2">
-          Prefer to talk first?{" "}
-          <a
-            href={directWhatsAppUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="font-semibold text-gold underline underline-offset-4 hover:text-gold-bright transition-colors"
-          >
-            Message Emmanuel directly on WhatsApp
-          </a>
-        </p>
-        <p>
-          We review every brief and inquiry directly with no automated decline.
-        </p>
+          <div class="rounded-card border border-line bg-surface-1 p-6" data-reveal data-reveal-delay="2">
+            <p class="text-small text-text-2">Would rather just talk?</p>
+            <a
+              href={directWhatsAppUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-3 inline-flex min-h-11 items-center gap-2 text-small font-semibold text-gold transition-colors hover:text-gold-bright"
+            >
+              Message us on WhatsApp
+              <svg class="size-3.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 17L17 7M9 7h8v8" />
+              </svg>
+            </a>
+            <p class="mt-4 border-t border-line pt-4 text-small text-text-muted">
+              A person reads every message. No automated decline.
+            </p>
+          </div>
+        </aside>
+
+        <section id="enquiry-form-section" data-reveal data-reveal-delay="1">
+          <EnquiryForm client:load />
+        </section>
       </div>
     </div>
   </main>

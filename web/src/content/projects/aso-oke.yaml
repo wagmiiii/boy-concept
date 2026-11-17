@@ -1,0 +1,13 @@
+# Sample footage (D28, D30), not a case study. See crowned.yaml for the rule.
+title: "Aso Oke"
+category: Weddings
+location: "Lagos"
+video_url: /media/work/clip-06.mp4
+poster: media/work/poster-06.jpg
+hero_reel: false
+deliverables: []
+summary: "A wedding guest in magenta aso oke, held between the entrance and the aisle."
+publish_ok: false
+verified: false
+demo: true
+sort_order: 70

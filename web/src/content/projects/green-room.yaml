@@ -1,0 +1,12 @@
+# Sample footage (D28, D30), not a case study. See crowned.yaml for the rule.
+title: "Green Room"
+category: Commercial
+video_url: /media/reel/reel-05.mp4
+poster: media/work/poster-14.jpg
+hero_reel: true
+deliverables: []
+summary: "A portrait in a yellow dress against a painted green wall."
+publish_ok: false
+verified: false
+demo: true
+sort_order: 50

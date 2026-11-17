@@ -7,8 +7,10 @@
   --color-surface-1: var(--surface-1);
   --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
+  --color-surface-glass: var(--surface-glass);
 
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-line-input: var(--line-input);
 
   --color-text: var(--text);
@@ -26,37 +28,51 @@
   --color-flare-core: var(--flare-core);
   --color-flare-glow: var(--flare-glow);
 
+  --color-scrim: var(--scrim);
+  --color-media-text: var(--media-text);
+
   --color-error: var(--error);
   --color-success: var(--success);
 
   /* Astro's Fonts API puts the configured fallbacks inside these variables. */
-  --font-display: var(--font-marcellus);
+  --font-display: var(--font-inter);
   --font-sans: var(--font-inter);
+  --font-serif: var(--font-instrument);
 
-  --text-display: clamp(2.5rem, 6vw + 1rem, 5rem);
-  --text-display--line-height: 1.05;
-  --text-h2: clamp(2rem, 4vw, 3rem);
-  --text-h2--line-height: 1.1;
-  --text-h3: 1.5rem;
-  --text-h3--line-height: 1.2;
+  --text-display: clamp(3rem, 8.5vw + 0.5rem, 7.5rem);
+  --text-display--line-height: 0.94;
+  --text-display--letter-spacing: -0.045em;
+  --text-h2: clamp(2.25rem, 4.8vw + 0.5rem, 4.25rem);
+  --text-h2--line-height: 1;
+  --text-h2--letter-spacing: -0.035em;
+  --text-h3: clamp(1.35rem, 1.6vw + 0.5rem, 1.85rem);
+  --text-h3--line-height: 1.15;
+  --text-h3--letter-spacing: -0.02em;
+  --text-h4: 1.125rem;
+  --text-h4--line-height: 1.3;
+  --text-mega: clamp(3rem, 7vw, 5.5rem);
+  --text-mega--line-height: 0.9;
+  --text-mega--letter-spacing: -0.05em;
+
   --text-body-large: 1.125rem;
-  --text-body-large--line-height: 1.6;
+  --text-body-large--line-height: 1.65;
   --text-body: 1rem;
-  --text-body--line-height: 1.6;
+  --text-body--line-height: 1.65;
   --text-small: 0.875rem;
   --text-small--line-height: 1.5;
-  --text-eyebrow: 0.8125rem;
+  --text-eyebrow: 0.75rem;
   --text-eyebrow--line-height: 1.2;
   --text-button: 0.9375rem;
   --text-button--line-height: 1;
 
-  --radius-button: 4px;
-  --radius-input: 6px;
-  --radius-card: 8px;
+  --radius-button: var(--radius-button);
+  --radius-input: var(--radius-input);
+  --radius-card: var(--radius-card);
+  --radius-panel: var(--radius-panel);
 
   --shadow-glow-gold: var(--glow-gold);
 
-  --container-site: 1200px;
+  --container-site: var(--container);
 
   --ease-standard: var(--motion-ease);
   --ease-out-quint: var(--ease-out-quint);
@@ -66,12 +82,9 @@
 }
 
 /*
-  DESIGN.md section 5 pins the breakpoints at 768, 1200 and 1440. Tailwind's default scale also
-  offers 640, 1024, 1280 and 1536, and those are what the skeleton was reaching for: at 1024 the
-  portfolio showed three 299 px posters and the process five 176 px columns. The scale is reset to
-  the design's own, so the 640 and 1280 steps no longer exist and a typo in a variant produces no
-  CSS at all rather than a wrong width. design-tokens.test.ts keeps those variants out of the
-  source, and the only widths to write against are md (768), lg (1200) and xl (1440).
+  DESIGN.md section 5 pins the breakpoints at 768, 1200 and 1440. The rest of Tailwind's default
+  scale is removed so a 640 or 1280 variant emits no CSS at all. design-tokens.test.ts keeps those
+  variants out of the source.
 */
 @theme {
   --breakpoint-*: initial;
@@ -84,29 +97,45 @@
   html {
     background-color: var(--bg);
     scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  html[data-theme="light"] {
+    color-scheme: light;
   }
 
   body {
     color: var(--text);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
   }
 
-  /* DESIGN.md section 7: a 2px ring with a 2px offset, never color alone for state. */
+  ::selection {
+    background-color: var(--gold);
+    color: var(--bg);
+  }
+
   :focus-visible {
     outline: 2px solid var(--gold-bright);
-    outline-offset: 2px;
+    outline-offset: 3px;
   }
 
-  /* Anchor targets sit below the sticky nav (section 7: 64 px mobile, 72 px desktop). */
+  /* Anchor targets sit below the floating nav. */
   section[id] {
-    scroll-margin-top: 64px;
+    scroll-margin-top: 96px;
   }
 
   @media (min-width: 768px) {
     section[id] {
-      scroll-margin-top: 72px;
+      scroll-margin-top: 112px;
     }
+  }
+
+  img,
+  video {
+    max-width: 100%;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -118,7 +147,6 @@
       transition-duration: 0.01ms !important;
     }
 
-    /* Above the * rule, which cannot beat the specificity of html. */
     html {
       scroll-behavior: auto;
     }
@@ -126,44 +154,73 @@
 }
 
 @layer components {
-  /*
-    DESIGN.md section 7 specs as shared component classes, so a page never re-states a
-    button. `@theme inline` values are not emitted as CSS custom properties, so these
-    rules use @apply for the scale and radius and plain CSS for the tokens.css colors.
-  */
+  /* Section 5: one container rule, so the gutters live once and no section drifts. */
+  .container-site {
+    @apply mx-auto w-full max-w-site px-5 md:px-8 lg:px-12;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2.5 text-eyebrow font-semibold uppercase text-gold;
+    letter-spacing: 0.22em;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background-color: var(--gold);
+  }
+
+  .eyebrow-plain::before {
+    content: none;
+  }
+
+  /* Instrument Serif italic carries one word per heading. It is the human hand in an
+     otherwise engineered page, and it never carries a whole sentence. */
+  .display-italic {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
   .btn-primary,
-  .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-button text-button font-semibold;
-    height: 52px;
-    padding-inline: 24px;
+  .btn-secondary,
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-button text-button font-semibold whitespace-nowrap;
+    min-height: 52px;
+    padding-inline: 26px;
     transition:
       background-color var(--motion-fast) var(--motion-ease),
       border-color var(--motion-fast) var(--motion-ease),
       color var(--motion-fast) var(--motion-ease),
       box-shadow var(--motion-fast) var(--motion-ease),
-      transform 100ms var(--ease-out-cubic);
+      transform 120ms var(--ease-out-cubic);
   }
 
   @media (min-width: 768px) {
     .btn-primary,
-    .btn-secondary {
-      height: 48px;
+    .btn-secondary,
+    .btn-ghost {
+      min-height: 48px;
     }
   }
 
   .btn-primary {
-    @apply bg-gold text-bg;
+    background-color: var(--gold);
+    color: var(--bg);
   }
 
   .btn-primary:hover {
     background-image: var(--gradient-gold);
-    @apply shadow-glow-gold;
+    box-shadow: var(--glow-gold);
   }
 
   .btn-primary:active {
-    background-color: var(--gold-deep);
     background-image: none;
-    transform: scale(0.97);
+    background-color: var(--gold-deep);
+    transform: scale(0.98);
   }
 
   .btn-primary:disabled {
@@ -173,154 +230,197 @@
   }
 
   .btn-secondary {
-    border: 1.5px solid var(--gold);
-    color: var(--gold);
+    border: 1px solid var(--line-strong);
+    color: var(--text);
     background-color: transparent;
   }
 
   .btn-secondary:hover {
-    background-color: transparent;
-    background-color: color-mix(in srgb, var(--gold) 12%, transparent);
+    border-color: var(--gold);
+    color: var(--gold);
+    background-color: color-mix(in srgb, var(--gold) 8%, transparent);
   }
 
   .btn-secondary:active {
-    background-color: transparent;
-    background-color: color-mix(in srgb, var(--gold) 20%, transparent);
-    transform: scale(0.97);
+    transform: scale(0.98);
   }
 
-  .btn-secondary:disabled {
-    border-color: var(--line);
-    color: var(--text-muted);
-    background-color: transparent;
-    transform: none;
+  /* A round 44 px control for players and carousels. */
+  .btn-icon {
+    @apply inline-flex size-11 shrink-0 items-center justify-center rounded-full;
+    border: 1px solid var(--line-strong);
+    color: var(--text);
+    background-color: color-mix(in srgb, var(--bg) 55%, transparent);
+    backdrop-filter: blur(12px);
+    transition:
+      border-color var(--motion-fast) var(--motion-ease),
+      color var(--motion-fast) var(--motion-ease),
+      background-color var(--motion-fast) var(--motion-ease),
+      transform 120ms var(--ease-out-cubic);
   }
 
-  /* Section 5: one container rule, so the gutters live once and no section drifts. */
-  .container-site {
-    @apply mx-auto max-w-site px-5 md:px-8 lg:px-10;
-  }
-
-  /* Section 7: eyebrow label above a section heading. */
-  .eyebrow {
-    @apply text-eyebrow font-semibold uppercase text-gold;
-    letter-spacing: 0.18em;
-  }
-
-  /* Section 5 and 7: category and filter chips. Inactive is outlined, active is filled. */
-  .chip {
-    @apply inline-flex items-center rounded-full text-small font-semibold;
-    border: 1px solid color-mix(in srgb, var(--gold) 60%, transparent);
+  .btn-icon:hover {
+    border-color: var(--gold);
     color: var(--gold);
-    min-height: 32px;
-    padding: 4px 14px;
+  }
+
+  .btn-icon:active {
+    transform: scale(0.94);
+  }
+
+  .chip {
+    @apply inline-flex items-center rounded-full text-small font-medium;
+    border: 1px solid var(--line-strong);
+    color: var(--text-2);
+    min-height: 44px;
+    padding: 10px 18px;
+    background-color: transparent;
     transition:
       background-color var(--motion-fast) var(--motion-ease),
       border-color var(--motion-fast) var(--motion-ease),
       color var(--motion-fast) var(--motion-ease),
-      transform 100ms var(--ease-out-cubic);
+      transform 120ms var(--ease-out-cubic);
+  }
+
+  button.chip {
+    cursor: pointer;
+  }
+
+  button.chip:hover {
+    border-color: var(--gold);
+    color: var(--text);
   }
 
   .chip[data-active="true"],
   .chip-active {
     background-color: var(--gold);
-    color: var(--bg);
     border-color: var(--gold);
+    color: var(--bg);
   }
 
-  /* The skeleton ships with the filter inert, so an unusable chip must not look selectable. */
-  .chip:disabled:not([data-active="true"]) {
-    border-color: var(--line-input);
-    color: var(--text-muted);
+  button.chip:active {
+    transform: scale(0.97);
   }
 
-  /*
-    Section 5 asks for a tap target of at least 44 x 44 px, and the chip renders 32 px tall. Only a
-    chip that is a control has to meet it: the tag chips inside the service cards are labels, and
-    fattening those would put a 44 px pill around a word nobody taps.
-  */
-  button.chip,
-  a.chip {
-    min-height: 44px;
-    padding-block: 10px;
-  }
-
-  button.chip:active,
-  a.chip:active {
-    transform: scale(0.96);
-  }
-
-  /* Section 6: depth from lightness and borders, enhanced with Kowalski hover lift. */
-  .card {
-    @apply rounded-card border border-line bg-surface-2;
-    transition:
-      border-color var(--motion-base) var(--ease-out-quint),
-      box-shadow var(--motion-base) var(--ease-out-quint),
-      transform var(--motion-base) var(--ease-out-quint);
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .card:hover {
-      border-color: color-mix(in srgb, var(--gold) 60%, var(--line));
-      box-shadow: 0 12px 32px color-mix(in srgb, var(--bg) 80%, transparent), 0 0 24px color-mix(in srgb, var(--gold) 10%, transparent);
-      transform: translateY(-4px);
-    }
-  }
-
-  /* Dark cinema plate for preserving 3D logo & video contrast in light mode */
-  .cinema-plate {
-    background-color: var(--surface-cinema);
-    border: 1px solid var(--line-cinema);
-    border-radius: var(--radius-card);
-    transition:
-      background-color var(--motion-base) var(--motion-ease),
-      border-color var(--motion-base) var(--motion-ease),
-      box-shadow var(--motion-base) var(--motion-ease);
-  }
-
-  /* Cinematic status badge with backdrop blur */
-  .cinematic-badge {
-    @apply inline-flex items-center gap-2 rounded-full border border-line bg-surface-2/90 px-3.5 py-1.5 text-eyebrow font-medium text-text-2 backdrop-blur-md;
+  /* A label pill inside media and cards. It is not a control, so it stays 28 px. */
+  .tag {
+    @apply inline-flex items-center gap-1.5 rounded-full text-eyebrow font-medium uppercase;
+    color: var(--media-text);
+    background-color: color-mix(in srgb, var(--bg) 62%, transparent);
+    border: 1px solid color-mix(in srgb, var(--media-text) 22%, transparent);
+    backdrop-filter: blur(10px);
+    padding: 5px 11px;
     letter-spacing: 0.12em;
   }
 
-  /* Luxury subtle ambient glow backdrop */
-  .glow-gold-ambient {
-    background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--gold) 14%, transparent) 0%, color-mix(in srgb, var(--bronze) 8%, transparent) 45%, transparent 75%);
+  .hairline {
+    height: 1px;
+    width: 100%;
+    background-color: var(--line);
   }
 
-  /* Smooth cinematic keyframes */
-  @keyframes fadeInUp {
+  .panel {
+    @apply rounded-panel border;
+    border-color: var(--line);
+    background-color: var(--surface-1);
+  }
+
+  .glass {
+    @apply rounded-panel border;
+    border-color: color-mix(in srgb, var(--line-strong) 70%, transparent);
+    background-color: var(--surface-glass);
+    backdrop-filter: blur(22px) saturate(140%);
+  }
+
+  @supports not (backdrop-filter: blur(12px)) {
+    .glass {
+      background-color: var(--surface-1);
+    }
+  }
+
+  /* The base media box is written as a selector list rather than @apply'd into stage-frame and
+     tile-frame: Tailwind 4 refuses @apply of a custom component class. */
+  .media-frame,
+  .stage-frame,
+  .tile-frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background-color: var(--surface-3);
+  }
+
+  /* The scrim belongs to the poster and its caption. It comes off once a frame plays, so it can
+     never sit over native player chrome. */
+  .media-frame::after,
+  .stage-frame::after,
+  .tile-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--bg) 88%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 42%, transparent) 38%,
+      transparent 68%
+    );
+  }
+
+  .media-frame[data-playing]::after,
+  .stage-frame[data-playing]::after,
+  .tile-frame[data-playing]::after {
+    content: none;
+  }
+
+  .media-frame > .media-chrome,
+  .stage-frame > .media-chrome,
+  .tile-frame > .media-chrome {
+    z-index: 2;
+  }
+
+  /* One fixed grain plate over the whole page. It is decoration only, so it never takes a click. */
+  .grain::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  }
+
+  html[data-theme="light"] .grain::after {
+    opacity: 0.035;
+  }
+
+  .marquee {
+    @apply relative flex w-full overflow-hidden;
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+
+  .marquee-track {
+    @apply flex w-max shrink-0 items-center;
+    animation: marquee 42s linear infinite;
+  }
+
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee {
     from {
-      opacity: 0;
-      transform: translateY(24px);
+      transform: translate3d(0, 0, 0);
     }
     to {
-      opacity: 1;
-      transform: translateY(0);
+      transform: translate3d(-50%, 0, 0);
     }
   }
 
-  @keyframes pulseSubtle {
-    0%, 100% {
-      opacity: 0.45;
-      transform: scale(0.97);
-    }
-    50% {
-      opacity: 0.85;
-      transform: scale(1.03);
-    }
-  }
-
-  .animate-fade-in-up {
-    animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  /* Emil Kowalski GPU-accelerated entrance reveal utilities */
   @keyframes revealIn {
     from {
       opacity: 0;
-      transform: translateY(16px);
+      transform: translateY(18px);
     }
     to {
       opacity: 1;
@@ -328,62 +428,38 @@
     }
   }
 
-  .animate-reveal {
-    animation: revealIn 350ms var(--ease-out-quint) backwards;
+  @keyframes floatY {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
   }
 
-  .delay-1 {
-    animation-delay: 80ms;
-  }
-
-  .delay-2 {
-    animation-delay: 160ms;
-  }
-
-  .delay-3 {
-    animation-delay: 240ms;
-  }
-
-  .delay-4 {
-    animation-delay: 320ms;
-  }
-
-  .delay-5 {
-    animation-delay: 400ms;
-  }
-
-  /* Scroll Reveal Animation System (Emil Kowalski curve) */
   @media (prefers-reduced-motion: no-preference) {
     [data-reveal]:not(.is-revealed) {
       opacity: 0;
-      transform: translateY(28px);
-      pointer-events: none;
+      transform: translateY(24px);
     }
 
     [data-reveal] {
       transition:
-        opacity 650ms var(--ease-out-quint),
-        transform 650ms var(--ease-out-quint);
-      will-change: opacity, transform;
+        opacity 700ms var(--ease-out-quint),
+        transform 700ms var(--ease-out-quint);
     }
 
     [data-reveal].is-revealed {
       opacity: 1;
       transform: translateY(0);
-      will-change: auto;
     }
 
-    /* Stagger delays for sibling / grid items */
-    [data-reveal-delay="1"] { transition-delay: 80ms; }
-    [data-reveal-delay="2"] { transition-delay: 160ms; }
-    [data-reveal-delay="3"] { transition-delay: 240ms; }
-    [data-reveal-delay="4"] { transition-delay: 320ms; }
-    [data-reveal-delay="5"] { transition-delay: 400ms; }
-
-    /* Preserve hover lift on revealed cards */
-    .card[data-reveal].is-revealed:hover {
-      transform: translateY(-4px);
-    }
+    [data-reveal-delay="1"] { transition-delay: 70ms; }
+    [data-reveal-delay="2"] { transition-delay: 140ms; }
+    [data-reveal-delay="3"] { transition-delay: 210ms; }
+    [data-reveal-delay="4"] { transition-delay: 280ms; }
+    [data-reveal-delay="5"] { transition-delay: 350ms; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -393,52 +469,75 @@
     }
   }
 
-  /* Accordion expansion micro-animation */
-  details[open] summary ~ * {
-    animation: revealIn 220ms var(--ease-out-quint);
+  /* Form controls live in one place so the Preact island and the static pages agree. */
+  .field {
+    @apply w-full rounded-input border text-base text-text placeholder:text-text-muted;
+    min-height: 54px;
+    border-color: var(--line-input);
+    background-color: var(--surface-2);
+    padding: 14px 16px;
+    transition:
+      border-color var(--motion-fast) var(--motion-ease),
+      background-color var(--motion-fast) var(--motion-ease);
   }
 
-  /* Card filtering pop animation */
-  @keyframes filterPopIn {
-    from {
-      opacity: 0;
-      transform: scale(0.96) translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
+  .field:hover {
+    border-color: var(--text-muted);
   }
 
-  .animate-filter-in {
-    animation: filterPopIn 260ms var(--ease-out-quint) forwards;
+  .field:focus-visible {
+    border-color: var(--gold);
+    outline: 2px solid var(--gold-bright);
+    outline-offset: 2px;
   }
 
-  /* A 16:9 poster stand-in. The bottom gradient keeps overlaid text readable. */
-  .poster-frame {
-    @apply relative aspect-video overflow-hidden rounded-card bg-surface-3;
+  .field-error {
+    border-color: var(--error);
   }
 
-  .poster-frame::after {
-    content: "";
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    height: 40%;
-    background-image: linear-gradient(to top, var(--bg) 0%, transparent 60%);
-    pointer-events: none;
+  .field-label {
+    @apply text-small font-medium text-text-2;
   }
 
-  /* Once a frame is playing media rather than a poster, the gradient would dim the player. */
-  .poster-frame[data-playing]::after {
-    content: none;
+  .field-note {
+    @apply text-small text-text-muted;
   }
 
-  /* Roadmap: content that is layout only and carries no verified claim. */
-  .demo-tag {
-    @apply inline-flex items-center rounded-full border border-line text-small uppercase text-text-muted;
-    min-height: 24px;
-    padding: 2px 10px;
-    letter-spacing: 0.12em;
+  /* Every cut on the site is vertical, so the stage is 9:16 and the page centres it rather than
+     padding a landscape box around portrait footage. */
+  .stage-frame {
+    aspect-ratio: 9 / 16;
+  }
+
+  /* ESSENTIALS rule 14: the 3D logo only ever sits on a very dark surface. In dark mode this plate
+     is transparent, so nothing changes; in light mode it keeps the logo on its own black. */
+  .logo-plate {
+    background-color: var(--surface-cinema);
+    border-radius: var(--radius-card);
+  }
+
+  html[data-theme="light"] .logo-plate {
+    padding: 18px 22px;
+  }
+
+  .ambient-gold {
+    background-image: radial-gradient(
+      60% 60% at 50% 0%,
+      color-mix(in srgb, var(--gold) 14%, transparent) 0%,
+      transparent 70%
+    );
+  }
+
+
+
+  .section-rule {
+    border-top: 1px solid var(--line);
+  }
+
+  .link-underline {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    transition: color var(--motion-fast) var(--motion-ease);
   }
 }

@@ -11,21 +11,24 @@ export default defineConfig({
     plugins: [tailwindcss()],
     build: { assetsInlineLimit: 0 },
   },
+  // Two families. Inter carries the interface and the tight display headings; Instrument Serif
+  // italic is the single accent voice in a heading. Marcellus is retired with the redesign.
   fonts: [
-    {
-      provider: fontProviders.google(),
-      name: "Marcellus",
-      cssVariable: "--font-marcellus",
-      styles: ["normal"],
-      fallbacks: ["Optima", "Candara", "Georgia", "serif"],
-    },
     {
       provider: fontProviders.google(),
       name: "Inter",
       cssVariable: "--font-inter",
-      weights: [400, 600],
+      weights: [400, 500, 600, 700],
       styles: ["normal"],
       fallbacks: ["system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
+    },
+    {
+      provider: fontProviders.google(),
+      name: "Instrument Serif",
+      cssVariable: "--font-instrument",
+      weights: [400],
+      styles: ["normal", "italic"],
+      fallbacks: ["Georgia", "Times New Roman", "serif"],
     },
   ],
 });

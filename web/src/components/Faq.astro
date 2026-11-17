@@ -1,46 +1,62 @@
 ---
-// FR-19: FAQ disclosures answering key questions on booking timelines, deliverables, travel, and delivery promises.
+// FR-19. Answers are builder drafts under D25 and make no promise about turnaround, price or kit.
 const faqs = [
   {
-    q: "How far in advance should we reserve our event date?",
-    a: "We recommend booking as soon as your date and venue are locked, typically 2 to 6 months in advance. To maintain cinema-grade attention to detail, we accept a limited number of commissions per season.",
+    q: "How far ahead should we book?",
+    a: "As early as you can. Dates are confirmed one at a time, so a brief with a fixed date is easier to answer than a maybe.",
   },
   {
-    q: "What deliverables are included with standard coverage?",
-    a: "Every core package includes our signature 3 to 5-minute 4K cinematic highlight film, full-length ceremony documentary cut, multi-track uncompressed audio capture, raw footage archive, and vertical teaser cuts.",
+    q: "Do you travel?",
+    a: "Yes. Travel and accommodation are part of the brief and are agreed before anything is confirmed.",
   },
   {
-    q: "Do you travel outside Lagos for destination events?",
-    a: "Yes. We film nationwide across Nigeria (Abuja, Port Harcourt, Ibadan, Benin) and internationally. Travel and accommodation requirements are calculated straightforwardly during brief consultation.",
+    q: "What do we actually receive?",
+    a: "Every brief is quoted with its own deliverables: the length, the formats and the number of finished pieces. Nothing is assumed.",
   },
   {
-    q: "How quickly will our final films be delivered?",
-    a: "Social media teaser cutdowns are delivered within 7 to 10 days following the event. Full cinematic master highlight films and documentary cuts undergo rigorous color grading and are delivered within 4 to 6 weeks.",
+    q: "How does the WhatsApp handoff work?",
+    a: "The brief builder turns your answers into one message. You press the button and send it yourself on WhatsApp, so you keep your own copy of exactly what was said.",
+  },
+  {
+    q: "Can we see the raw footage?",
+    a: "Ask for it in the brief. We will tell you what is possible for that shoot and how it would be delivered.",
   },
 ];
 ---
 
-<section id="faq" class="container-site flex flex-col gap-8 py-18 md:py-30">
-  <div class="flex flex-col gap-2 max-w-2xl" data-reveal>
-    <p class="eyebrow">Frequently Asked Questions</p>
-    <h2 class="font-display text-h2 text-text">Everything you need to know before booking</h2>
-  </div>
+<section id="faq" class="container-site py-20 md:py-32">
+  <div class="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+    <div class="flex flex-col gap-4 lg:sticky lg:top-32 lg:self-start" data-reveal>
+      <p class="eyebrow">Questions</p>
+      <h2 class="max-w-[12ch] text-h2 font-semibold text-text">
+        Before you <span class="display-italic text-gold">ask.</span>
+      </h2>
+      <p class="max-w-[34ch] text-small text-text-muted">
+        Anything else, message us directly. A person answers.
+      </p>
+    </div>
 
-  <div class="flex flex-col gap-4">
-    {
-      faqs.map((faq, index) => (
-        <details class="card group p-6 transition-all duration-300 hover:border-gold/60 cursor-pointer" data-reveal data-reveal-delay={String((index % 4) + 1)}>
-          <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between text-body-large font-semibold text-text [&::-webkit-details-marker]:hidden">
-            <span class="transition-colors duration-200 group-hover:text-gold">{faq.q}</span>
-            <span class="ml-4 flex size-8 shrink-0 items-center justify-center rounded-full border border-line text-gold transition-all duration-300 group-open:rotate-45 group-open:bg-gold group-open:text-bg group-open:border-gold group-hover:border-gold">
-              &plus;
-            </span>
-          </summary>
-          <p class="pt-4 text-body text-text-2 leading-relaxed border-t border-line/40 mt-3 cursor-text">
-            {faq.a}
-          </p>
-        </details>
-      ))
-    }
+    <div class="flex flex-col">
+      {
+        faqs.map((faq, index) => (
+          <details
+            class="group border-t border-line last:border-b"
+            data-reveal
+            data-reveal-delay={String(Math.min(index + 1, 5))}
+          >
+            <summary class="flex min-h-16 cursor-pointer list-none items-center justify-between gap-6 py-5 [&::-webkit-details-marker]:hidden">
+              <span class="text-h3 font-medium text-text transition-colors duration-300 group-hover:text-gold">
+                {faq.q}
+              </span>
+              <span class="relative flex size-9 shrink-0 items-center justify-center rounded-full border border-line text-gold transition-colors duration-300 group-open:border-gold group-hover:border-gold">
+                <span class="absolute h-px w-3 bg-current"></span>
+                <span class="absolute h-3 w-px bg-current transition-transform duration-300 group-open:rotate-90 group-open:scale-0"></span>
+              </span>
+            </summary>
+            <p class="max-w-[62ch] pb-7 text-body text-text-2">{faq.a}</p>
+          </details>
+        ))
+      }
+    </div>
   </div>
 </section>
