@@ -123,12 +123,13 @@ html[data-theme="light"] {
 | `--line-input` on `--bg` | 4.6 | Above the 3:1 needed to identify a control |
 | `--line` on `--bg` | 1.4 | Decorative only, never a control boundary |
 | `--error` on `--bg` | 7.3 | Error text |
-| `--gold` on `--bg` (light) | 6.0 | AA. Gold text and the primary button surface in light mode |
+| `--gold` on `--bg` (light) | 5.8 | AA. Gold text and the primary button surface in light mode |
 | `--gold` on `--surface-2` (light) | 4.9 | AA. The worst light ground gold text sits on |
-| `--bg` on `--gold` (light) | 6.0 | Primary button label in light mode |
+| `--bg` on `--gold` (light) | 5.8 | Primary button label in light mode |
 | `--text` on `--bg` (light) | 16.9 | AAA |
 | `--text-2` on `--bg` (light) | 8.8 | AAA |
-| `--text-muted` on `--bg` (light) | 5.8 | AA |
+| `--text-muted` on `--bg` (light) | 6.4 | AA |
+| `--text-muted` on `--surface-1` (light) | 5.8 | AA |
 | `--text-muted` on `--surface-3` (light) | 4.7 | AA. The worst light ground muted text sits on |
 | `--line-input` on `--bg` (light) | 3.7 | Above 3:1 |
 
@@ -354,7 +355,7 @@ Copy lives in `content/copy.md`. A builder draft (D25) is still a draft: it obey
 | 3 | Approve or replace the hero headline. P-28 re-drafted it as "Films with feeling." under D25 | Emmanuel | D-7, PLACEHOLDERS |
 | 4 | Approve or replace the reel and work headings ("See the work in motion", "A catalogue of moments") | Emmanuel | D-7, PLACEHOLDERS |
 | 5 | Sample cuts that carry a handle or logo: answered 2026-11-17. The four cuts are Boy Concept's own footage, uploaded by the client, so the handles are the client's accounts and no third-party permission is outstanding. Still open on the same footage: consent for the identifiable guests in the frames | Ademola, Emmanuel | C-2, D31, PLACEHOLDERS |
-| 6 | Light mode checked on 2026-11-17 (P-28). Two tokens failed AA for small text and were re-tuned: `--text-muted` was 4.23:1 on `--surface-1` and is now 4.73:1 (#5F584C), and `--gold` was 4.18:1 on `--surface-2` and is now 4.87:1 (#7E5800). The logo plate renders #0B0B0B with 18/22 px around the 3D mark on the hero and the footer, and the grain reads at 3.5% on a light ground. The same reading was repeated on the deployed build the same day, on pages served from the Worker at https://boy-concept-spike.ademola2993k.workers.dev, and both pairs hold there | Agent | P-17 |
+| 6 | Light mode checked on 2026-11-17 (P-28). Two tokens failed AA for small text and were re-tuned: `--text-muted` was 4.23:1 on `--surface-1` and is now 5.82:1 there and 4.73:1 on `--surface-3` (#5F584C), and `--gold` was 4.18:1 on `--surface-2` and is now 4.87:1 (#7E5800). The logo plate renders #0B0B0B with 18/22 px around the 3D mark on the hero and the footer, and the grain reads at 3.5% on a light ground. Re-measured in a browser on the deployed build the same day, `data-theme="light"` set on pages served by the Worker at https://boy-concept-spike.ademola2993k.workers.dev: from the stylesheet the Worker serves, `--gold` on `--bg` reads 5.78:1, `--gold` on `--surface-2` 4.87:1, `--bg` on `--gold` 5.78:1, `--text` on `--bg` 16.88:1, `--text-2` on `--bg` 8.85:1, `--text-muted` on `--bg` 6.35:1 and on `--surface-3` 4.73:1, and `--line-input` on `--bg` 3.72:1. The 58 text nodes inside the `/commission/` form were measured against their composited grounds and none falls under its WCAG floor. Text layered over a poster image is not measurable this way and was left out | Agent | P-17 |
 | 7 | Validate that gold stays under about 10% of a viewport | Ademola | P-17 |
 | 8 | Measure the mobile pass properly: LCP on throttled 4G, the reel's autoplay bytes, keyboard order through the new form, and the 390 px layout with the nine real posters | Ademola | P-17 |
 | 9 | Replace the sample entries with permitted work and delete `/vids` from the repo once the cuts are approved | Emmanuel, Agent | C-2 |
