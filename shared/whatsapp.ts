@@ -40,9 +40,85 @@ export function normalizePhoneDigits(phone: string): string {
  */
 function sanitize(val: string | undefined, maxLen = 300): string {
   if (!val) return "";
-  // Strip control characters (except basic space and punctuation)
+  // Strip control characters (except basic space and punctuation).
   const cleaned = val.replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/g, "").trim();
-  return cleaned.length > maxLen ? cleaned.slice(0, maxLen) : cleaned;
+  // A lone surrogate cannot be percent-encoded and makes encodeURIComponent throw, which would
+  // take the whole form down, so half of a broken pair is dropped here (P-29).
+  const wellFormed = cleaned.replace(
+    /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g,
+    "",
+  );
+  const points = Array.from(wellFormed);
+  return points.length > maxLen ? points.slice(0, maxLen).join("") : wellFormed;
+}
+
+/**
+ * Budget for the pre-filled brief, pinned by P-29.
+ *
+ * A brief with every field at its cap (including the six deliverables the form offers) is 2,391
+ * characters before encoding, which makes a 2,538 character wa.me link. Percent-encoding makes
+ * that worse: a non-ASCII character costs three to twelve characters on the wire, so an
+ * emoji-heavy note can triple the link. Some mobile webviews truncate or drop a long wa.me link
+ * silently, which loses the brief with no error shown to either side, so the message is held
+ * inside a fixed budget instead.
+ */
+export const MAX_MESSAGE_LENGTH = 1400;
+export const MAX_WA_URL_LENGTH = 2048;
+
+// Longest plausible wa.me prefix: scheme, host, a full 15 digit E.164 number and the text parameter.
+const WA_URL_OVERHEAD = "https://wa.me/".length + 15 + "?text=".length;
+
+function overBudget(text: string): boolean {
+  return (
+    text.length > MAX_MESSAGE_LENGTH ||
+    WA_URL_OVERHEAD + encodeURIComponent(text).length > MAX_WA_URL_LENGTH
+  );
+}
+
+/**
+ * Holds the brief inside both budgets. The structured lines are kept whole and the note, which is
+ * the only free-text line, keeps whatever room is left rather than vanishing: a visitor who wrote
+ * a paragraph deserves to have the start of it arrive.
+ */
+function fitToBudget(lines: string[]): string {
+  const whole = lines.join("\n");
+  if (!overBudget(whole)) return whole;
+
+  const notesIndex = lines.findIndex((line) => line.startsWith("Notes: "));
+  if (notesIndex !== -1) {
+    const prefix = lines.slice(0, notesIndex).join("\n");
+    // Slice by code point, never by UTF-16 unit: cutting an emoji in half would leave a lone
+    // surrogate and make encodeURIComponent throw.
+    const notes = Array.from(lines[notesIndex]!.slice("Notes: ".length));
+
+    // Encoding cost grows with length, so the largest note that still fits is found by search.
+    let low = 0;
+    let high = notes.length;
+    let best = 0;
+    while (low <= high) {
+      const mid = (low + high) >> 1;
+      if (overBudget(`${prefix}\nNotes: ${notes.slice(0, mid).join("")}`)) {
+        high = mid - 1;
+      } else {
+        best = mid;
+        low = mid + 1;
+      }
+    }
+    if (best > 0) return `${prefix}\nNotes: ${notes.slice(0, best).join("").trimEnd()}`;
+    return holdPrefix(prefix);
+  }
+  return holdPrefix(lines.join("\n"));
+}
+
+/** Last resort when even the structured lines are over budget: trim in proportion. */
+function holdPrefix(prefix: string): string {
+  let message = prefix;
+  while (overBudget(message) && Array.from(message).length > 1) {
+    const points = Array.from(message);
+    const kept = Math.max(1, Math.floor(points.length * 0.8));
+    message = points.slice(0, kept).join("").trimEnd();
+  }
+  return message;
 }
 
 /**
@@ -106,7 +182,7 @@ export function buildWhatsAppMessage(brief: BriefInput): string {
     lines.push(`Notes: ${notes}`);
   }
 
-  return lines.join("\n");
+  return fitToBudget(lines);
 }
 
 /**

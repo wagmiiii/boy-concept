@@ -1,13 +1,15 @@
 ---
-// NDPA 2023 Statutory Privacy Notice (Audit Item 20, ROADMAP Task L-4).
-// Discloses data controller identity, lawful basis, data retention period,
-// and user rights to deletion/erasure under the Nigeria Data Protection Act 2023.
+// NDPA 2023 privacy notice (Audit Item 20, ROADMAP task L-4).
+// Rewritten 2026-11-17 because Phase 0 stores no enquiry server-side: `/api/enquiries` validates
+// the brief and returns 201 with `ref: null`, so a notice promising automatic pruning of records
+// described processing that no code performs. The retention period stays a bracket until
+// Alpha Movies Ltd confirms it (content/PLACEHOLDERS.md).
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 ---
 
-<Base title="Privacy Notice | Boy Concept" description="How Boy Concept (Alpha Movies Ltd) handles client personal data and booking enquiries.">
+<Base title="Privacy Notice | Boy Concept" description="How Boy Concept (Alpha Movies Ltd) handles the details you enter in a booking enquiry.">
   <Nav />
 
   <main class="container-site flex flex-col gap-10 py-18 md:py-30 max-w-3xl">
@@ -15,7 +17,7 @@ import Footer from "../components/Footer.astro";
       <p class="eyebrow">Legal & Compliance</p>
       <h1 class="text-display font-semibold text-text">Privacy Notice</h1>
       <p class="text-body-large text-text-2">
-        How Boy Concept (Alpha Movies Ltd) collects, protects, and retains your data under the Nigeria Data Protection Act (NDPA) 2023.
+        How Boy Concept (Alpha Movies Ltd) handles what you enter in an enquiry, under the Nigeria Data Protection Act (NDPA) 2023.
       </p>
     </div>
 
@@ -23,35 +25,62 @@ import Footer from "../components/Footer.astro";
       <h2 class="text-h4 font-semibold text-gold">1. Data Controller</h2>
       <p class="text-body text-text-2">
         Boy Concept is a video production brand operated by <strong class="text-text">Alpha Movies Ltd</strong> in Nigeria.
-        For all inquiries regarding personal data processing or to request erasure, contact us directly at our registered business channels.
+        Questions about this notice, or requests about your own details, can go to the studio through the same business channels listed on this site.
       </p>
     </section>
 
     <section class="flex flex-col gap-4 rounded-card border border-line bg-surface-1 p-6 md:p-8">
-      <h2 class="text-h4 font-semibold text-gold">2. Information We Collect</h2>
+      <h2 class="text-h4 font-semibold text-gold">2. What the form asks you for</h2>
       <p class="text-body text-text-2">
-        When you submit an event booking brief or contact us, we collect:
+        The enquiry form asks for what the studio needs to answer a booking:
       </p>
       <ul class="list-disc pl-5 flex flex-col gap-2 text-body text-text-2">
-        <li><strong class="text-text">Contact Information:</strong> Your name, WhatsApp phone number, and email address.</li>
-        <li><strong class="text-text">Event & Project Details:</strong> Event date(s), venue, city, country, deliverables required, and optional reference video links.</li>
-        <li><strong class="text-text">Commercial Context:</strong> Company or agency name and project notes.</li>
+        <li><strong class="text-text">Contact details:</strong> your name, and optionally your company, email address and WhatsApp number.</li>
+        <li><strong class="text-text">Project details:</strong> event date and whether it is flexible, venue, city, country, duration, deliverables, and an optional reference video link.</li>
+        <li><strong class="text-text">Anything you write in the notes field.</strong></li>
       </ul>
-    </section>
-
-    <section class="flex flex-col gap-4 rounded-card border border-line bg-surface-1 p-6 md:p-8">
-      <h2 class="text-h4 font-semibold text-gold">3. Lawful Basis & Purpose</h2>
       <p class="text-body text-text-2">
-        We process your data solely on the basis of your explicit consent and legitimate business interest in responding to your booking enquiry, preparing quotes, and coordinating video production services.
-        We do not sell, rent, or monetize personal data to third parties.
+        There is no budget field. The form does not ask for payment details.
       </p>
     </section>
 
     <section class="flex flex-col gap-4 rounded-card border border-line bg-surface-1 p-6 md:p-8">
-      <h2 class="text-h4 font-semibold text-gold">4. Data Retention & Erasure</h2>
+      <h2 class="text-h4 font-semibold text-gold">3. Where your brief goes</h2>
       <p class="text-body text-text-2">
-        Inbound enquiries that do not proceed to a signed contract are retained for a maximum of <strong class="text-text">90 days</strong>, after which they are automatically pruned.
-        Under the NDPA 2023, you have the right to request access, rectification, or complete erasure of your contact details from our records at any time.
+        <strong class="text-text">The site does not store your brief on a server.</strong>
+        When you submit, the brief is sent to the studio's own Cloudflare Worker, which checks the format and then discards it, because no enquiry database is connected yet.
+        The site then prepares the same brief as a WhatsApp message and shows you the button. Nothing is sent to WhatsApp until you press it.
+      </p>
+      <p class="text-body text-text-2">
+        Once you press the button and send, the message lives in WhatsApp, under WhatsApp's own terms and privacy policy, and the studio keeps that conversation in order to answer you and to run the work.
+        The site keeps no copy of it.
+      </p>
+    </section>
+
+    <section class="flex flex-col gap-4 rounded-card border border-line bg-surface-1 p-6 md:p-8">
+      <h2 class="text-h4 font-semibold text-gold">4. Browser storage and cookies</h2>
+      <p class="text-body text-text-2">
+        Your browser stores one preference for this site: whether you chose the light or the dark theme.
+        The current build sets no cookies and loads no advertising or analytics scripts.
+      </p>
+    </section>
+
+    <section class="flex flex-col gap-4 rounded-card border border-line bg-surface-1 p-6 md:p-8">
+      <h2 class="text-h4 font-semibold text-gold">5. How long your enquiry is kept</h2>
+      <p class="text-body text-text-2">
+        Because the site holds no record, the only copy of an enquiry is the WhatsApp conversation you started.
+        Enquiries that do not go ahead are kept for [retention period to be confirmed with Alpha Movies Ltd] and then deleted from the studio's WhatsApp history.
+      </p>
+    </section>
+
+    <section class="flex flex-col gap-4 rounded-card border border-line bg-surface-1 p-6 md:p-8">
+      <h2 class="text-h4 font-semibold text-gold">6. Your rights</h2>
+      <p class="text-body text-text-2">
+        Under the NDPA 2023 you can ask what the studio holds about you, ask for it to be corrected, or ask for it to be deleted.
+        Reply on the WhatsApp thread you started, or use any of the studio's business channels, and say what you want done.
+      </p>
+      <p class="text-body text-text-2">
+        The studio does not sell, rent or trade personal details, and does not use them for advertising.
       </p>
     </section>
 

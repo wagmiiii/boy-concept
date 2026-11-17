@@ -24,4 +24,5 @@ Rows added at P-2 cover the page skeleton, where every unverified string is brac
 | [Step n name] and step copy | `web/src/components/Process.astro`, five DEMO steps | Copy at C-10 | Q7 | open |
 | [Question n] and [Answer...] | `web/src/components/Faq.astro`, four DEMO disclosures | Copy at C-10 | Q7, Q9 | open |
 | [Response-time line, FR-15: only a time someone keeps] | `web/src/pages/index.astro`, enquiry section | Emmanuel | Q10 | open |
+| [retention period to be confirmed with Alpha Movies Ltd] | `web/src/pages/privacy.astro` section 5, added at L-4's correction on 2026-11-17. No enquiry is stored server-side in Phase 0, so this is a policy the studio has to state, not a value the builder can invent | Emmanuel | n/a | open |
 | Instagram [handle], YouTube [channel], WhatsApp number | `web/src/components/Footer.astro`. WhatsApp number confirmed as 2348027465901 in `shared/site-config.ts`; Instagram and YouTube handles remain open | Emmanuel | Q3, Q14, C-8 | partly resolved (WhatsApp confirmed) |
