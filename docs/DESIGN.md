@@ -309,7 +309,7 @@ The nine projects shipped at P-28 are `demo: true` entries built from the studio
 
 Three things about these files are launch risks, not design decisions:
 
-1. Four cuts carry a third-party handle or logo in the frame (`@OMOBECKY_`, `@LONERSZONE_99`, `@SHOLLY_STICKS`, and sponsor logos on the robotics hall). They are visible and cannot be cropped out without losing the subject. They need the owner's written permission or they come down.
+1. Four cuts carry a handle or logo in the frame (`@OMOBECKY_`, `@LONERSZONE_99`, `@SHOLLY_STICKS`, and sponsor logos on the robotics hall). They are visible and cannot be cropped out without losing the subject. Closed on 2026-11-17: Ademola confirmed these were shot by Boy Concept and uploaded by the client, so the handles are the client's own accounts and nothing third-party is shown. What remains open is consent from the identifiable people in the frames, not the branding.
 2. Guests and couples are identifiable, including a wedding party and children in one dropped campaign clip. Three source clips were dropped for this reason: a client's engagement invitation with their names, a retail campaign with minors, and a Pizza Hut advert with agency watermarks.
 3. The number of source clips is finite. Nine is enough for a wall; it is not a portfolio.
 
@@ -353,8 +353,8 @@ Copy lives in `content/copy.md`. A builder draft (D25) is still a draft: it obey
 | 2 | Decide which name leads publicly. The site renders Boy Concept while the logo spells ALPHA MOVIES | Emmanuel | D-9, Q12 |
 | 3 | Approve or replace the hero headline. P-28 re-drafted it as "Films with feeling." under D25 | Emmanuel | D-7, PLACEHOLDERS |
 | 4 | Approve or replace the reel and work headings ("See the work in motion", "A catalogue of moments") | Emmanuel | D-7, PLACEHOLDERS |
-| 5 | Get written permission for the four sample cuts that carry a third-party handle or logo, or take them down | Ademola, Emmanuel | C-2, D31, PLACEHOLDERS |
-| 6 | Light mode checked on 2026-11-17 (P-28). Two tokens failed AA for small text and were re-tuned: `--text-muted` was 4.23:1 on `--surface-1` and is now 4.73:1 (#5F584C), and `--gold` was 4.18:1 on `--surface-2` and is now 4.87:1 (#7E5800). The logo plate renders #0B0B0B with 18/22 px around the 3D mark on the hero and the footer, and the grain reads at 3.5% on a light ground. Still open: the same reading on the deployed build | Agent | P-17 |
+| 5 | Sample cuts that carry a handle or logo: answered 2026-11-17. The four cuts are Boy Concept's own footage, uploaded by the client, so the handles are the client's accounts and no third-party permission is outstanding. Still open on the same footage: consent for the identifiable guests in the frames | Ademola, Emmanuel | C-2, D31, PLACEHOLDERS |
+| 6 | Light mode checked on 2026-11-17 (P-28). Two tokens failed AA for small text and were re-tuned: `--text-muted` was 4.23:1 on `--surface-1` and is now 4.73:1 (#5F584C), and `--gold` was 4.18:1 on `--surface-2` and is now 4.87:1 (#7E5800). The logo plate renders #0B0B0B with 18/22 px around the 3D mark on the hero and the footer, and the grain reads at 3.5% on a light ground. The same reading was repeated on the deployed build the same day, on pages served from the Worker at https://boy-concept-spike.ademola2993k.workers.dev, and both pairs hold there | Agent | P-17 |
 | 7 | Validate that gold stays under about 10% of a viewport | Ademola | P-17 |
 | 8 | Measure the mobile pass properly: LCP on throttled 4G, the reel's autoplay bytes, keyboard order through the new form, and the 390 px layout with the nine real posters | Ademola | P-17 |
 | 9 | Replace the sample entries with permitted work and delete `/vids` from the repo once the cuts are approved | Emmanuel, Agent | C-2 |

@@ -1,6 +1,6 @@
 # ARCHITECTURE_ESSENTIALS
 
-Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.12 (P-28: every video is 9:16, the samples are real footage badged "Sample footage", rule 16 wording follows `sampleFootageLabel`, and D31 carries the permission risk. P-27: rule 16 records that the reel's DEMO label is a caption and artwork, not a pill. P-26: rule 10 gained the muted autoplay exception, D29).
+Quick reference for agents. If this file and ARCHITECTURE.md disagree, ARCHITECTURE.md wins and this file needs fixing. Product intent is in PRD.md. Version 0.12 (P-28: every video is 9:16, the samples are real footage badged "Sample footage", rule 16 wording follows `sampleFootageLabel`, and D31 records that the flagged cuts are the studio's own footage (permission clarified 2026-11-17; guest consent still open). P-27: rule 16 records that the reel's DEMO label is a caption and artwork, not a pill. P-26: rule 10 gained the muted autoplay exception, D29).
 
 ## What this is
 - Booking and showcase site for Boy Concept (Alpha Movies Ltd). The enquiry flow and the credibility layer are the product.
